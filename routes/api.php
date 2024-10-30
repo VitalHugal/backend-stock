@@ -2,7 +2,7 @@
 
 use App\Http\Controllers\Authentication\LoginController;
 use App\Http\Controllers\admin\UsersController;
-use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\admin\CategorysController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -25,9 +25,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/assign-category-user/{id}', [UsersController::class, 'assignCategoryUser']);
     
     //CATEGORYS
-    Route::get('/get-all-category', [CategoryController::class, 'getAllCategorys']);
-    Route::get('/get-category/{id}', [CategoryController::class, 'getId']);
-    Route::delete('/delete-category/{id}', [CategoryController::class, 'delete']);
-    Route::post('/update-category/{id}', [CategoryController::class, 'update']);
-    Route::post('/create-category/{id}', [CategoryController::class, 'store']);
+    Route::get('/get-all-category', [CategorysController::class, 'getAllCategorys']);
+    Route::get('/get-category/{id}', [CategorysController::class, 'getId']);
+    Route::delete('/delete-category/{id}', [CategorysController::class, 'delete']);
+    Route::post('/update-category/{id}', [CategorysController::class, 'update']);
+    Route::post('/create-category/{id}', [CategorysController::class, 'store']);
 });

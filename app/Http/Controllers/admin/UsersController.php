@@ -265,9 +265,9 @@ class UsersController extends CrudController
 
             $user->categories()->sync($validatedData['responsible_category']);
 
-            if ($user) {
-                User::where('id', $id)->update(['responsible_category' => $request->input('responsible_category')]);
-            }
+            // if ($user) {
+            //     User::where('id', $id)->update(['responsible_category' => $request->input('responsible_category')]);
+            // }
 
             return response()->json([
                 'success' => true,

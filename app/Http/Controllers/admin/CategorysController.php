@@ -9,7 +9,7 @@ use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-class CategoryController extends CrudController
+class CategorysController extends CrudController
 {
     protected $category;
 
@@ -211,11 +211,21 @@ class CategoryController extends CrudController
             }
 
             $formatedDate = now();
-
+            
             $deleteCategory->delete();
 
             if ($deleteCategory) {
-                DB::table('category_user')->where('fk_category_id', $id)->update(['deleted_at' => $formatedDate]);
+                $data = DB::table('category_user')->where('fk_category_id', $id)->first();
+
+                $dataTwo = DB::table('products_equipaments')->where('fk_id_category', $id)->first();
+
+                if ($data) {
+                    DB::table('category_user')->where('fk_category_id', $id)->update(['deleted_at' => $formatedDate]);
+                }
+
+                if ($dataTwo) {
+                    DB::table('products_equipaments')->where('fk_id_category', $id)->update(['deleted_at' => $formatedDate]);
+                }
             }
 
             return response()->json([
