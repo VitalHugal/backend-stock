@@ -20,7 +20,8 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->string('level')->default('user');
-            $table->foreignId('fk_category_id')->nullable()->constrained('category')->onDelete('cascade')->onUpdate('cascade');
+            $table->string('responsible_category')->nullable();
+            // $table->foreignId('fk_category_id')->nullable()->constrained('category')->onDelete('cascade')->onUpdate('cascade');
             $table->rememberToken();
             $table->timestamps();
             $table->softDeletes();
