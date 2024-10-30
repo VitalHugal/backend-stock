@@ -28,6 +28,7 @@ class CrudController extends Controller
 
             return response()->json([
                 'success' => true,
+                'message' => 'Dados recuperados com sucesso.',
                 'data' => $data,
             ], Response::HTTP_OK);
         } catch (QueryException $query) {
@@ -86,6 +87,7 @@ class CrudController extends Controller
 
             return response()->json([
                 'success' => true,
+                'message' => 'Dados recuperados com sucesso.',
                 'data' => $data,
             ], Response::HTTP_OK);
         } catch (QueryException $query) {
