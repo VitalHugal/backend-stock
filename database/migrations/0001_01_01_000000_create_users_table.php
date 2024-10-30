@@ -21,7 +21,6 @@ return new class extends Migration
             $table->string('password');
             $table->string('level')->default('user');
             $table->string('responsible_category')->nullable();
-            // $table->foreignId('fk_category_id')->nullable()->constrained('category')->onDelete('cascade')->onUpdate('cascade');
             $table->rememberToken();
             $table->timestamps();
             $table->softDeletes();

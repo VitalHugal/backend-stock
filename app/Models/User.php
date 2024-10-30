@@ -54,10 +54,9 @@ class User extends Authenticatable
     {
         return [
             'name' => 'required|max:255',
-            'email' => 'email|required|max:255',
+            'email' => 'email|required|max:255|',
             'password' => 'required|min:8',
             'responsible_category' => '',
-            // 'fk_category_id' => 'required|exists:category,id',
         ];
     }
 
@@ -68,23 +67,35 @@ class User extends Authenticatable
             'max:255' => 'O campo deve ter no máximo 255 caracteres.',
             'email' => 'E-mail inválido.',
             'min:8' => 'O campo deve ter no mínimo 8 carcateres.',
-            // 'exists' => 'Categoria não encontrada verifique.',
         ];
     }
     public function rulesCategoryUser()
     {
         return [
-            'responsible_category' => 'required|array|exists:category,id',
-            // 'fk_category_id' => 'required|exists:category,id',
+            'responsible_category' => 'nullable|array|exists:category,id',
         ];
     }
 
     public function feedbackCategoryUser()
     {
         return [
-            'required' => 'Campo obrigatório.',
             'array' => 'Formato inválido (necessário array).',
             'exists' => 'Categoria não encontrada verifique.',
+        ];
+    }
+
+    public function rulesUpdateLevelUser()
+    {
+        return [
+            'level' => 'required|in:admin,user',
+        ];
+    }
+
+    public function feedbackUpdateLevelUser()
+    {
+        return [
+            'required' => 'Campo obrigatório.',
+            'in' => 'Valido apenas admin ou user para esse campo.',
         ];
     }
 

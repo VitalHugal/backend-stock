@@ -2,13 +2,16 @@
 
 namespace App\Http\Controllers\admin;
 
+use App\Http\Controllers\CrudController;
 use App\Models\User;
+use DateTime;
+use DateTimeZone;
 use Exception;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-class CreateUserController extends CrudController
+class CreateUsersController extends CrudController
 {
     protected $user;
 
@@ -25,7 +28,7 @@ class CreateUserController extends CrudController
             if (!$user->tokenCan('admin')) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Você não tem permissão para acessar a essas informações.',
+                    'message' => 'Você não tem permissão de acesso para seguir adiante.',
                 ]);
             }
 
@@ -58,7 +61,7 @@ class CreateUserController extends CrudController
             if (!$user->tokenCan('admin')) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Você não tem permissão para acessar a essas informações.',
+                    'message' => 'Você não tem permissão de acesso para seguir adiante.',
                 ]);
             }
 
@@ -99,7 +102,7 @@ class CreateUserController extends CrudController
             if (!$user->tokenCan('admin')) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Você não tem permissão para acessar a essas informações.',
+                    'message' => 'Você não tem permissão de acesso para seguir adiante.',
                 ]);
             }
 
@@ -149,7 +152,7 @@ class CreateUserController extends CrudController
             if (!$user->tokenCan('admin')) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Você não tem permissão para acessar a essas informações.',
+                    'message' => 'Você não tem permissão de acesso para seguir adiante.',
                 ]);
             }
 
@@ -172,7 +175,7 @@ class CreateUserController extends CrudController
 
             return response()->json([
                 'success' => true,
-                'message' => 'Atualizado com sucesso.',
+                'message' => 'Usuário atualizado com sucesso.',
                 'data' => $updateUser,
             ]);
         } catch (QueryException $qe) {
@@ -197,7 +200,7 @@ class CreateUserController extends CrudController
             if (!$user->tokenCan('admin')) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Você não tem permissão para acessar a essas informações.',
+                    'message' => 'Você não tem permissão de acesso para seguir adiante.',
                 ]);
             }
 
@@ -210,7 +213,13 @@ class CreateUserController extends CrudController
                 ]);
             }
 
+            $formatedDate = now();
+
             $deleteUser->delete();
+
+            if ($deleteUser) {
+                DB::table('category_user')->where('fk_user_id', $id)->update(['deleted_at' => $formatedDate]);
+            }
 
             return response()->json([
                 'success' => true,
@@ -238,7 +247,7 @@ class CreateUserController extends CrudController
             if (!$user->tokenCan('admin')) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Você não tem permissão para acessar a essas informações.',
+                    'message' => 'Você não tem permissão de acesso para seguir adiante.',
                 ]);
             }
 
@@ -265,6 +274,55 @@ class CreateUserController extends CrudController
             return response()->json([
                 'success' => true,
                 'message' => 'Categorias atribuídas com sucesso.',
+            ]);
+        } catch (QueryException $qe) {
+            return response()->json([
+                'success' => false,
+                'message' => "Error DB: " . $qe->getMessage(),
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => "Error: " . $e->getMessage(),
+            ]);
+        }
+    }
+
+    public function updateLevel(Request $request, $id)
+    {
+        try {
+
+            $user = $request->user();
+
+            if (!$user->tokenCan('admin')) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Você não tem permissão de acesso para seguir adiante.',
+                ]);
+            }
+
+            $userUpdate = User::where('id', $id)->first();
+
+            if (!$userUpdate) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Nenhum resultado encontrado.',
+                ]);
+            }
+
+            $validatedData = $request->validate(
+                $this->user->rulesUpdateLevelUser(),
+                $this->user->feedbackUpdateLevelUser()
+            );
+
+
+            $userUpdate->fill($validatedData);
+            $userUpdate->save();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Nível de permissão atualizado com sucesso.',
+                'data' => $userUpdate,
             ]);
         } catch (QueryException $qe) {
             return response()->json([
