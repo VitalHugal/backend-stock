@@ -24,5 +24,5 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/get-all-user', [CreateUserController::class, 'getAll']);
     Route::get('/get-user/{id}', [CreateUserController::class, 'getId']);
     
-    Route::post('/add-category/{id}', [CreateUserController::class, 'addCategoryUser']);
+    Route::post('/assign-category-user/{id}', [CreateUserController::class, 'assignCategoryUser']);
 });

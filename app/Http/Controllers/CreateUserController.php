@@ -6,6 +6,7 @@ use App\Models\User;
 use Exception;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class CreateUserController extends CrudController
 {
@@ -104,20 +105,19 @@ class CreateUserController extends CrudController
 
             $create = $request->validate(
                 $this->user->rulesCreateUser(),
-                $this->user->feedbackCreateUser()
+                $this->user->feedbackCreateUser(),
+
             );
 
             $name = $request->name;
             $email = $request->email;
             $password = $request->password;
-            // $fk_category_id = $request->fk_category_id;
 
 
             $create = $this->user->create([
                 'name' => $name,
                 'email' => $email,
                 'password' => $password,
-                // 'fk_category_id' => $fk_category_id,
             ]);
 
             if ($create) {
@@ -229,7 +229,7 @@ class CreateUserController extends CrudController
         }
     }
 
-    public function addCategoryUser(Request $request, $id)
+    public function assignCategoryUser(Request $request, $id)
     {
         try {
 
@@ -242,32 +242,30 @@ class CreateUserController extends CrudController
                 ]);
             }
 
-            $userSector = $this->user->find($id);
+            $validatedData = $request->validate(
+                $this->user->rulesCategoryUser(),
+                $this->user->feedbackCategoryUser()
+            );
 
-            if (!$userSector) {
+            $user = $this->user->find($id);
+
+            if (!$user) {
                 return response()->json([
                     'success' => false,
-                    'message' => "Nenhum resultado encontrado.",
+                    'message' => 'Nenhum resultado encontrado.',
                 ]);
             }
 
-            $categoryIds = $request->responsible_category;
+            $user->categories()->sync($validatedData['responsible_category']);
 
-            $userSector->categories()->attach($categoryIds);
-
-            if (is_array($categoryIds) && count($categoryIds) > 0) {
-                $userSector->category()->attach($categoryIds);
-
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Categorias atribuídas com sucesso.',
-                ]);
-            } else {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Nenhuma categoria válida fornecida.',
-                ]);
+            if ($user) {
+                User::where('id', $id)->update(['responsible_category' => $request->input('responsible_category')]);
             }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Categorias atribuídas com sucesso.',
+            ]);
         } catch (QueryException $qe) {
             return response()->json([
                 'success' => false,
