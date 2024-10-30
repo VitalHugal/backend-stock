@@ -4,14 +4,12 @@ namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\CrudController;
 use App\Models\User;
-use DateTime;
-use DateTimeZone;
 use Exception;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-class CreateUsersController extends CrudController
+class UsersController extends CrudController
 {
     protected $user;
 
