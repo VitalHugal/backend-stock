@@ -1,7 +1,7 @@
 <?php
 
 use App\Http\Controllers\Authentication\LoginController;
-use App\Http\Controllers\CreateUserController;
+use App\Http\Controllers\admin\CreateUserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Laravel\Sanctum\Http\Middleware\CheckAbilities;
@@ -15,7 +15,7 @@ Route::post('/login', [LoginController::class, 'login']);
 
 Route::middleware(['auth:sanctum'])->group(function () {
 
-    
+
 
     // ROTAS APENAS PARA ADMIN
     Route::post('/register-user', [CreateUserController::class, 'store']);
@@ -23,6 +23,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/delete-user/{id}', [CreateUserController::class, 'delete']);
     Route::get('/get-all-user', [CreateUserController::class, 'getAll']);
     Route::get('/get-user/{id}', [CreateUserController::class, 'getId']);
-    
+
     Route::post('/assign-category-user/{id}', [CreateUserController::class, 'assignCategoryUser']);
 });
