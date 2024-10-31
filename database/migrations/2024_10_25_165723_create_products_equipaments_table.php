@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->integer('qtn');
-            $table->foreignId('fk_id_category')->constrained('category')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreignId('fk_category_id')->constrained('category')->onDelete('cascade')->onUpdate('cascade');
             $table->timestamps();
             $table->softDeletes();
         });

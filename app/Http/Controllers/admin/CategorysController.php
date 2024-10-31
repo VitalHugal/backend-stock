@@ -215,16 +215,16 @@ class CategorysController extends CrudController
             $deleteCategory->delete();
 
             if ($deleteCategory) {
-                $data = DB::table('category_user')->where('fk_category_id', $id)->first();
+                $data = DB::table('category_user')->where('fk_category_id', $id)->get();
 
-                $dataTwo = DB::table('products_equipaments')->where('fk_id_category', $id)->first();
+                $dataTwo = DB::table('products_equipaments')->where('fk_category_id', $id)->get();
 
                 if ($data) {
                     DB::table('category_user')->where('fk_category_id', $id)->update(['deleted_at' => $formatedDate]);
                 }
 
                 if ($dataTwo) {
-                    DB::table('products_equipaments')->where('fk_id_category', $id)->update(['deleted_at' => $formatedDate]);
+                    DB::table('products_equipaments')->where('fk_category_id', $id)->update(['deleted_at' => $formatedDate]);
                 }
             }
 
