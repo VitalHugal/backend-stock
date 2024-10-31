@@ -26,11 +26,15 @@ class ProductEquipamentController extends CrudController
             $user = $request->user();
             $idUser = $user->id;
 
+           // dd($idUser);
+
             $categoryUser = DB::table('category_user')
                 ->where('fk_user_id', $idUser)
                 ->pluck('fk_category_id');
 
-            if ($categoryUser->isEmpty()) {
+            // dd($categoryUser);
+
+            if ($categoryUser == null) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Nenhuma categoria encontrada para o usuário.',
@@ -47,6 +51,7 @@ class ProductEquipamentController extends CrudController
                         'id' => $product->id,
                         'name' => $product->name,
                         'quantity' => $product->quantity,
+                        'quantity_min' => $product->quantity_min,
                         'fk_category_id' => $product->fk_category_id,
                         'created_at' => $product->created_at,
                         'updated_at' => $product->updated_at,
@@ -106,6 +111,7 @@ class ProductEquipamentController extends CrudController
                         'id' => $product->id,
                         'name' => $product->name,
                         'quantity' => $product->quantity,
+                        'quantity_min' => $product->quantity_min,
                         'fk_category_id' => $product->fk_category_id,
                         'created_at' => $product->created_at,
                         'updated_at' => $product->updated_at,
@@ -150,11 +156,13 @@ class ProductEquipamentController extends CrudController
 
             $name = $request->name;
             $quantity = $request->quantity;
+            $quantity_min = $request->quantity_min;
             $fk_category_id = $request->fk_category_id;
 
             $createProductEquipaments = $this->productEquipaments->create([
                 'name' => $name,
                 'quantity' => $quantity,
+                'quantity_min' => $quantity_min,
                 'fk_category_id' => $fk_category_id,
             ]);
 

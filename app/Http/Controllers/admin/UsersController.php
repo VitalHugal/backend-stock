@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\admin;
+namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\CrudController;
 use App\Models\User;
@@ -23,7 +23,9 @@ class UsersController extends CrudController
         try {
             $user = $request->user();
 
-            if (!$user->tokenCan('admin')) {
+            $level = $user->level;
+
+            if ($level == 'user') {
                 return response()->json([
                     'success' => false,
                     'message' => 'Você não tem permissão de acesso para seguir adiante.',
@@ -56,7 +58,9 @@ class UsersController extends CrudController
         try {
             $user = $request->user();
 
-            if (!$user->tokenCan('admin')) {
+            $level = $user->level;
+
+            if ($level == 'user') {
                 return response()->json([
                     'success' => false,
                     'message' => 'Você não tem permissão de acesso para seguir adiante.',
@@ -97,23 +101,30 @@ class UsersController extends CrudController
 
             $user = $request->user();
 
-            if (!$user->tokenCan('admin')) {
+            $level = $user->level;
+
+
+            if ($level == 'user') {
                 return response()->json([
                     'success' => false,
                     'message' => 'Você não tem permissão de acesso para seguir adiante.',
                 ]);
             }
 
-            $create = $request->validate(
-                $this->user->rulesCreateUser(),
-                $this->user->feedbackCreateUser(),
-
-            );
-
             $name = $request->name;
             $email = $request->email;
             $password = $request->password;
 
+            $emailExists = User::where('email', $email)->first();
+
+            if ($emailExists) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Este e-mail já está cadastrado. Tente novamente com um e-mail diferente.',
+                ]);
+            }
+
+            $create = $request->validate($this->user->rulesCreateUser(), $this->user->feedbackCreateUser());
 
             $create = $this->user->create([
                 'name' => $name,
@@ -147,7 +158,9 @@ class UsersController extends CrudController
 
             $user = $request->user();
 
-            if (!$user->tokenCan('admin')) {
+            $level = $user->level;
+
+            if ($level == 'user') {
                 return response()->json([
                     'success' => false,
                     'message' => 'Você não tem permissão de acesso para seguir adiante.',
@@ -195,7 +208,9 @@ class UsersController extends CrudController
 
             $user = $request->user();
 
-            if (!$user->tokenCan('admin')) {
+            $level = $user->level;
+
+            if ($level == 'user') {
                 return response()->json([
                     'success' => false,
                     'message' => 'Você não tem permissão de acesso para seguir adiante.',
@@ -242,7 +257,9 @@ class UsersController extends CrudController
 
             $user = $request->user();
 
-            if (!$user->tokenCan('admin')) {
+            $level = $user->level;
+
+            if ($level == 'user') {
                 return response()->json([
                     'success' => false,
                     'message' => 'Você não tem permissão de acesso para seguir adiante.',
@@ -292,7 +309,9 @@ class UsersController extends CrudController
 
             $user = $request->user();
 
-            if (!$user->tokenCan('admin')) {
+            $level = $user->level;
+
+            if ($level == 'user') {
                 return response()->json([
                     'success' => false,
                     'message' => 'Você não tem permissão de acesso para seguir adiante.',

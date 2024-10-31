@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->integer('quantity');
+            $table->integer('quantity_min');
             $table->foreignId('fk_category_id')->constrained('category')->onDelete('cascade')->onUpdate('cascade');
             $table->timestamps();
             $table->softDeletes();

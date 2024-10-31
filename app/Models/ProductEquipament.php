@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class ProductEquipament extends Model
 {
-    protected $fillable = ['name', 'quantity', 'fk_category_id'];
+    protected $fillable = ['name', 'quantity', 'fk_category_id', 'quantity_min'];
     protected $table = 'products_equipaments';
     protected $dates = 'deleted_at';
 
@@ -14,7 +14,8 @@ class ProductEquipament extends Model
     {
         return [
             'name' => 'required|max:255',
-            'quantity' => 'required|integer',
+            'quantity' => 'required|integer|',
+            'quantity_min' => 'required|integer|',
             'fk_category_id' => 'required|exists:category,id',
         ];
     }
