@@ -6,15 +6,15 @@ use Illuminate\Database\Eloquent\Model;
 
 class ProductEquipament extends Model
 {
-    protected $fillable = ['name', 'qtn', 'fk_category_id'];
-    protected $table = 'users';
+    protected $fillable = ['name', 'quantity', 'fk_category_id'];
+    protected $table = 'products_equipaments';
     protected $dates = 'deleted_at';
 
     public function rulesProductEquipamentos()
     {
         return [
             'name' => 'required|max:255',
-            'qtn' => 'required|integer',
+            'quantity' => 'required|integer',
             'fk_category_id' => 'required|exists:category,id',
         ];
     }
@@ -27,5 +27,10 @@ class ProductEquipament extends Model
             'integer' => 'Válido apenas números inteiros.',
             'exists' => 'Categoria não encontrada verifique.',
         ];
+    }
+
+    public function category()
+    {
+        return $this->belongsTo(Category::class, 'fk_category_id');
     }
 }

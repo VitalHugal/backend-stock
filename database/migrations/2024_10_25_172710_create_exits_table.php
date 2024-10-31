@@ -15,7 +15,12 @@ return new class extends Migration
             $table->id();
             $table->foreignId('fk_product_equipament_id')->constrained('products_equipaments')->onDelete('cascade')->onUpdate('cascade');
             $table->foreignId('fk_user_id')->constrained('users')->onDelete('cascade')->onUpdate('cascade');
+            $table->string('reason/project');
+            $table->string('observation');
+            $table->integer('quantity');
+            $table->string('withdrawal_date');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

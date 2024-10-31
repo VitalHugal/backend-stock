@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('products_equipaments', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->integer('qtn');
+            $table->integer('quantity');
             $table->foreignId('fk_category_id')->constrained('category')->onDelete('cascade')->onUpdate('cascade');
             $table->timestamps();
             $table->softDeletes();

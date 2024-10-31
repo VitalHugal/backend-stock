@@ -18,7 +18,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
     //PRODUCT/EQUIPAMENTS
     Route::post('/update-product-equipaments/{id}', [ProductEquipamentController::class, 'update']);
     Route::post('/create-product-equipaments', [ProductEquipamentController::class, 'store']);
-
+    Route::get('/get-all-product-equipaments', [ProductEquipamentController::class, 'getAllProductEquipament']);
+    Route::get('/get-id-product-equipaments/{id}', [ProductEquipamentController::class, 'getIdProductEquipament']);
+    Route::delete('/delete-product-equipaments/{id}', [ProductEquipamentController::class, 'delete']);
 
     // ROTAS APENAS PARA USER COM NIVEL ADMINISTRADOR
     //USERS
@@ -32,7 +34,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     
     //CATEGORYS
     Route::get('/get-all-category', [CategorysController::class, 'getAllCategorys']);
-    Route::get('/get-category/{id}', [CategorysController::class, 'getId']);
+    Route::get('/get-id-category/{id}', [CategorysController::class, 'getId']);
     Route::delete('/delete-category/{id}', [CategorysController::class, 'delete']);
     Route::post('/update-category/{id}', [CategorysController::class, 'update']);
     Route::post('/create-category', [CategorysController::class, 'store']);

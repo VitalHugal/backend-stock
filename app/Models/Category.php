@@ -20,7 +20,7 @@ class Category extends Model
     {
         return [
             'name' => 'required|max:255',
-            'description' => 'required|text',
+            'description' => 'required|max:65000',
         ];
     }
     public function feedbackCategory()
@@ -28,7 +28,7 @@ class Category extends Model
         return [
             'required' => 'Campo obrigatório.',
             'max:255' => 'O campo deve conter até 255 caracteres.',
-            'text' => 'O campo deve conter até 65.500 caracteres.',
+            'max:65000' => 'O campo deve conter até 65.000 caracteres.',
         ];
     }
 }
