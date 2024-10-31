@@ -23,9 +23,9 @@ class ExitsController extends CrudController
     public function exits(Request $request, $id)
     {
         try {
-            $user = $request->user();
-
             $productEquipament = ProductEquipament::where('id', $id)->first();
+            
+            $user = $request->user();
 
             $quantityProductEquipament = $productEquipament->quantity;
 
@@ -44,10 +44,14 @@ class ExitsController extends CrudController
 
             if ($quantity > $quantityProductEquipament) {
                 return response()->json([
-                   'success' => false, 
-                   'message' => 'Quantidade insuficiente em estoque. Temos apenas. $quantityProductEquipament .unidades disponíveis.', 
+                    'success' => false,
+                    'message' => 'Quantidade insuficiente em estoque. Temos apenas' . $quantityProductEquipament . 'unidades disponíveis.',
                 ]);
             }
+
+            $newQuantityProductEquipament = $quantity - $quantityProductEquipament;
+
+            dd($newQuantityProductEquipament);
 
             if ($validateData) {
                 $exits = $this->exits->create([
@@ -62,6 +66,8 @@ class ExitsController extends CrudController
             }
 
             if ($exits) {
+                ProductEquipament::where('id', $id)->update(['quantity' => $newQuantityProductEquipament]);
+
                 return response()->json([
                     'success' => true,
                     'message' => 'Retirada concluida com sucesso',
