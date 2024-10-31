@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('observation');
             $table->integer('quantity');
             $table->string('withdrawal_date');
-            $table->string('withdrawal_name_user');
+            $table->string('delivery_to');
             $table->timestamps();
             $table->softDeletes();
         });
