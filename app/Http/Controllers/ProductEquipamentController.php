@@ -26,7 +26,7 @@ class ProductEquipamentController extends CrudController
             $user = $request->user();
             $idUser = $user->id;
 
-           // dd($idUser);
+            // dd($idUser);
 
             $categoryUser = DB::table('category_user')
                 ->where('fk_user_id', $idUser)
@@ -70,7 +70,7 @@ class ProductEquipamentController extends CrudController
             // Retorna os produtos com o nome da categoria
             return response()->json([
                 'success' => true,
-                'message' => 'Produto/Equipamentos recuperados com sucesso.',
+                'message' => 'Produto(s)/Equipamento(s) recuperados com sucesso.',
                 'data' => $productEquipamentUser,
             ]);
         } catch (QueryException $qe) {

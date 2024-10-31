@@ -3,6 +3,7 @@
 use App\Http\Controllers\Authentication\LoginController;
 use App\Http\Controllers\Admin\UsersController;
 use App\Http\Controllers\Admin\CategorysController;
+use App\Http\Controllers\ExitsController;
 use App\Http\Controllers\ProductEquipamentController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -14,6 +15,9 @@ Route::get('/user', function (Request $request) {
 Route::post('/login', [LoginController::class, 'login']);
 
 Route::middleware(['auth:sanctum'])->group(function () {
+    
+    //EXITS
+    Route::post('/exits/{id}', [ExitsController::class, 'exits']);
 
     //PRODUCT/EQUIPAMENTS
     Route::post('/update-product-equipaments/{id}', [ProductEquipamentController::class, 'update']);
