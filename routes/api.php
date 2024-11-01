@@ -15,23 +15,25 @@ Route::get('/user', function (Request $request) {
 Route::post('/login', [LoginController::class, 'login']);
 
 Route::middleware(['auth:sanctum'])->group(function () {
-    
+
     //EXITS
     Route::post('/exits/{id}', [ExitsController::class, 'exits']);
-    Route::get('/get-all-exits', [ExitsController::class, 'index']);
-    Route::get('/get-id-exits/{id}', [ExitsController::class, 'show']);
+    Route::get('/get-all-exits', [ExitsController::class, 'getAllExits']);
+    Route::get('/get-id-exits/{id}', [ExitsController::class, 'getIdExits']);
 
     //PRODUCT/EQUIPAMENTS
     Route::post('/update-product-equipaments/{id}', [ProductEquipamentController::class, 'update']);
     Route::post('/create-product-equipaments', [ProductEquipamentController::class, 'store']);
     Route::get('/get-all-product-equipaments', [ProductEquipamentController::class, 'getAllProductEquipament']);
     Route::get('/get-id-product-equipaments/{id}', [ProductEquipamentController::class, 'getIdProductEquipament']);
-    Route::delete('/delete-product-equipaments/{id}', [ProductEquipamentController::class, 'delete']);
 
 
     /////////////////////////////////////////////////
     // ROTAS APENAS PARA USER COM NIVEL ADMINISTRADOR
     /////////////////////////////////////////////////
+
+    Route::delete('/delete-exits/{id}', [ExitsController::class, 'delete']); 
+    Route::delete('/delete-product-equipaments/{id}', [ProductEquipamentController::class, 'delete']);
 
     //USERS
     Route::post('/register-user', [UsersController::class, 'store']);

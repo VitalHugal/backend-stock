@@ -26,18 +26,14 @@ class ProductEquipamentController extends CrudController
             $user = $request->user();
             $idUser = $user->id;
 
-            // dd($idUser);
-
             $categoryUser = DB::table('category_user')
                 ->where('fk_user_id', $idUser)
                 ->pluck('fk_category_id');
 
-            // dd($categoryUser);
-
             if ($categoryUser == null) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Nenhuma categoria encontrada para o usuário.',
+                    'message' => 'Usuário não pertence a nenhum setor.',
                 ]);
             }
 
@@ -97,7 +93,7 @@ class ProductEquipamentController extends CrudController
             if ($categoryUser->isEmpty()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Nenhuma categoria encontrada para o usuário.',
+                    'message' => 'Usuário não pertence a nenhum setor.',
                 ]);
             }
 

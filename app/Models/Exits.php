@@ -15,7 +15,7 @@ class Exits extends Model
         'withdrawal_date',
         'delivery_to',
     ];
-    
+
     protected $table = 'exits';
     protected $dates = 'deleted_at';
 
@@ -41,5 +41,10 @@ class Exits extends Model
             'max:255' => 'O campo deve conter até 255 caracteres.',
             'integer' => 'Válido apenas números inteiros.',
         ];
+    }
+
+    public function productEquipament()
+    {
+        return $this->belongsTo(ProductEquipament::class, 'fk_product_equipament_id');
     }
 }
