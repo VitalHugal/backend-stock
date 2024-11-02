@@ -187,9 +187,6 @@ class ExitsController extends CrudController
             $user = $request->user();
             $idUser = $user->id;
 
-            $user = $request->user();
-            $idUser = $user->id;
-
             $categoryUser = DB::table('category_user')
                 ->where('fk_user_id', $idUser)
                 ->pluck('fk_category_id');
@@ -270,6 +267,46 @@ class ExitsController extends CrudController
                 'message' => "Error: " . $e->getMessage(),
             ]);
         }
+    }
+
+    public function updateExits(Request $request, $id)
+    {
+        $user = $request->user();
+        $idUser = $user->id;
+
+        $categoryUser = DB::table('category_user')
+            ->where('fk_user_id', $idUser)
+            ->pluck('fk_category_id');
+
+
+        if ($categoryUser->isEmpty()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Usuário não pertence a nenhum setor.',
+            ]);
+        }
+
+        $updateExits = $this->exits->find($id);
+
+        if (!$updateExits) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Nenhum resultado encontrado.',
+            ]);
+        }
+
+        $quantityOld = $updateExits->quantity;
+        $quantityNew = $request->quantity;
+
+        $validateData = $request->validate(
+            $this->exits->rulesExits(),
+            $this->exits->feedbackExits()
+        );
+
+        if ($quantityOld > $quantityNew) {
+            # code...
+        }
+        
     }
 
     public function delete(Request $request, $id)

@@ -185,11 +185,6 @@ class ProductEquipamentController extends CrudController
     public function update(Request $request, $id)
     {
         try {
-
-            $checkLevelUser = $request->user();
-
-            dd($checkLevelUser);
-
             $updateProductEquipaments = $this->productEquipaments->find($id);
 
             if (!$updateProductEquipaments) {
