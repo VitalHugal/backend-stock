@@ -20,6 +20,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/exits/{id}', [ExitsController::class, 'exits']);
     Route::get('/get-all-exits', [ExitsController::class, 'getAllExits']);
     Route::get('/get-id-exits/{id}', [ExitsController::class, 'getIdExits']);
+    Route::post('/update-exits/{id}', [ExitsController::class, 'updateExits']);
 
     //PRODUCT/EQUIPAMENTS
     Route::post('/update-product-equipaments/{id}', [ProductEquipamentController::class, 'update']);

@@ -278,7 +278,6 @@ class ExitsController extends CrudController
             ->where('fk_user_id', $idUser)
             ->pluck('fk_category_id');
 
-
         if ($categoryUser->isEmpty()) {
             return response()->json([
                 'success' => false,
@@ -287,27 +286,60 @@ class ExitsController extends CrudController
         }
 
         $updateExits = $this->exits->find($id);
-
         if (!$updateExits) {
             return response()->json([
                 'success' => false,
-                'message' => 'Nenhum resultado encontrado.',
+                'message' => 'Nenhuma saída encontrada.',
             ]);
         }
 
+        $fk_product = $updateExits->fk_product_equipament_id;
         $quantityOld = $updateExits->quantity;
         $quantityNew = $request->quantity;
+
+        $product = ProductEquipament::find($fk_product);
+        if (!$product) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Nenhum produto encontrado.',
+            ]);
+        }
+
+        $quantityTotalDB = $product->quantity;
 
         $validateData = $request->validate(
             $this->exits->rulesExits(),
             $this->exits->feedbackExits()
         );
 
-        if ($quantityOld > $quantityNew) {
-            # code...
+        if ((int)$quantityOld > (int)$quantityNew) {
+            
+            $returnDB = $quantityTotalDB + ($quantityOld - $quantityNew);
+            $product->update(['quantity' => $returnDB]);
+            
+        } elseif ((int)$quantityNew > (int)$quantityOld) {
+            
+            $removeDB = $quantityNew - $quantityOld;
+            
+            if ($quantityTotalDB < $removeDB) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Quantidade insuficiente em estoque. Temos apenas ' . $quantityTotalDB . ' unidades disponíveis.',
+                ]);
+            }
+            $product->update(['quantity' => $quantityTotalDB - $removeDB]);
         }
-        
+
+        $updateExits->fill($validateData);
+        $updateExits->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Saída atualizada com sucesso.',
+            'data' => $updateExits,
+        ]);
     }
+
 
     public function delete(Request $request, $id)
     {
