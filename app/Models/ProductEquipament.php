@@ -6,7 +6,12 @@ use Illuminate\Database\Eloquent\Model;
 
 class ProductEquipament extends Model
 {
-    protected $fillable = ['name', 'quantity', 'fk_category_id', 'quantity_min'];
+    protected $fillable = [
+        'name',
+        'quantity',
+        'fk_category_id',
+        'quantity_min'
+    ];
     protected $table = 'products_equipaments';
     protected $dates = 'deleted_at';
 

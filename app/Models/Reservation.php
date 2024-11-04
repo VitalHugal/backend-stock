@@ -6,9 +6,25 @@ use Illuminate\Database\Eloquent\Model;
 
 class Reservation extends Model
 {
-    protected $fillable = ['fk_product_equipament_id', 'fk_user_id', 'reason_project', 'observation', 'quantity', 'withdrawal_date', 'return_date', 'delivery_to'];
+    protected $fillable = [
+        'fk_product_equipament_id',
+        'fk_user_id',
+        'reason_project',
+        'observation',
+        'quantity',
+        'withdrawal_date',
+        'return_date',
+        'delivery_to'
+    ];
     protected $table = 'reservations';
     protected $dates = 'deleted_at';
+
+    public function rulesReservationCompleted()
+    {
+        return [
+            'completed' => ''
+        ];
+    }
 
     public function rulesReservation()
     {

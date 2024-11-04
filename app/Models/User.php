@@ -23,7 +23,13 @@ class User extends Authenticatable
      *
      * @var array<int, string>
      */
-    protected $fillable = ['name', 'email', 'password', 'level', 'responsible_category'];
+    protected $fillable = [
+        'name',
+        'email',
+        'password',
+        'level',
+        // 'responsible_category'
+    ];
     protected $table = 'users';
     protected $dates = 'deleted_at';
 
@@ -56,7 +62,7 @@ class User extends Authenticatable
             'name' => 'required|max:255',
             'email' => 'email|required|max:255|',
             'password' => 'required|min:8',
-            'responsible_category' => '',
+            // 'responsible_category' => '',
         ];
     }
 
