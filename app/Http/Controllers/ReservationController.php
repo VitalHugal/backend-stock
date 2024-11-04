@@ -431,4 +431,47 @@ class ReservationController extends CrudController
             ]);
         }
     }
+
+    public function pendingReservationCompleted(Request $request, $id)
+    {
+        try {
+            $user = $request->user();
+            $idUser = $user->id;
+
+            $categoryUser = DB::table('category_user')
+                ->where('fk_user_id', $idUser)
+                ->pluck('fk_category_id')
+                ->toArray();
+
+            if ($user->level !== 'admin' && $categoryUser == null) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Você não tem permissão de acesso para seguir adiante.',
+                ]);
+            }
+            
+            $reservation = $this->reservation->find($id);
+
+            if (!$reservation) {
+                return response()->json([
+                    'success' => false,
+                    'message' => "Nenhum resultado encontrado.",
+                ]);
+            }
+
+            $reservationCompleted = $reservation;
+            $reservationCompleted->update([]);
+            
+        } catch (QueryException $qe) {
+            return response()->json([
+                'success' => false,
+                'message' => "Error DB: " . $qe->getMessage(),
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => "Error: " . $e->getMessage(),
+            ]);
+        }
+    }
 }
