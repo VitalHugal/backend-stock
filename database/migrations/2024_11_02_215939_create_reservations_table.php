@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('withdrawal_date');
             $table->string('return_date');
             $table->string('delivery_to');
+            $table->string('reservation_finished');
             $table->timestamps();
             $table->softDeletes();
         });

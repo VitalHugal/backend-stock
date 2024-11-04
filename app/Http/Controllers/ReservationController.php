@@ -271,6 +271,7 @@ class ReservationController extends CrudController
                 'withdrawal_date' => $request->withdrawal_date,
                 'return_date' => $request->return_date,
                 'delivery_to' => $request->delivery_to,
+                'reservation_finished' => false,
             ]);
 
             if ($reservation) {
