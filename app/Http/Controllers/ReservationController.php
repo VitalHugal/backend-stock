@@ -3,25 +3,26 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use App\Models\Exits;
 use App\Models\ProductEquipament;
+use App\Models\Reservation;
 use Exception;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-class ExitsController extends CrudController
+use function PHPUnit\Framework\isEmpty;
+
+class ReservationController extends CrudController
 {
-    protected $exits;
+    protected $reservation;
 
-    public function __construct(Exits $exits)
+    public function __construct(Reservation $reservation)
     {
-        parent::__construct($exits);
+        parent::__construct($reservation);
 
-        $this->exits = $exits;
+        $this->reservation = $reservation;
     }
-
-    public function getAllExits(Request $request)
+    public function getAllReservation(Request $request)
     {
         try {
             $user = $request->user();
@@ -32,8 +33,9 @@ class ExitsController extends CrudController
                 ->where('fk_user_id', $idUser)
                 ->pluck('fk_category_id');
 
+            // $categoryUser = null;
 
-            if ($categoryUser->isEmpty() || $categoryUser == null) {
+            if ($categoryUser == null) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Usuário não pertence a nenhum setor.',
@@ -43,74 +45,81 @@ class ExitsController extends CrudController
             // Verifica o nível de acesso e filtra as saídas
             if ($level == 'user') {
 
-                $exits = Exits::with(['productEquipament.category'])
+                $reservations = Reservation::with(['productEquipament.category'])
                     ->whereHas('productEquipament', function ($query) use ($categoryUser) {
                         $query->whereIn('fk_category_id', $categoryUser);
                     })
                     ->get()
-                    ->map(function ($exit) {
+                    ->map(function ($reservation) {
                         return [
-                            'exit_id' => $exit->id,
-                            'fk_user_id' => $exit->fk_user_id,
-                            'reason_project' => $exit->reason_project,
-                            'observation' => $exit->observation,
-                            'quantity' => $exit->quantity,
-                            'withdrawal_date' => $exit->withdrawal_date,
-                            'delivery_to' => $exit->delivery_to,
-                            'created_at' => $exit->created_at,
-                            'updated_at' => $exit->updated_at,
-                            'product_name' => $exit->productEquipament ? $exit->productEquipament->name : null,
-                            'category_name' => $exit->productEquipament && $exit->productEquipament->category
-                                ? $exit->productEquipament->category->name
+                            'exit_id' => $reservation->id,
+                            'fk_user_id' => $reservation->fk_user_id,
+                            'reason_project' => $reservation->reason_project,
+                            'observation' => $reservation->observation,
+                            'quantity' => $reservation->quantity,
+                            'withdrawal_date' => $reservation->withdrawal_date,
+                            'return_date' => $reservation->return_date,
+                            'delivery_to' => $reservation->delivery_to,
+                            'created_at' => $reservation->created_at,
+                            'updated_at' => $reservation->updated_at,
+                            'product_name' => $reservation->productEquipament->name,
+                            'category_name' => $reservation->productEquipament && $reservation->productEquipament->category
+                                ? $reservation->productEquipament->category->name
                                 : null,
                         ];
                     });
-                if ($exits == null) {
+
+                // $reservations = null;
+
+                if ($reservations == null) {
                     return response()->json([
                         'success' => false,
-                        'message' => 'Nenhuma saida encontrada.',
+                        'message' => 'Nenhuma reserva encontrada.',
                     ]);
                 }
 
                 return response()->json([
                     'success' => true,
-                    'message' => 'Saídas recuperadas com sucesso.',
-                    'data' => $exits,
+                    'message' => 'Reservas recuperadas com sucesso.',
+                    'data' => $reservations,
                 ]);
             }
 
-            $exitsAdmin = Exits::with(['productEquipament.category'])
+            $reservationAdmin = Reservation::with(['productEquipament.category'])
                 ->whereHas('productEquipament', function ($query) use ($categoryUser) {
                     $query->whereIn('fk_category_id', $categoryUser);
                 })
                 ->get()
-                ->map(function ($exit) {
+                ->map(function ($reservation) {
                     return [
-                        'exit_id' => $exit->id,
-                        'fk_user_id' => $exit->fk_user_id,
-                        'reason_project' => $exit->reason_project,
-                        'observation' => $exit->observation,
-                        'quantity' => $exit->quantity,
-                        'withdrawal_date' => $exit->withdrawal_date,
-                        'delivery_to' => $exit->delivery_to,
-                        'created_at' => $exit->created_at,
-                        'updated_at' => $exit->updated_at,
-                        'product_name' => $exit->productEquipament->name,
-                        'category_name' => $exit->productEquipament->category->name,
+                        'exit_id' => $reservation->id,
+                        'fk_user_id' => $reservation->fk_user_id,
+                        'reason_project' => $reservation->reason_project,
+                        'observation' => $reservation->observation,
+                        'quantity' => $reservation->quantity,
+                        'withdrawal_date' => $reservation->withdrawal_date,
+                        'return_date' => $reservation->return_date,
+                        'delivery_to' => $reservation->delivery_to,
+                        'created_at' => $reservation->created_at,
+                        'updated_at' => $reservation->updated_at,
+                        'product_name' => $reservation->productEquipament ? $reservation->productEquipament->name : null,
+                        'category_name' => $reservation->productEquipament && $reservation->productEquipament->category
+                            ? $reservation->productEquipament->category->name
+                            : null,
                     ];
                 });
 
-            if ($exitsAdmin == null) {
+            if ($reservationAdmin == null) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Nenhuma saida encontrada.',
+                    'message' => 'Nenhuma reserva encontrada.',
                 ]);
             }
 
             return response()->json([
                 'success' => true,
-                'message' => 'Saídas recuperadas com sucesso.',
-                'data' => $exitsAdmin,
+                'message' => 'Reservas recuperadas com sucesso.',
+                'data' => $reservationAdmin,
             ]);
         } catch (QueryException $qe) {
             return response()->json([
@@ -125,7 +134,7 @@ class ExitsController extends CrudController
         }
     }
 
-    public function getIdExits(Request $request, $id)
+    public function getIdReservation(Request $request, $id)
     {
         try {
             $user = $request->user();
@@ -136,45 +145,53 @@ class ExitsController extends CrudController
                 ->pluck('fk_category_id');
 
 
-            if ($categoryUser->isEmpty()) {
+            if ($categoryUser == null) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Usuário não pertence a nenhum setor.',
                 ]);
             }
 
-            $exit = Exits::with(['productEquipament.category'])
+            $reservation = Reservation::with(['productEquipament.category'])
                 ->where('id', $id) // Filtra pelo ID da saída específico
                 ->whereHas('productEquipament', function ($query) use ($categoryUser) {
                     $query->whereIn('fk_category_id', $categoryUser);
                 })
-                ->first(); // Retorna apenas um registro
+                ->first();
 
-            if (!$exit) {
+            if (!$reservation) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Saída não encontrada.',
+                    'message' => 'Reserva não encontrada.',
                 ]);
             }
 
-            $exitData = [
-                'exit_id' => $exit->id,
-                'fk_user_id' => $exit->fk_user_id,
-                'reason_project' => $exit->reason_project,
-                'observation' => $exit->observation,
-                'quantity' => $exit->quantity,
-                'withdrawal_date' => $exit->withdrawal_date,
-                'delivery_to' => $exit->delivery_to,
-                'created_at' => $exit->created_at,
-                'updated_at' => $exit->updated_at,
-                'product_name' => $exit->productEquipament ? $exit->productEquipament->name : null,
-                'category_name' => $exit->productEquipament->category->name,
+            $reservationData = [
+                'exit_id' => $reservation->id,
+                'fk_user_id' => $reservation->fk_user_id,
+                'reason_project' => $reservation->reason_project,
+                'observation' => $reservation->observation,
+                'quantity' => $reservation->quantity,
+                'withdrawal_date' => $reservation->withdrawal_date,
+                'return_date' => $reservation->return_date,
+                'delivery_to' => $reservation->delivery_to,
+                'created_at' => $reservation->created_at,
+                'updated_at' => $reservation->updated_at,
+                'product_name' => $reservation->productEquipament->name,
+                'category_name' => $reservation->productEquipament->category->name,
             ];
+
+            if ($reservationData == null) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Nenhuma reserva encontrada.',
+                ]);
+            }
 
             return response()->json([
                 'success' => true,
-                'message' => 'Saída recuperada com sucesso.',
-                'data' => $exitData,
+                'message' => 'Reserva recuperada com sucesso.',
+                'data' => $reservationData,
             ]);
         } catch (QueryException $qe) {
             return response()->json([
@@ -189,18 +206,25 @@ class ExitsController extends CrudController
         }
     }
 
-    public function exits(Request $request, $id)
+    public function reservation(Request $request, $id)
     {
         try {
-
             $user = $request->user();
             $idUser = $user->id;
 
             $categoryUser = DB::table('category_user')
                 ->where('fk_user_id', $idUser)
-                ->pluck('fk_category_id');
+                ->pluck('fk_category_id')
+                ->toArray();
 
-            if ($categoryUser->isEmpty()) {
+            if ($user->level !== 'admin' && !in_array(1, $categoryUser) && !in_array(5, $categoryUser)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Você não tem permissão de acesso para seguir adiante.',
+                ]);
+            }
+
+            if ($categoryUser == null) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Usuário não pertence a nenhum setor.',
@@ -210,17 +234,13 @@ class ExitsController extends CrudController
             $productEquipamentUser = ProductEquipament::with('category')
                 ->whereIn('fk_category_id', $categoryUser)->where('id', $id)->first();
 
-
-            if ($productEquipamentUser->isEmpty()) {
+            if ($productEquipamentUser == null) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Nenhum produto/equipamento encontrado.',
                 ]);
             }
 
-            //dd($productEquipamentUser);
-
-            // $date = now();
             $quantityProductEquipament = $productEquipamentUser->quantity;
 
             $numQuantity = intval($request->quantity);
@@ -233,9 +253,11 @@ class ExitsController extends CrudController
             }
 
             $validateData = $request->validate(
-                $this->exits->rulesExits(),
-                $this->exits->feedbackExits()
+                $this->reservation->rulesReservation(),
+                $this->reservation->feedbackReservation()
             );
+
+            //dd($request->all());
 
             $newQuantityProductEquipament = $quantityProductEquipament - $numQuantity;
 
@@ -246,23 +268,24 @@ class ExitsController extends CrudController
                 ]);
             }
 
-            $exits = Exits::create([
+            $reservation = $this->reservation->create([
                 'fk_product_equipament_id' => $request->fk_product_equipament_id,
                 'fk_user_id' => $request->fk_user_id,
                 'reason_project' => $request->reason_project,
                 'observation' => $request->observation,
                 'quantity' => $request->quantity,
                 'withdrawal_date' => $request->withdrawal_date,
+                'return_date' => $request->return_date,
                 'delivery_to' => $request->delivery_to,
             ]);
 
-            if ($exits) {
+            if ($reservation) {
                 ProductEquipament::where('id', $id)->update(['quantity' => $newQuantityProductEquipament]);
 
                 return response()->json([
                     'success' => true,
-                    'message' => 'Retirada concluída com sucesso',
-                    'data' => $exits,
+                    'message' => 'Reserva concluída com sucesso.',
+                    'data' => $reservation,
                 ]);
             }
         } catch (QueryException $qe) {
@@ -278,7 +301,7 @@ class ExitsController extends CrudController
         }
     }
 
-    public function updateExits(Request $request, $id)
+    public function updateReservation(Request $request, $id)
     {
         try {
             $user = $request->user();
@@ -295,19 +318,21 @@ class ExitsController extends CrudController
                 ]);
             }
 
-            $updateExits = $this->exits->find($id);
-            if (!$updateExits) {
+            $updateReservation = $this->reservation->find($id);
+
+            if (!$updateReservation) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Nenhuma saída encontrada.',
+                    'message' => 'Nenhuma reserva encontrada.',
                 ]);
             }
 
-            $fk_product = $updateExits->fk_product_equipament_id;
-            $quantityOld = $updateExits->quantity;
+            $fk_product = $updateReservation->fk_product_equipament_id;
+            $quantityOld = $updateReservation->quantity;
             $quantityNew = $request->quantity;
 
             $product = ProductEquipament::find($fk_product);
+
             if (!$product) {
                 return response()->json([
                     'success' => false,
@@ -318,8 +343,8 @@ class ExitsController extends CrudController
             $quantityTotalDB = $product->quantity;
 
             $validateData = $request->validate(
-                $this->exits->rulesExits(),
-                $this->exits->feedbackExits()
+                $this->reservation->rulesReservation(),
+                $this->reservation->rulesReservation()
             );
 
             if ((int)$quantityOld > (int)$quantityNew) {
@@ -339,13 +364,13 @@ class ExitsController extends CrudController
                 $product->update(['quantity' => $quantityTotalDB - $removeDB]);
             }
 
-            $updateExits->fill($validateData);
-            $updateExits->save();
+            $updateReservation->fill($validateData);
+            $updateReservation->save();
 
             return response()->json([
                 'success' => true,
-                'message' => 'Saída atualizada com sucesso.',
-                'data' => $updateExits,
+                'message' => 'Reserva atualizada com sucesso.',
+                'data' => $updateReservation,
             ]);
         } catch (QueryException $qe) {
             return response()->json([
@@ -360,13 +385,10 @@ class ExitsController extends CrudController
         }
     }
 
-
     public function delete(Request $request, $id)
     {
         try {
-
             $user = $request->user();
-
             $level = $user->level;
 
             if ($level == 'user') {
@@ -376,30 +398,31 @@ class ExitsController extends CrudController
                 ]);
             }
 
-            $deleteExits = $this->exits->find($id);
+            $deleteReservation = $this->reservation->find($id);
 
-            if (!$deleteExits) {
+            if (!$deleteReservation) {
                 return response()->json([
                     'success' => false,
                     'message' => "Nenhum resultado encontrado.",
                 ]);
             }
 
-            $quantityReturnStock = $deleteExits->quantity;
-            $idProduct = $deleteExits->fk_product_equipament_id;
+            $quantityReturnStock = $deleteReservation->quantity;
+            $idProduct = $deleteReservation->fk_product_equipament_id;
 
-            $deleteExits->delete();
+            $deleteReservation->delete();
 
             $product = ProductEquipament::where('id', $idProduct)->first();
-            
+
             if ($product) {
+
                 $quantityTotalDB = $product->quantity;
                 $product->update(['quantity' => $quantityTotalDB + $quantityReturnStock]);
             }
-            
+
             return response()->json([
                 'success' => true,
-                'message' => 'Saída removida com sucesso.',
+                'message' => 'Reserva removida com sucesso.',
             ]);
         } catch (QueryException $qe) {
             return response()->json([

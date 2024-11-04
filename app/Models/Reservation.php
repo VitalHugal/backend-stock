@@ -4,22 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Exits extends Model
+class Reservation extends Model
 {
-    protected $fillable = [
-        'fk_product_equipament_id',
-        'fk_user_id',
-        'reason_project',
-        'observation',
-        'quantity',
-        'withdrawal_date',
-        'delivery_to',
-    ];
-
-    protected $table = 'exits';
+    protected $fillable = ['fk_product_equipament_id', 'fk_user_id', 'reason_project', 'observation', 'quantity', 'withdrawal_date', 'return_date', 'delivery_to'];
+    protected $table = 'reservations';
     protected $dates = 'deleted_at';
 
-    public function rulesExits()
+    public function rulesReservation()
     {
         return [
             'fk_product_equipament_id' => 'required|exists:products_equipaments,id',
@@ -29,10 +20,11 @@ class Exits extends Model
             'quantity' => 'required|integer',
             'withdrawal_date' => 'required',
             'delivery_to' => 'required',
+            'return_date' => 'required',
         ];
     }
 
-    public function feedbackExits()
+    public function feedbackReservation()
     {
         return [
             'required' => 'Campo obrigatório.',

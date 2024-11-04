@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\UsersController;
 use App\Http\Controllers\Admin\CategorysController;
 use App\Http\Controllers\ExitsController;
 use App\Http\Controllers\ProductEquipamentController;
+use App\Http\Controllers\ReservationController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -16,17 +17,24 @@ Route::post('/login', [LoginController::class, 'login']);
 
 Route::middleware(['auth:sanctum'])->group(function () {
 
+    //RESERVATION
+    Route::post('/reservation/{id}', [ReservationController::class, 'reservation']);
+    Route::get('/get-all-reservation', [ReservationController::class, 'getAllReservation']);
+    Route::get('/get-reservation/{id}', [ReservationController::class, 'getIdReservation']);
+    Route::post('/update-reservation/{id}', [ReservationController::class, 'updateReservation']);
+    Route::delete('/delete-reservation/{id}', [ReservationController::class, 'delete']);
+
     //EXITS
     Route::post('/exits/{id}', [ExitsController::class, 'exits']);
     Route::get('/get-all-exits', [ExitsController::class, 'getAllExits']);
-    Route::get('/get-id-exits/{id}', [ExitsController::class, 'getIdExits']);
+    Route::get('/get-exits/{id}', [ExitsController::class, 'getIdExits']);
     Route::post('/update-exits/{id}', [ExitsController::class, 'updateExits']);
 
     //PRODUCT/EQUIPAMENTS
     Route::post('/update-product-equipaments/{id}', [ProductEquipamentController::class, 'update']);
     Route::post('/create-product-equipaments', [ProductEquipamentController::class, 'store']);
     Route::get('/get-all-product-equipaments', [ProductEquipamentController::class, 'getAllProductEquipament']);
-    Route::get('/get-id-product-equipaments/{id}', [ProductEquipamentController::class, 'getIdProductEquipament']);
+    Route::get('/get-product-equipaments/{id}', [ProductEquipamentController::class, 'getIdProductEquipament']);
 
 
     /////////////////////////////////////////////////
@@ -47,7 +55,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     //CATEGORYS
     Route::get('/get-all-category', [CategorysController::class, 'getAllCategorys']);
-    Route::get('/get-id-category/{id}', [CategorysController::class, 'getId']);
+    Route::get('/get-category/{id}', [CategorysController::class, 'getId']);
     Route::delete('/delete-category/{id}', [CategorysController::class, 'delete']);
     Route::post('/update-category/{id}', [CategorysController::class, 'update']);
     Route::post('/create-category', [CategorysController::class, 'store']);
