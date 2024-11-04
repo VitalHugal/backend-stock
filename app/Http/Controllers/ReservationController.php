@@ -31,14 +31,13 @@ class ReservationController extends CrudController
 
             $categoryUser = DB::table('category_user')
                 ->where('fk_user_id', $idUser)
-                ->pluck('fk_category_id');
+                ->pluck('fk_category_id')
+                ->toArray();
 
-            // $categoryUser = null;
-
-            if ($categoryUser == null) {
+            if ($user->level !== 'admin' && $categoryUser == null) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Usuário não pertence a nenhum setor.',
+                    'message' => 'Você não tem permissão de acesso para seguir adiante.',
                 ]);
             }
 
@@ -63,13 +62,9 @@ class ReservationController extends CrudController
                             'created_at' => $reservation->created_at,
                             'updated_at' => $reservation->updated_at,
                             'product_name' => $reservation->productEquipament->name,
-                            'category_name' => $reservation->productEquipament && $reservation->productEquipament->category
-                                ? $reservation->productEquipament->category->name
-                                : null,
+                            'category_name' => $reservation->productEquipament->category->name,
                         ];
                     });
-
-                // $reservations = null;
 
                 if ($reservations == null) {
                     return response()->json([
@@ -102,10 +97,8 @@ class ReservationController extends CrudController
                         'delivery_to' => $reservation->delivery_to,
                         'created_at' => $reservation->created_at,
                         'updated_at' => $reservation->updated_at,
-                        'product_name' => $reservation->productEquipament ? $reservation->productEquipament->name : null,
-                        'category_name' => $reservation->productEquipament && $reservation->productEquipament->category
-                            ? $reservation->productEquipament->category->name
-                            : null,
+                        'product_name' => $reservation->productEquipament->name,
+                        'category_name' => $reservation->productEquipament->category->name,
                     ];
                 });
 
@@ -142,13 +135,14 @@ class ReservationController extends CrudController
 
             $categoryUser = DB::table('category_user')
                 ->where('fk_user_id', $idUser)
-                ->pluck('fk_category_id');
+                ->pluck('fk_category_id')
+                ->toArray();
 
 
-            if ($categoryUser == null) {
+            if ($user->level !== 'admin' && $categoryUser == null) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Usuário não pertence a nenhum setor.',
+                    'message' => 'Você não tem permissão de acesso para seguir adiante.',
                 ]);
             }
 
@@ -309,12 +303,13 @@ class ReservationController extends CrudController
 
             $categoryUser = DB::table('category_user')
                 ->where('fk_user_id', $idUser)
-                ->pluck('fk_category_id');
+                ->pluck('fk_category_id')
+                ->toArray();
 
-            if ($categoryUser->isEmpty()) {
+            if ($user->level !== 'admin' && $categoryUser == null) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Usuário não pertence a nenhum setor.',
+                    'message' => 'Você não tem permissão de acesso para seguir adiante.',
                 ]);
             }
 

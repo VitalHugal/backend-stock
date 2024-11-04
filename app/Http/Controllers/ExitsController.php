@@ -30,13 +30,14 @@ class ExitsController extends CrudController
 
             $categoryUser = DB::table('category_user')
                 ->where('fk_user_id', $idUser)
-                ->pluck('fk_category_id');
+                ->pluck('fk_category_id')
+                ->toArray();
 
 
-            if ($categoryUser->isEmpty() || $categoryUser == null) {
+            if ($user->level !== 'admin' && $categoryUser == null) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Usuário não pertence a nenhum setor.',
+                    'message' => 'Você não tem permissão de acesso para seguir adiante.',
                 ]);
             }
 
@@ -59,12 +60,11 @@ class ExitsController extends CrudController
                             'delivery_to' => $exit->delivery_to,
                             'created_at' => $exit->created_at,
                             'updated_at' => $exit->updated_at,
-                            'product_name' => $exit->productEquipament ? $exit->productEquipament->name : null,
-                            'category_name' => $exit->productEquipament && $exit->productEquipament->category
-                                ? $exit->productEquipament->category->name
-                                : null,
+                            'product_name' => $exit->productEquipament->name,
+                            'category_name' => $exit->productEquipament->category->name,
                         ];
                     });
+
                 if ($exits == null) {
                     return response()->json([
                         'success' => false,
@@ -133,13 +133,14 @@ class ExitsController extends CrudController
 
             $categoryUser = DB::table('category_user')
                 ->where('fk_user_id', $idUser)
-                ->pluck('fk_category_id');
+                ->pluck('fk_category_id')
+                ->toArray();
 
 
-            if ($categoryUser->isEmpty()) {
+            if ($user->level !== 'admin' && $categoryUser == null) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Usuário não pertence a nenhum setor.',
+                    'message' => 'Você não tem permissão de acesso para seguir adiante.',
                 ]);
             }
 
@@ -198,12 +199,13 @@ class ExitsController extends CrudController
 
             $categoryUser = DB::table('category_user')
                 ->where('fk_user_id', $idUser)
-                ->pluck('fk_category_id');
+                ->pluck('fk_category_id')
+                ->toArray();
 
-            if ($categoryUser->isEmpty()) {
+            if ($user->level !== 'admin' && $categoryUser == null) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Usuário não pertence a nenhum setor.',
+                    'message' => 'Você não tem permissão de acesso para seguir adiante.',
                 ]);
             }
 
@@ -286,16 +288,18 @@ class ExitsController extends CrudController
 
             $categoryUser = DB::table('category_user')
                 ->where('fk_user_id', $idUser)
-                ->pluck('fk_category_id');
+                ->pluck('fk_category_id')
+                ->toArray();
 
-            if ($categoryUser->isEmpty()) {
+            if ($user->level !== 'admin' && $categoryUser == null) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Usuário não pertence a nenhum setor.',
+                    'message' => 'Você não tem permissão de acesso para seguir adiante.',
                 ]);
             }
 
             $updateExits = $this->exits->find($id);
+            
             if (!$updateExits) {
                 return response()->json([
                     'success' => false,
@@ -364,9 +368,8 @@ class ExitsController extends CrudController
     public function delete(Request $request, $id)
     {
         try {
-
+            
             $user = $request->user();
-
             $level = $user->level;
 
             if ($level == 'user') {
@@ -391,12 +394,12 @@ class ExitsController extends CrudController
             $deleteExits->delete();
 
             $product = ProductEquipament::where('id', $idProduct)->first();
-            
+
             if ($product) {
                 $quantityTotalDB = $product->quantity;
                 $product->update(['quantity' => $quantityTotalDB + $quantityReturnStock]);
             }
-            
+
             return response()->json([
                 'success' => true,
                 'message' => 'Saída removida com sucesso.',
