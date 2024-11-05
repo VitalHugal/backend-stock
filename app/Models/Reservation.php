@@ -21,13 +21,6 @@ class Reservation extends Model
     protected $table = 'reservations';
     protected $dates = 'deleted_at';
 
-    public function rulesReservationCompleted()
-    {
-        return [
-            'completed' => ''
-        ];
-    }
-
     public function rulesReservation()
     {
         return [
@@ -39,7 +32,7 @@ class Reservation extends Model
             'withdrawal_date' => 'required',
             'delivery_to' => 'required',
             'return_date' => 'required',
-            'reservation_finished' => 'required',
+            'reservation_finished' => '',
             'date_finished' => '',
         ];
     }
@@ -52,6 +45,21 @@ class Reservation extends Model
             'exists:users,id' => 'Usuário não encontrado, tente novamente.',
             'max:255' => 'O campo deve conter até 255 caracteres.',
             'integer' => 'Válido apenas números inteiros.',
+        ];
+    }
+
+    public function rulesFinishedReservation()
+    {
+        return [
+            'reservation_finished' => 'required|in:true|',
+            'date_finished' => 'required',
+        ];
+    }
+    public function feedbackFinishedReservation()
+    {
+        return [
+            'required' => 'Campo obrigatório.',
+            'in:true' => 'Válido apenas "true" para esse campo.'
         ];
     }
 

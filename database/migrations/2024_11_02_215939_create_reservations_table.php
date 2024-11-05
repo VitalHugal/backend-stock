@@ -22,7 +22,7 @@ return new class extends Migration
             $table->string('return_date');
             $table->string('delivery_to');
             $table->string('reservation_finished');
-            $table->string('date_finished')->nullable();
+            $table->string('date_finished');
             $table->timestamps();
             $table->softDeletes();
         });

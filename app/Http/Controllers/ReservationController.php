@@ -34,7 +34,7 @@ class ReservationController extends CrudController
                 ->pluck('fk_category_id')
                 ->toArray();
 
-            if ($user->level !== 'admin' && $categoryUser == null) {
+            if ($user->level !== 'admin' && !in_array(1, $categoryUser) && !in_array(5, $categoryUser)) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Você não tem permissão de acesso para seguir adiante.',
@@ -139,7 +139,7 @@ class ReservationController extends CrudController
                 ->toArray();
 
 
-            if ($user->level !== 'admin' && $categoryUser == null) {
+            if ($user->level !== 'admin' && !in_array(1, $categoryUser) && !in_array(5, $categoryUser)) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Você não tem permissão de acesso para seguir adiante.',
@@ -218,15 +218,12 @@ class ReservationController extends CrudController
                 ]);
             }
 
-            if ($categoryUser == null) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Usuário não pertence a nenhum setor.',
-                ]);
+            if ($categoryUser) {
+                $productEquipamentUser = ProductEquipament::with('category')
+                    ->whereIn('fk_category_id', $categoryUser)->where('id', $id)->first();
             }
 
-            $productEquipamentUser = ProductEquipament::with('category')
-                ->whereIn('fk_category_id', $categoryUser)->where('id', $id)->first();
+            $productEquipamentUser = ProductEquipament::where('id', $id)->first();
 
             if ($productEquipamentUser == null) {
                 return response()->json([
@@ -272,6 +269,7 @@ class ReservationController extends CrudController
                 'return_date' => $request->return_date,
                 'delivery_to' => $request->delivery_to,
                 'reservation_finished' => false,
+                'date_finished' => false,
             ]);
 
             if ($reservation) {
@@ -307,7 +305,7 @@ class ReservationController extends CrudController
                 ->pluck('fk_category_id')
                 ->toArray();
 
-            if ($user->level !== 'admin' && $categoryUser == null) {
+            if ($user->level !== 'admin' && !in_array(1, $categoryUser) && !in_array(5, $categoryUser)) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Você não tem permissão de acesso para seguir adiante.',
@@ -444,25 +442,54 @@ class ReservationController extends CrudController
                 ->pluck('fk_category_id')
                 ->toArray();
 
-            if ($user->level !== 'admin' && $categoryUser == null) {
+            if ($user->level !== 'admin' && !in_array(1, $categoryUser) && !in_array(5, $categoryUser)) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Você não tem permissão de acesso para seguir adiante.',
                 ]);
             }
-            
+
             $reservation = $this->reservation->find($id);
 
             if (!$reservation) {
                 return response()->json([
                     'success' => false,
-                    'message' => "Nenhum resultado encontrado.",
+                    'message' => "Nenhum reserva encontrada com o id informado.",
                 ]);
             }
 
-            $reservationCompleted = $reservation;
-            $reservationCompleted->update([]);
-            
+            if ($reservation->reservation_finished == 'true' && $reservation->date_finished) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Esta reserva já foi finalizada.',
+                ]);
+            }
+
+            $quantityReturnDB = $reservation->quantity;
+            $idProduct = $reservation->fk_product_equipament_id;
+
+            $reservation->fill(
+                $request->validate(
+                    $this->reservation->rulesFinishedReservation(),
+                    $this->reservation->feedbackFinishedReservation()
+                )
+            );
+
+            $reservation->save();
+
+            if ($reservation) {
+                $product = ProductEquipament::where('id', $idProduct)->first();
+
+                if ($product) {
+                    $quantityTotalDB = $product->quantity;
+                    $product->update(['quantity' => $quantityTotalDB + $quantityReturnDB]);
+                }
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Reserva finalizada com sucesso.',
+                ]);
+            }
         } catch (QueryException $qe) {
             return response()->json([
                 'success' => false,
