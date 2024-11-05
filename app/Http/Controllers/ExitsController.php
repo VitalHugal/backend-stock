@@ -220,9 +220,6 @@ class ExitsController extends CrudController
                 ]);
             }
 
-            //dd($productEquipamentUser);
-
-            // $date = now();
             $quantityProductEquipament = $productEquipamentUser->quantity;
 
             $numQuantity = intval($request->quantity);

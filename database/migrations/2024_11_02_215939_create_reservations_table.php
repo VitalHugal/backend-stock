@@ -23,6 +23,7 @@ return new class extends Migration
             $table->string('delivery_to');
             $table->string('reservation_finished');
             $table->string('date_finished');
+            $table->foreignId('fk_user_id_finished')->nullable()->constrained('users')->onDelete('cascade')->onUpdate('cascade');
             $table->timestamps();
             $table->softDeletes();
         });

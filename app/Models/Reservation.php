@@ -16,7 +16,8 @@ class Reservation extends Model
         'return_date',
         'delivery_to',
         'reservation_finished',
-        'date_finished'
+        'date_finished',
+        'fk_user_id_finished',
     ];
     protected $table = 'reservations';
     protected $dates = 'deleted_at';
@@ -34,6 +35,7 @@ class Reservation extends Model
             'return_date' => 'required',
             'reservation_finished' => '',
             'date_finished' => '',
+            'fk_user_id_finished' => '',
         ];
     }
 
@@ -53,13 +55,15 @@ class Reservation extends Model
         return [
             'reservation_finished' => 'required|in:true|',
             'date_finished' => 'required',
+            'fk_user_id_finished' => 'exists:users,id'
         ];
     }
     public function feedbackFinishedReservation()
     {
         return [
             'required' => 'Campo obrigatório.',
-            'in:true' => 'Válido apenas "true" para esse campo.'
+            'in:true' => 'Válido apenas "true" para esse campo.',
+            'exists:users,id' => 'Usuário não encontrado, tente novamente.',
         ];
     }
 

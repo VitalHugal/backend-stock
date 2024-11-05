@@ -27,10 +27,10 @@ class ReservationController extends CrudController
         try {
             $user = $request->user();
             $level = $user->level;
-            $idUser = $user->id;
+            $idUserRequest = $user->id;
 
             $categoryUser = DB::table('category_user')
-                ->where('fk_user_id', $idUser)
+                ->where('fk_user_id', $idUserRequest)
                 ->pluck('fk_category_id')
                 ->toArray();
 
@@ -131,10 +131,10 @@ class ReservationController extends CrudController
     {
         try {
             $user = $request->user();
-            $idUser = $user->id;
+            $idUserRequest = $user->id;
 
             $categoryUser = DB::table('category_user')
-                ->where('fk_user_id', $idUser)
+                ->where('fk_user_id', $idUserRequest)
                 ->pluck('fk_category_id')
                 ->toArray();
 
@@ -204,10 +204,10 @@ class ReservationController extends CrudController
     {
         try {
             $user = $request->user();
-            $idUser = $user->id;
+            $idUserRequest = $user->id;
 
             $categoryUser = DB::table('category_user')
-                ->where('fk_user_id', $idUser)
+                ->where('fk_user_id', $idUserRequest)
                 ->pluck('fk_category_id')
                 ->toArray();
 
@@ -268,8 +268,9 @@ class ReservationController extends CrudController
                 'withdrawal_date' => $request->withdrawal_date,
                 'return_date' => $request->return_date,
                 'delivery_to' => $request->delivery_to,
-                'reservation_finished' => false,
-                'date_finished' => false,
+                'reservation_finished' => 'false',
+                'date_finished' => 'false',
+                'fk_user_id_finished' => null,
             ]);
 
             if ($reservation) {
@@ -298,10 +299,10 @@ class ReservationController extends CrudController
     {
         try {
             $user = $request->user();
-            $idUser = $user->id;
+            $idUserRequest = $user->id;
 
             $categoryUser = DB::table('category_user')
-                ->where('fk_user_id', $idUser)
+                ->where('fk_user_id', $idUserRequest)
                 ->pluck('fk_category_id')
                 ->toArray();
 
@@ -435,10 +436,10 @@ class ReservationController extends CrudController
     {
         try {
             $user = $request->user();
-            $idUser = $user->id;
+            $idUserRequest = $user->id;
 
             $categoryUser = DB::table('category_user')
-                ->where('fk_user_id', $idUser)
+                ->where('fk_user_id', $idUserRequest)
                 ->pluck('fk_category_id')
                 ->toArray();
 
@@ -458,7 +459,7 @@ class ReservationController extends CrudController
                 ]);
             }
 
-            if ($reservation->reservation_finished == 'true' && $reservation->date_finished) {
+            if ($reservation->reservation_finished == 'true' && $reservation->date_finished !== '0') {
                 return response()->json([
                     'success' => false,
                     'message' => 'Esta reserva já foi finalizada.',
@@ -474,6 +475,8 @@ class ReservationController extends CrudController
                     $this->reservation->feedbackFinishedReservation()
                 )
             );
+
+            $reservation->fk_user_id_finished = $idUserRequest;
 
             $reservation->save();
 
