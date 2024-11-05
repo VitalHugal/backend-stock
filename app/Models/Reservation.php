@@ -15,7 +15,8 @@ class Reservation extends Model
         'withdrawal_date',
         'return_date',
         'delivery_to',
-        'reservation_finished'
+        'reservation_finished',
+        'date_finished'
     ];
     protected $table = 'reservations';
     protected $dates = 'deleted_at';
@@ -39,6 +40,7 @@ class Reservation extends Model
             'delivery_to' => 'required',
             'return_date' => 'required',
             'reservation_finished' => 'required',
+            'date_finished' => '',
         ];
     }
 
