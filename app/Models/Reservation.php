@@ -25,7 +25,7 @@ class Reservation extends Model
 
     public static function filterReservations($request)
     {
-        $query = self::with(['productEquipament.category']);
+        $query = self::with(['productEquipament.category', 'user' ,'userFinished']);
 
         // Aplica o filtro apenas se o parâmetro 'reservation_finished' estiver na requisição
         if ($request->has('reservation_finished')) {
@@ -36,14 +36,17 @@ class Reservation extends Model
             return [
                 'exit_id' => $reservation->id,
                 'fk_user_id' => $reservation->fk_user_id,
+                'name_user_id' => $reservation->user->name ?? null,
                 'reason_project' => $reservation->reason_project,
                 'observation' => $reservation->observation,
                 'quantity' => $reservation->quantity,
                 'withdrawal_date' => $reservation->withdrawal_date,
                 'return_date' => $reservation->return_date,
                 'delivery_to' => $reservation->delivery_to,
-                'created_at' => $reservation->created_at,
-                'updated_at' => $reservation->updated_at,
+                'reservation_finished' => $reservation->reservation_finished,
+                'date_finished' => $reservation->date_finished,
+                'fk_user_id_finished' => $reservation->fk_user_id_finished,
+                'name_user_id_finished' => $reservation->userFinished->name ?? null,
                 'product_name' => $reservation->productEquipament->name ?? null,
                 'category_name' => $reservation->productEquipament->category->name ?? null,
             ];
@@ -98,5 +101,15 @@ class Reservation extends Model
     public function productEquipament()
     {
         return $this->belongsTo(ProductEquipament::class, 'fk_product_equipament_id');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'fk_user_id');
+    }
+
+    public function userFinished()
+    {
+        return $this->belongsTo(User::class, 'fk_user_id_finished');
     }
 }
