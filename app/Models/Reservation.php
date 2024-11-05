@@ -22,6 +22,34 @@ class Reservation extends Model
     protected $table = 'reservations';
     protected $dates = 'deleted_at';
 
+
+    public static function filterReservations($request)
+    {
+        $query = self::with(['productEquipament.category']);
+
+        // Aplica o filtro apenas se o parâmetro 'reservation_finished' estiver na requisição
+        if ($request->has('reservation_finished')) {
+            $query->where('reservation_finished', $request->input('reservation_finished'));
+        }
+
+        return $query->get()->map(function ($reservation) {
+            return [
+                'exit_id' => $reservation->id,
+                'fk_user_id' => $reservation->fk_user_id,
+                'reason_project' => $reservation->reason_project,
+                'observation' => $reservation->observation,
+                'quantity' => $reservation->quantity,
+                'withdrawal_date' => $reservation->withdrawal_date,
+                'return_date' => $reservation->return_date,
+                'delivery_to' => $reservation->delivery_to,
+                'created_at' => $reservation->created_at,
+                'updated_at' => $reservation->updated_at,
+                'product_name' => $reservation->productEquipament->name ?? null,
+                'category_name' => $reservation->productEquipament->category->name ?? null,
+            ];
+        });
+    }
+
     public function rulesReservation()
     {
         return [

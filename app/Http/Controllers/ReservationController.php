@@ -26,7 +26,6 @@ class ReservationController extends CrudController
     {
         try {
             $user = $request->user();
-            $level = $user->level;
             $idUserRequest = $user->id;
 
             $categoryUser = DB::table('category_user')
@@ -41,46 +40,18 @@ class ReservationController extends CrudController
                 ]);
             }
 
-            // Verifica o nível de acesso e filtra as saídas
-            if ($level == 'user') {
 
-                $reservations = Reservation::with(['productEquipament.category'])
-                    ->whereHas('productEquipament', function ($query) use ($categoryUser) {
-                        $query->whereIn('fk_category_id', $categoryUser);
-                    })
-                    ->get()
-                    ->map(function ($reservation) {
-                        return [
-                            'exit_id' => $reservation->id,
-                            'fk_user_id' => $reservation->fk_user_id,
-                            'reason_project' => $reservation->reason_project,
-                            'observation' => $reservation->observation,
-                            'quantity' => $reservation->quantity,
-                            'withdrawal_date' => $reservation->withdrawal_date,
-                            'return_date' => $reservation->return_date,
-                            'delivery_to' => $reservation->delivery_to,
-                            'created_at' => $reservation->created_at,
-                            'updated_at' => $reservation->updated_at,
-                            'product_name' => $reservation->productEquipament->name,
-                            'category_name' => $reservation->productEquipament->category->name,
-                        ];
-                    });
-
-                if ($reservations == null) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'Nenhuma reserva encontrada.',
-                    ]);
-                }
+            if ($request->has('reservation_finished')) {
+                $reservationFilter= Reservation::filterReservations($request);
 
                 return response()->json([
                     'success' => true,
-                    'message' => 'Reservas recuperadas com sucesso.',
-                    'data' => $reservations,
+                    'message' => 'Reservas com filtro recuperadas com sucesso.',
+                    'data' => $reservationFilter,
                 ]);
             }
 
-            $reservationAdmin = Reservation::with(['productEquipament.category'])
+            $reservations = Reservation::with(['productEquipament.category'])
                 ->whereHas('productEquipament', function ($query) use ($categoryUser) {
                     $query->whereIn('fk_category_id', $categoryUser);
                 })
@@ -102,7 +73,7 @@ class ReservationController extends CrudController
                     ];
                 });
 
-            if ($reservationAdmin == null) {
+            if ($reservations == null) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Nenhuma reserva encontrada.',
@@ -111,8 +82,8 @@ class ReservationController extends CrudController
 
             return response()->json([
                 'success' => true,
-                'message' => 'Reservas recuperadas com sucesso.',
-                'data' => $reservationAdmin,
+                'message' => 'Todas as reservas recuperadas com sucesso.',
+                'data' => $reservations,
             ]);
         } catch (QueryException $qe) {
             return response()->json([
