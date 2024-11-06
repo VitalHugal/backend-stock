@@ -10,6 +10,8 @@ use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
+use function PHPUnit\Framework\isEmpty;
+
 class ExitsController extends CrudController
 {
     protected $exits;
@@ -33,8 +35,7 @@ class ExitsController extends CrudController
                 ->pluck('fk_category_id')
                 ->toArray();
 
-
-            if ($user->level !== 'admin' && $categoryUser == null) {
+            if ($user->level !== 'admin' && empty($categoryUser)) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Você não tem permissão de acesso para seguir adiante.',
@@ -43,7 +44,6 @@ class ExitsController extends CrudController
 
             // Verifica o nível de acesso e filtra as saídas
             if ($level == 'user') {
-
                 $exits = Exits::with(['productEquipament.category'])
                     ->whereHas('productEquipament', function ($query) use ($categoryUser) {
                         $query->whereIn('fk_category_id', $categoryUser);
@@ -261,6 +261,15 @@ class ExitsController extends CrudController
 
             $productEquipamentUser = ProductEquipament::where('id', $id)->first();
 
+            if ($user->level == 'user') {
+                $validationExits = in_array($productEquipamentUser->fk_category_id, $categoryUser);
+                if ($validationExits === false) {
+                    return response()->json([
+                        'sucess' => false,
+                        'message' => 'Você não pode realizar saida de produtos que não pertence ao seu setor.'
+                    ]);
+                }
+            }
 
             if ($productEquipamentUser == null) {
                 return response()->json([
@@ -269,14 +278,14 @@ class ExitsController extends CrudController
                 ]);
             }
 
-            $quantityProductEquipament = $productEquipamentUser->quantity;
+            $quantityTotalDB = $productEquipamentUser->quantity;
 
             $numQuantity = intval($request->quantity);
 
-            if ($numQuantity > $quantityProductEquipament) {
+            if ($numQuantity > $quantityTotalDB) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Quantidade insuficiente em estoque. Temos apenas ' . $quantityProductEquipament . ' unidades disponíveis.',
+                    'message' => 'Quantidade insuficiente em estoque. Temos apenas ' . $quantityTotalDB . ' unidades disponíveis.',
                 ]);
             }
 
@@ -285,7 +294,7 @@ class ExitsController extends CrudController
                 $this->exits->feedbackExits()
             );
 
-            $newQuantityProductEquipament = $quantityProductEquipament - $numQuantity;
+            $newQuantityProductEquipament = $quantityTotalDB - $numQuantity;
 
             if ($request->fk_product_equipament_id != $id) {
                 return response()->json([
