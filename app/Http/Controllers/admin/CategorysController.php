@@ -76,7 +76,7 @@ class CategorysController extends CrudController
 
             return response()->json([
                 'success' => true,
-                'message' => 'Usuário recuperado com sucesso.',
+                'message' => 'Categoria recuperado com sucesso.',
                 'data' => $getIdcategory,
             ]);
         } catch (QueryException $qe) {

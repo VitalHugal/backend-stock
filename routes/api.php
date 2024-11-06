@@ -36,6 +36,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/get-all-product-equipaments', [ProductEquipamentController::class, 'getAllProductEquipament']);
     Route::get('/get-product-equipaments/{id}', [ProductEquipamentController::class, 'getIdProductEquipament']);
 
+    //ME
+    Route::get('/my-profile', [UsersController::class, 'myProfile']);
+    Route::post('/update-password', [UsersController::class, 'updatePassword']);
 
     /////////////////////////////////////////////////
     // ROTAS APENAS PARA USER COM NIVEL ADMINISTRADOR
@@ -53,6 +56,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/get-all-user', [UsersController::class, 'getAll']);
     Route::get('/get-user/{id}', [UsersController::class, 'getId']);
     Route::delete('/delete-user/{id}', [UsersController::class, 'delete']);
+    Route::post('/reset-password/{id}', [UsersController::class, 'updatePasswordAdmin']);
 
 
     //CATEGORYS

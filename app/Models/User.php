@@ -56,6 +56,8 @@ class User extends Authenticatable
         ];
     }
 
+    ///////////////////////////////////////////////////////////////////////////////
+
     public function rulesCreateUser()
     {
         return [
@@ -75,6 +77,9 @@ class User extends Authenticatable
             'min:8' => 'O campo deve ter no mínimo 8 carcateres.',
         ];
     }
+
+    ///////////////////////////////////////////////////////////////////////////////
+
     public function rulesCategoryUser()
     {
         return [
@@ -90,6 +95,8 @@ class User extends Authenticatable
         ];
     }
 
+    ///////////////////////////////////////////////////////////////////////////////
+
     public function rulesUpdateLevelUser()
     {
         return [
@@ -102,6 +109,40 @@ class User extends Authenticatable
         return [
             'required' => 'Campo obrigatório.',
             'in' => 'Valido apenas admin ou user para esse campo.',
+        ];
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////
+
+    public function rulesUpdatePassword()
+    {
+        return [
+            'password' => 'required|min:8|confirmed',
+        ];
+    }
+
+    public function feedbackUpdatePassword()
+    {
+        return [
+            'password.required' => 'Campo obrigatório.',
+            'password.confirmed' => 'Senhas divergentes!',
+            'password.min' => 'A senha deve ter no minímo 8 caracteres',
+        ];
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////
+
+    public function rulesUpdatePasswordAdmin()
+    {
+        return [
+            'password' => 'required|min:8',
+        ];
+    }
+    public function feedbackUpdatePasswordAdmin()
+    {
+        return [
+            'password.required' => 'Campo obrigatório.',
+            'password.min' => 'A senha deve ter no minímo 8 caracteres',
         ];
     }
 

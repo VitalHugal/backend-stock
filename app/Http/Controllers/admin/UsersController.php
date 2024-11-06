@@ -8,6 +8,7 @@ use Exception;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 
 class UsersController extends CrudController
 {
@@ -341,6 +342,128 @@ class UsersController extends CrudController
                 'message' => 'Nível de permissão atualizado com sucesso.',
                 'data' => $userUpdate,
             ]);
+        } catch (QueryException $qe) {
+            return response()->json([
+                'success' => false,
+                'message' => "Error DB: " . $qe->getMessage(),
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => "Error: " . $e->getMessage(),
+            ]);
+        }
+    }
+
+    public function myProfile(Request $request)
+    {
+        try {
+            $myProfile = $request->user();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Dados recuperados com sucesso.',
+                'data' => $myProfile,
+            ]);
+        } catch (QueryException $qe) {
+            return response()->json([
+                'success' => false,
+                'message' => "Error DB: " . $qe->getMessage(),
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => "Error: " . $e->getMessage(),
+            ]);
+        }
+    }
+
+    //USER
+    public function updatePassword(Request $request)
+    {
+        try {
+            $oldPassword = $request->user()->password;
+            $userId = $request->user()->id;
+
+            $validatedData = $request->validate(
+                $this->user->rulesUpdatePassword(),
+                $this->user->feedbackUpdatePassword()
+            );
+
+            // keys
+            // password
+            // password_confirmation
+
+            if (Hash::check($request->password, $oldPassword)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Senha já utilizada anteriormente.',
+                ]);
+            }
+
+            $newPassword = User::where('id', $userId)
+                ->update(['password' => Hash::make($request->password)]);
+
+            if ($newPassword) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Senha alterada com sucesso.',
+                ]);
+            }
+        } catch (QueryException $qe) {
+            return response()->json([
+                'success' => false,
+                'message' => "Error DB: " . $qe->getMessage(),
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => "Error: " . $e->getMessage(),
+            ]);
+        }
+    }
+
+    public function updatePasswordAdmin(Request $request, $id)
+    {
+        try {
+
+            $user = $request->user();
+
+            $level = $user->level;
+
+            if ($level == 'user') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Você não tem permissão de acesso para seguir adiante.',
+                ]);
+            }
+
+            $userResetPassword = User::where('id', $id)->first();
+
+            if (!$userResetPassword) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Nenhum usuário encontrado.',
+                ]);
+            }
+
+            $validatedData = $request->validate(
+                $this->user->rulesUpdatePasswordAdmin(),
+                $this->user->feedbackUpdatePasswordAdmin()
+            );
+
+            $password = Hash::make($request->password);
+
+            $userResetPassword->update(['password' => $password]);
+            $userResetPassword->save();
+
+            if ($userResetPassword) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Senha alterada com sucesso',
+                    // 'data' => $request->password,
+                ]);
+            }
         } catch (QueryException $qe) {
             return response()->json([
                 'success' => false,
