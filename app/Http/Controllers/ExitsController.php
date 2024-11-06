@@ -81,7 +81,7 @@ class ExitsController extends CrudController
 
             $exitsAdmin = Exits::with(['productEquipament.category'])
                 ->whereHas('productEquipament', function ($query) use ($categoryUser) {
-                    $query->whereIn('fk_category_id', $categoryUser);
+                    // $query->whereIn('fk_category_id', $categoryUser);
                 })
                 ->get()
                 ->map(function ($exit) {
@@ -144,12 +144,55 @@ class ExitsController extends CrudController
                 ]);
             }
 
+            if ($user->level == 'user') {
+
+                $exit = Exits::with(['productEquipament.category'])
+                    ->where('id', $id)
+                    ->whereHas('productEquipament', function ($query) use ($categoryUser) {
+                        $query->whereIn('fk_category_id', $categoryUser);
+                    })->first();
+
+                if (!$exit) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Saída não encontrada.',
+                    ]);
+                }
+
+                $exitDataUser = [
+                    'exit_id' => $exit->id,
+                    'fk_user_id' => $exit->fk_user_id,
+                    'reason_project' => $exit->reason_project,
+                    'observation' => $exit->observation,
+                    'quantity' => $exit->quantity,
+                    'withdrawal_date' => $exit->withdrawal_date,
+                    'delivery_to' => $exit->delivery_to,
+                    'created_at' => $exit->created_at,
+                    'updated_at' => $exit->updated_at,
+                    'product_name' => $exit->productEquipament ? $exit->productEquipament->name : null,
+                    'category_name' => $exit->productEquipament->category->name,
+                ];
+
+                if ($exitDataUser == null) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Nenhuma saida encontrada.',
+                    ]);
+                }
+
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Saída recuperada com sucesso.',
+                    'data' => $exitDataUser,
+                ]);
+            }
+
             $exit = Exits::with(['productEquipament.category'])
-                ->where('id', $id) // Filtra pelo ID da saída específico
+                ->where('id', $id)
                 ->whereHas('productEquipament', function ($query) use ($categoryUser) {
-                    $query->whereIn('fk_category_id', $categoryUser);
-                })
-                ->first(); // Retorna apenas um registro
+                    // $query->whereIn('fk_category_id', $categoryUser);
+                })->first();
 
             if (!$exit) {
                 return response()->json([
@@ -158,7 +201,7 @@ class ExitsController extends CrudController
                 ]);
             }
 
-            $exitData = [
+            $exitDataAdm = [
                 'exit_id' => $exit->id,
                 'fk_user_id' => $exit->fk_user_id,
                 'reason_project' => $exit->reason_project,
@@ -172,10 +215,17 @@ class ExitsController extends CrudController
                 'category_name' => $exit->productEquipament->category->name,
             ];
 
+            if ($exitDataAdm == null) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Nenhuma saida encontrada.',
+                ]);
+            }
+
             return response()->json([
                 'success' => true,
                 'message' => 'Saída recuperada com sucesso.',
-                'data' => $exitData,
+                'data' => $exitDataAdm,
             ]);
         } catch (QueryException $qe) {
             return response()->json([
@@ -209,11 +259,10 @@ class ExitsController extends CrudController
                 ]);
             }
 
-            $productEquipamentUser = ProductEquipament::with('category')
-                ->whereIn('fk_category_id', $categoryUser)->where('id', $id)->first();
+            $productEquipamentUser = ProductEquipament::where('id', $id)->first();
 
 
-            if ($productEquipamentUser->isEmpty()) {
+            if ($productEquipamentUser == null) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Nenhum produto/equipamento encontrado.',
@@ -296,7 +345,7 @@ class ExitsController extends CrudController
             }
 
             $updateExits = $this->exits->find($id);
-            
+
             if (!$updateExits) {
                 return response()->json([
                     'success' => false,
@@ -365,7 +414,7 @@ class ExitsController extends CrudController
     public function delete(Request $request, $id)
     {
         try {
-            
+
             $user = $request->user();
             $level = $user->level;
 

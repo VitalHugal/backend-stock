@@ -53,7 +53,6 @@ class ReservationController extends CrudController
 
             $reservations = Reservation::with(['productEquipament.category', 'user', 'userFinished'])
                 ->whereHas('productEquipament', function ($query) use ($categoryUser) {
-                    $query->whereIn('fk_category_id', $categoryUser);
                 })
                 ->get()
                 ->map(function ($reservation) {
@@ -121,9 +120,9 @@ class ReservationController extends CrudController
             }
 
             $reservation = Reservation::with(['productEquipament.category', 'user'])
-                ->where('id', $id) // Filtra pelo ID da saída específico
+                ->where('id', $id) 
                 ->whereHas('productEquipament', function ($query) use ($categoryUser) {
-                    $query->whereIn('fk_category_id', $categoryUser);
+                    // $query->whereIn('fk_category_id', $categoryUser);
                 })
                 ->first();
 
@@ -316,7 +315,7 @@ class ReservationController extends CrudController
 
             $validateData = $request->validate(
                 $this->reservation->rulesReservation(),
-                $this->reservation->rulesReservation()
+                $this->reservation->feedbackReservation()
             );
 
             if ((int)$quantityOld > (int)$quantityNew) {
