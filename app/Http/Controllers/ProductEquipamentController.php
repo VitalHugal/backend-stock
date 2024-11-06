@@ -30,17 +30,48 @@ class ProductEquipamentController extends CrudController
                 ->where('fk_user_id', $idUser)
                 ->pluck('fk_category_id');
 
-            if ($categoryUser == null) {
+            if ($user->level !== 'admin' && $categoryUser == null) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Usuário não pertence a nenhum setor.',
+                    'message' => 'Você não tem permissão de acesso para seguir adiante.',
                 ]);
             }
 
-            // Busca todos os produtos com o nome da categoria relacionado
-            $productEquipamentUser = ProductEquipament::with('category')
-                ->whereIn('fk_category_id', $categoryUser)
-                ->get()
+
+            if ($user->level == 'user') {
+                // Busca todos os produtos com o nome da categoria relacionado
+                $productEquipamentUser = ProductEquipament::with('category')
+                    ->whereIn('fk_category_id', $categoryUser)
+                    ->get()
+                    ->map(function ($product) {
+                        return [
+                            'name-category' => $product->category ? $product->category->name : null,
+                            'id' => $product->id,
+                            'name' => $product->name,
+                            'quantity' => $product->quantity,
+                            'quantity_min' => $product->quantity_min,
+                            'fk_category_id' => $product->fk_category_id,
+                            'created_at' => $product->created_at,
+                            'updated_at' => $product->updated_at,
+                            'deleted_at' => $product->deleted_at,
+                        ];
+                    });
+
+                if ($productEquipamentUser == null) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Nenhum produto encontrado para a(s) categoria(s) do usuário.',
+                    ]);
+                }
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Produto(s)/Equipamento(s) recuperados com sucesso.',
+                    'data' => $productEquipamentUser,
+                ]);
+            }
+
+            $productAll = ProductEquipament::with('category')->get()
                 ->map(function ($product) {
                     return [
                         'name-category' => $product->category ? $product->category->name : null,
@@ -55,19 +86,17 @@ class ProductEquipamentController extends CrudController
                     ];
                 });
 
-            // Verifica se encontrou produtos
-            if ($productEquipamentUser->isEmpty()) {
+            if ($productAll == null) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Nenhum produto encontrado para a(s) categoria(s) do usuário.',
                 ]);
             }
 
-            // Retorna os produtos com o nome da categoria
             return response()->json([
                 'success' => true,
                 'message' => 'Produto(s)/Equipamento(s) recuperados com sucesso.',
-                'data' => $productEquipamentUser,
+                'data' => $productAll,
             ]);
         } catch (QueryException $qe) {
             return response()->json([
@@ -88,18 +117,52 @@ class ProductEquipamentController extends CrudController
             $user = $request->user();
             $idUser = $user->id;
 
-            $categoryUser = DB::table('category_user')->where('fk_user_id', $idUser)->pluck('fk_category_id');
+            $categoryUser = DB::table('category_user')
+                ->where('fk_user_id', $idUser)
+                ->pluck('fk_category_id');
 
-            if ($categoryUser->isEmpty()) {
+            if ($user->level !== 'admin' && $categoryUser == null) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Usuário não pertence a nenhum setor.',
+                    'message' => 'Você não tem permissão de acesso para seguir adiante.',
                 ]);
             }
+            if ($user->level == 'user') {
 
-            // Busca todos os produtos com o nome da categoria relacionado
-            $productEquipamentUser = ProductEquipament::with('category')
-                ->whereIn('fk_category_id', $categoryUser)->where('id', $id)
+                // Busca todos os produtos com o nome da categoria relacionado
+                $productEquipamentUser = ProductEquipament::with('category')
+                    ->whereIn('fk_category_id', $categoryUser)->where('id', $id)
+                    ->get()
+                    ->map(function ($product) {
+                        return [
+                            'name-category' => $product->category ? $product->category->name : null,
+                            'id' => $product->id,
+                            'name' => $product->name,
+                            'quantity' => $product->quantity,
+                            'quantity_min' => $product->quantity_min,
+                            'fk_category_id' => $product->fk_category_id,
+                            'created_at' => $product->created_at,
+                            'updated_at' => $product->updated_at,
+                            'deleted_at' => $product->deleted_at,
+                        ];
+                    });
+
+                if ($productEquipamentUser == null) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Nenhum produto encontrado',
+                    ]);
+                }
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Produto/Equipamentos recuperados com sucesso.',
+                    'data' => $productEquipamentUser,
+                ]);
+            }
+            
+            $productAdmin = ProductEquipament::with('category')
+                ->where('id', $id)
                 ->get()
                 ->map(function ($product) {
                     return [
@@ -115,19 +178,17 @@ class ProductEquipamentController extends CrudController
                     ];
                 });
 
-            // Verifica se encontrou produtos
-            if ($productEquipamentUser->isEmpty()) {
+            if ($productAdmin == null) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Nenhum produto encontrado para as categorias do usuário.',
+                    'message' => 'Nenhum produto encontrado',
                 ]);
             }
 
-            // Retorna os produtos com o nome da categoria
             return response()->json([
                 'success' => true,
                 'message' => 'Produto/Equipamentos recuperados com sucesso.',
-                'data' => $productEquipamentUser,
+                'data' => $productAdmin,
             ]);
         } catch (QueryException $qe) {
             return response()->json([
@@ -145,6 +206,20 @@ class ProductEquipamentController extends CrudController
     public function store(Request $request)
     {
         try {
+            $user = $request->user();
+            $idUser = $user->id;
+
+            $categoryUser = DB::table('category_user')
+                ->where('fk_user_id', $idUser)
+                ->pluck('fk_category_id');
+
+            if ($user->level !== 'admin' && $categoryUser == null) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Você não tem permissão de acesso para seguir adiante.',
+                ]);
+            }
+
             $createProductEquipaments = $request->validate(
                 $this->productEquipaments->rulesProductEquipamentos(),
                 $this->productEquipaments->feedbackProductEquipaments()
@@ -185,6 +260,20 @@ class ProductEquipamentController extends CrudController
     public function update(Request $request, $id)
     {
         try {
+            $user = $request->user();
+            $idUser = $user->id;
+
+            $categoryUser = DB::table('category_user')
+                ->where('fk_user_id', $idUser)
+                ->pluck('fk_category_id');
+
+            if ($user->level !== 'admin' && $categoryUser == null) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Você não tem permissão de acesso para seguir adiante.',
+                ]);
+            }
+
             $updateProductEquipaments = $this->productEquipaments->find($id);
 
             if (!$updateProductEquipaments) {
