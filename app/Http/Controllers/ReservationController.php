@@ -40,53 +40,104 @@ class ReservationController extends CrudController
                 ]);
             }
 
+            if (in_array(1, $categoryUser, true) || in_array(5, $categoryUser, true)) {
 
-            if ($request->has('reservation_finished')) {
-                $reservationFilter = Reservation::filterReservations($request);
+                if ($request->has('reservation_finished')) {
+                    $reservationFilter = Reservation::filterReservations($request);
+
+                    return response()->json([
+                        'success' => true,
+                        'message' => 'Reservas com filtro recuperadas com sucesso.',
+                        'data' => $reservationFilter,
+                    ]);
+                }
+
+                $reservations = Reservation::with(['productEquipament.category', 'user', 'userFinished'])
+                    ->whereHas('productEquipament', function ($query) use ($categoryUser) {
+                        $query->whereIn('fk_category_id', $categoryUser);
+                    })
+                    ->get()
+                    ->map(function ($reservation) {
+                        return [
+                            'exit_id' => $reservation->id,
+                            'fk_user_id' => $reservation->fk_user_id,
+                            'name_user_id' => $reservation->user->name ?? null,
+                            'reason_project' => $reservation->reason_project,
+                            'observation' => $reservation->observation,
+                            'quantity' => $reservation->quantity,
+                            'withdrawal_date' => $reservation->withdrawal_date,
+                            'return_date' => $reservation->return_date,
+                            'delivery_to' => $reservation->delivery_to,
+                            'reservation_finished' => $reservation->reservation_finished,
+                            'date_finished' => $reservation->date_finished,
+                            'fk_user_id_finished' => $reservation->fk_user_id_finished,
+                            'name_user_id_finished' => $reservation->userFinished->name ?? null,
+                            'product_name' => $reservation->productEquipament->name ?? null,
+                            'category_name' => $reservation->productEquipament->category->name ?? null,
+                        ];
+                    });
+
+                if ($reservations == null) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Nenhuma reserva encontrada.',
+                    ]);
+                }
 
                 return response()->json([
                     'success' => true,
-                    'message' => 'Reservas com filtro recuperadas com sucesso.',
-                    'data' => $reservationFilter,
+                    'message' => 'Todas as reservas recuperadas com sucesso.',
+                    'data' => $reservations,
                 ]);
             }
 
-            $reservations = Reservation::with(['productEquipament.category', 'user', 'userFinished'])
-                ->whereHas('productEquipament', function ($query) use ($categoryUser) {
-                })
-                ->get()
-                ->map(function ($reservation) {
-                    return [
-                        'exit_id' => $reservation->id,
-                        'fk_user_id' => $reservation->fk_user_id,
-                        'name_user_id' => $reservation->user->name ?? null,
-                        'reason_project' => $reservation->reason_project,
-                        'observation' => $reservation->observation,
-                        'quantity' => $reservation->quantity,
-                        'withdrawal_date' => $reservation->withdrawal_date,
-                        'return_date' => $reservation->return_date,
-                        'delivery_to' => $reservation->delivery_to,
-                        'reservation_finished' => $reservation->reservation_finished,
-                        'date_finished' => $reservation->date_finished,
-                        'fk_user_id_finished' => $reservation->fk_user_id_finished,
-                        'name_user_id_finished' => $reservation->userFinished->name ?? null,
-                        'product_name' => $reservation->productEquipament->name ?? null,
-                        'category_name' => $reservation->productEquipament->category->name ?? null,
-                    ];
-                });
+            if ($user->level == 'admin') {
 
-            if ($reservations == null) {
+                if ($request->has('reservation_finished')) {
+                    $reservationFilter = Reservation::filterReservations($request);
+
+                    return response()->json([
+                        'success' => true,
+                        'message' => 'Reservas com filtro recuperadas com sucesso.',
+                        'data' => $reservationFilter,
+                    ]);
+                }
+
+                $reservationsAdmin = Reservation::with(['productEquipament.category', 'user', 'userFinished'])
+                    ->get()
+                    ->map(function ($reservation) {
+                        return [
+                            'exit_id' => $reservation->id,
+                            'fk_user_id' => $reservation->fk_user_id,
+                            'name_user_id' => $reservation->user->name ?? null,
+                            'reason_project' => $reservation->reason_project,
+                            'observation' => $reservation->observation,
+                            'quantity' => $reservation->quantity,
+                            'withdrawal_date' => $reservation->withdrawal_date,
+                            'return_date' => $reservation->return_date,
+                            'delivery_to' => $reservation->delivery_to,
+                            'reservation_finished' => $reservation->reservation_finished,
+                            'date_finished' => $reservation->date_finished,
+                            'fk_user_id_finished' => $reservation->fk_user_id_finished,
+                            'name_user_id_finished' => $reservation->userFinished->name ?? null,
+                            'product_name' => $reservation->productEquipament->name ?? null,
+                            'category_name' => $reservation->productEquipament->category->name ?? null,
+                        ];
+                    });
+
+                if ($reservationsAdmin == null) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Nenhuma reserva encontrada.',
+                    ]);
+                }
+
                 return response()->json([
-                    'success' => false,
-                    'message' => 'Nenhuma reserva encontrada.',
+                    'success' => true,
+                    'message' => 'Todas as reservas recuperadas com sucesso admin.',
+                    'data' => $reservationsAdmin,
                 ]);
             }
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Todas as reservas recuperadas com sucesso.',
-                'data' => $reservations,
-            ]);
         } catch (QueryException $qe) {
             return response()->json([
                 'success' => false,
@@ -119,8 +170,9 @@ class ReservationController extends CrudController
                 ]);
             }
 
+
             $reservation = Reservation::with(['productEquipament.category', 'user'])
-                ->where('id', $id) 
+                ->where('id', $id)
                 ->whereHas('productEquipament', function ($query) use ($categoryUser) {
                     // $query->whereIn('fk_category_id', $categoryUser);
                 })
