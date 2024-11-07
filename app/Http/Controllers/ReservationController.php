@@ -45,7 +45,6 @@ class ReservationController extends CrudController
 
                 if ($request->has('reservation_finished')) {
                     $reservationFilter = Reservation::filterReservations($request);
-
                     return response()->json([
                         'success' => true,
                         'message' => 'Reservas com filtro recuperadas com sucesso.',
