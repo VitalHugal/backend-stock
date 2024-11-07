@@ -171,6 +171,20 @@ class ReservationController extends CrudController
                 ]);
             }
 
+            if ($user->level == 'user') {
+
+                $product = ProductEquipament::where('id', $id)->first();
+
+                if ($product) {
+                    $verifyPresenceProdcutEspecificInCategory = in_array($product->fk_category_id, $categoryUser);
+                    if ($verifyPresenceProdcutEspecificInCategory === false) {
+                        return response()->json([
+                            'sucess' => false,
+                            'message' => 'Você não pode ter acesso a um produto que não pertence ao seu setor.'
+                        ]);
+                    }
+                }
+            }
 
             $reservation = Reservation::with(['productEquipament.category', 'user'])
                 ->where('id', $id)
@@ -246,7 +260,7 @@ class ReservationController extends CrudController
                     'message' => 'Você não tem permissão de acesso para seguir adiante.',
                 ]);
             }
-            
+
             if ($categoryUser) {
                 $productEquipamentUser = ProductEquipament::with('category')
                     ->whereIn('fk_category_id', $categoryUser)->where('id', $id)->first();
