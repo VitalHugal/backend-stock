@@ -172,11 +172,11 @@ class ReservationController extends CrudController
             }
 
             if ($user->level == 'user') {
-
                 $product = ProductEquipament::where('id', $id)->first();
 
                 if ($product) {
                     $verifyPresenceProdcutEspecificInCategory = in_array($product->fk_category_id, $categoryUser);
+
                     if ($verifyPresenceProdcutEspecificInCategory === false) {
                         return response()->json([
                             'sucess' => false,

@@ -145,6 +145,7 @@ class ExitsController extends CrudController
             }
 
             if ($user->level == 'user') {
+                
                 $exitRequest = Exits::where('id', $id)->first();
 
                 if ($exitRequest) {
