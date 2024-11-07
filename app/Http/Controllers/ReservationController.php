@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\Exits;
 use App\Models\ProductEquipament;
 use App\Models\Reservation;
 use Exception;
@@ -77,7 +78,7 @@ class ReservationController extends CrudController
                         ];
                     });
 
-                if ($reservations == null) {
+                if ($reservations === null) {
                     return response()->json([
                         'success' => false,
                         'message' => 'Nenhuma reserva encontrada.',
@@ -125,7 +126,7 @@ class ReservationController extends CrudController
                         ];
                     });
 
-                if ($reservationsAdmin == null) {
+                if ($reservationsAdmin === null) {
                     return response()->json([
                         'success' => false,
                         'message' => 'Nenhuma reserva encontrada.',
@@ -245,7 +246,7 @@ class ReservationController extends CrudController
                     'message' => 'Você não tem permissão de acesso para seguir adiante.',
                 ]);
             }
-
+            
             if ($categoryUser) {
                 $productEquipamentUser = ProductEquipament::with('category')
                     ->whereIn('fk_category_id', $categoryUser)->where('id', $id)->first();

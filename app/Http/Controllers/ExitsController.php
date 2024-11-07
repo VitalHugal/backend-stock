@@ -146,6 +146,21 @@ class ExitsController extends CrudController
 
             if ($user->level == 'user') {
 
+                $exitRequest = Exits::where('id', $id)->first();
+
+                if ($exitRequest) {
+                    $productInExits = $exitRequest->fk_product_equipament_id;
+                    $productEspecific = ProductEquipament::where('id', $productInExits)->first();
+                    $verifyPresenceProdcutEspecificInCategory = in_array($productEspecific, $categoryUser);
+
+                    if ($verifyPresenceProdcutEspecificInCategory === false) {
+                        return response()->json([
+                            'sucess' => false,  
+                            'message' => 'Você não pode ter acesso a um produto que não pertence ao seu setor.'
+                        ]);
+                    }
+                }
+
                 $exit = Exits::with(['productEquipament.category'])
                     ->where('id', $id)
                     ->whereHas('productEquipament', function ($query) use ($categoryUser) {
@@ -179,7 +194,6 @@ class ExitsController extends CrudController
                         'message' => 'Nenhuma saida encontrada.',
                     ]);
                 }
-
 
                 return response()->json([
                     'success' => true,

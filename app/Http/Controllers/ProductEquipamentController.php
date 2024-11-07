@@ -119,7 +119,8 @@ class ProductEquipamentController extends CrudController
 
             $categoryUser = DB::table('category_user')
                 ->where('fk_user_id', $idUser)
-                ->pluck('fk_category_id');
+                ->pluck('fk_category_id')
+                ->toArray();
 
             if ($user->level !== 'admin' && $categoryUser == null) {
                 return response()->json([
@@ -128,6 +129,18 @@ class ProductEquipamentController extends CrudController
                 ]);
             }
             if ($user->level == 'user') {
+
+                $product = ProductEquipament::where('id', $id)->first();
+
+                if ($product) {
+                    $verifyPresenceProdcutEspecificInCategory = in_array($product->fk_category_id, $categoryUser);
+                    if ($verifyPresenceProdcutEspecificInCategory === false) {
+                        return response()->json([
+                            'sucess' => false,
+                            'message' => 'Você não pode ter acesso a um produto que não pertence ao seu setor.'
+                        ]);
+                    }
+                }
 
                 // Busca todos os produtos com o nome da categoria relacionado
                 $productEquipamentUser = ProductEquipament::with('category')
@@ -160,7 +173,7 @@ class ProductEquipamentController extends CrudController
                     'data' => $productEquipamentUser,
                 ]);
             }
-            
+
             $productAdmin = ProductEquipament::with('category')
                 ->where('id', $id)
                 ->get()
