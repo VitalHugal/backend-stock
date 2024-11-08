@@ -9,3 +9,4 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote')->hourly();
 
 Schedule::command('stock:check-quantity')->everyMinute();
+Schedule::command('app:check-reservation-for-delays')->hourly();
