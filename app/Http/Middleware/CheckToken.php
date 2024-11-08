@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 
 class CheckToken
 {
+
     public function handle(Request $request, Closure $next)
     {
         if (!$request->hasHeader('Authorization')) {

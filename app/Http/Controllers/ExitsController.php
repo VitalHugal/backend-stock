@@ -26,6 +26,7 @@ class ExitsController extends CrudController
     public function getAllExits(Request $request)
     {
         try {
+            
             $user = $request->user();
             $level = $user->level;
             $idUser = $user->id;

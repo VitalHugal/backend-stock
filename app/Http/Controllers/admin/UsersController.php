@@ -23,13 +23,6 @@ class UsersController extends CrudController
     {
         try {
             $user = $request->user();
-
-            if ($request->bearerToken(null)) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'User não autenticado.',
-                ]);
-            }
             $level = $user->level;
 
             if ($level == 'user') {
