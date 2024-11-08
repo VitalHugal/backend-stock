@@ -26,10 +26,6 @@ class CheckQuantityMinInStock extends Command
             foreach ($lowStockProducts as $product) {
                 Log::warning("Produto {$product->name} está com estoque baixo. Quantidade atual: {$product->quantity}");
             }
-            
-            if ($product) {
-                Log::warning("tem");
-            }
         }
     }
 }
