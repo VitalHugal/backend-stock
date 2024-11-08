@@ -1,0 +1,26 @@
+git clone
+
+cp .env.example .env
+
+php artisan key:generate
+
+-- configurar arquivo .env
+
+php artisan migrate
+
+--------------------------------------------
+
+config crontab
+
+sudo apt-get install cron
+
+sudo systemctl status cron
+
+which php
+
+crontab -e
+
+exemplo : 
+* * * * * /usr/bin/php /home/ubuntu/Projetos/dev3/backend/backend-stock/artisan schedule:run >> /dev/null 2>&1
+
+sudo crontab -l
