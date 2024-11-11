@@ -3,23 +3,27 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Laravel\Sanctum\HasApiTokens;
 
 class ProductEquipament extends Model
 {
+    use SoftDeletes, HasApiTokens;
+    
     protected $fillable = [
         'name',
-        'quantity',
+        // 'quantity',
         'fk_category_id',
         'quantity_min'
     ];
     protected $table = 'products_equipaments';
-    protected $dates = 'deleted_at';
+    protected $dates = ['deleted_at'];
 
     public function rulesProductEquipamentos()
     {
         return [
             'name' => 'required|max:255',
-            'quantity' => 'required|integer|',
+            // 'quantity' => 'required|integer|',
             'quantity_min' => 'required|integer|',
             'fk_category_id' => 'required|exists:category,id',
         ];

@@ -3,9 +3,13 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Laravel\Sanctum\HasApiTokens;
 
 class Reservation extends Model
 {
+    use HasApiTokens, SoftDeletes;
+    
     protected $fillable = [
         'fk_product_equipament_id',
         'fk_user_id',
@@ -20,7 +24,7 @@ class Reservation extends Model
         'fk_user_id_finished',
     ];
     protected $table = 'reservations';
-    protected $dates = 'deleted_at';
+    protected $dates = ['deleted_at'];
 
 
     public static function filterReservations($request)

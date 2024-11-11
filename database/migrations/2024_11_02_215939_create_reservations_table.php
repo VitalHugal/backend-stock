@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('reservations', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('fk_product_equipament_id')->constrained('products_equipaments')->onDelete('cascade')->onUpdate('cascade');
-            $table->foreignId('fk_user_id')->constrained('users')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreignId('fk_product_equipament_id')->constrained('products_equipaments')->onUpdate('cascade');
+            $table->foreignId('fk_user_id')->constrained('users')->onUpdate('cascade');
             $table->string('reason_project');
             $table->string('observation');
             $table->integer('quantity');
@@ -23,7 +23,7 @@ return new class extends Migration
             $table->string('delivery_to');
             $table->string('reservation_finished');
             $table->string('date_finished');
-            $table->foreignId('fk_user_id_finished')->nullable()->constrained('users')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreignId('fk_user_id_finished')->nullable()->constrained('users')->onUpdate('cascade');
             $table->timestamps();
             $table->softDeletes();
         });

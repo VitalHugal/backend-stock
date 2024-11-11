@@ -2,10 +2,14 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Exits extends Model
 {
+    use HasFactory, SoftDeletes;
+    
     protected $fillable = [
         'fk_product_equipament_id',
         'fk_user_id',
@@ -17,7 +21,7 @@ class Exits extends Model
     ];
 
     protected $table = 'exits';
-    protected $dates = 'deleted_at';
+    protected $dates = ['deleted_at'];
 
     public function rulesExits()
     {

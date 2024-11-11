@@ -4,6 +4,8 @@ use App\Http\Controllers\Authentication\LoginController;
 use App\Http\Controllers\Admin\UsersController;
 use App\Http\Controllers\Admin\CategorysController;
 use App\Http\Controllers\ExitsController;
+use App\Http\Controllers\InputsController;
+use App\Http\Controllers\ProductAlertController;
 use App\Http\Controllers\ProductEquipamentController;
 use App\Http\Controllers\ReservationController;
 use App\Http\Middleware\CheckToken;
@@ -16,9 +18,17 @@ Route::get('/user', function (Request $request) {
 
 Route::post('/login', [LoginController::class, 'login']);
 
-// Route::middleware([CheckToken::class])->group(function () {
-
 Route::middleware(['auth:sanctum'])->group(function () {
+
+    //INPUTS
+    Route::post('/inputs', [InputsController::class, 'store']);
+    Route::post('/inputs/{id}', [InputsController::class, 'update']);
+    Route::get('/inputs', [InputsController::class, 'index']);
+    Route::get('/inputs/{id}', [InputsController::class, 'show']);
+    Route::delete('/inputs/{id}', [InputsController::class, 'destroy']);
+
+    //PRODUCT_ALERT
+    Route::get('/product-alert', [ProductAlertController::class, 'getAllProductAlert']);
 
     //RESERVATION
     Route::post('/reservation/{id}', [ReservationController::class, 'reservation']);
@@ -68,5 +78,4 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/get-all-category', [CategorysController::class, 'getAllCategorys']);
     Route::get('/get-category/{id}', [CategorysController::class, 'getId']);
     Route::delete('/delete-category/{id}', [CategorysController::class, 'delete']);
-    // });
 });

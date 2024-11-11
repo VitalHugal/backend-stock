@@ -10,6 +10,7 @@ use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
+use function Laravel\Prompts\table;
 use function PHPUnit\Framework\isEmpty;
 
 class ExitsController extends CrudController
@@ -26,7 +27,7 @@ class ExitsController extends CrudController
     public function getAllExits(Request $request)
     {
         try {
-            
+
             $user = $request->user();
             $level = $user->level;
             $idUser = $user->id;
@@ -146,7 +147,7 @@ class ExitsController extends CrudController
             }
 
             if ($user->level == 'user') {
-                
+
                 $exitRequest = Exits::where('id', $id)->first();
 
                 if ($exitRequest) {
@@ -156,7 +157,7 @@ class ExitsController extends CrudController
 
                     if ($verifyPresenceProdcutEspecificInCategory === false) {
                         return response()->json([
-                            'sucess' => false,  
+                            'sucess' => false,
                             'message' => 'Você não pode ter acesso a um produto que não pertence ao seu setor.'
                         ]);
                     }
@@ -293,23 +294,10 @@ class ExitsController extends CrudController
                 ]);
             }
 
-            $quantityTotalDB = $productEquipamentUser->quantity;
-
-            $numQuantity = intval($request->quantity);
-
-            if ($numQuantity > $quantityTotalDB) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Quantidade insuficiente em estoque. Temos apenas ' . $quantityTotalDB . ' unidades disponíveis.',
-                ]);
-            }
-
             $validateData = $request->validate(
                 $this->exits->rulesExits(),
                 $this->exits->feedbackExits()
             );
-
-            $newQuantityProductEquipament = $quantityTotalDB - $numQuantity;
 
             if ($request->fk_product_equipament_id != $id) {
                 return response()->json([
@@ -318,17 +306,20 @@ class ExitsController extends CrudController
                 ]);
             }
 
-            $exits = Exits::create([
-                'fk_product_equipament_id' => $request->fk_product_equipament_id,
-                'fk_user_id' => $request->fk_user_id,
-                'reason_project' => $request->reason_project,
-                'observation' => $request->observation,
-                'quantity' => $request->quantity,
-                'withdrawal_date' => $request->withdrawal_date,
-                'delivery_to' => $request->delivery_to,
-            ]);
+            if ($validateData) {
+                $exits = Exits::create([
+                    'fk_product_equipament_id' => $request->fk_product_equipament_id,
+                    'fk_user_id' => $request->fk_user_id,
+                    'reason_project' => $request->reason_project,
+                    'observation' => $request->observation,
+                    'quantity' => $request->quantity,
+                    'withdrawal_date' => $request->withdrawal_date,
+                    'delivery_to' => $request->delivery_to,
+                ]);
+            }
 
             if ($exits) {
+
                 ProductEquipament::where('id', $id)->update(['quantity' => $newQuantityProductEquipament]);
 
                 return response()->json([
@@ -416,11 +407,31 @@ class ExitsController extends CrudController
             $updateExits->fill($validateData);
             $updateExits->save();
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Saída atualizada com sucesso.',
-                'data' => $updateExits,
-            ]);
+            if ($updateExits->save()) {
+
+                $productAlert = DB::table('product_alerts')->where('fk_product_equipament_id', $fk_product)->first();
+
+                if ($productAlert) {
+                    DB::table('product_alerts')->where('fk_product_equipament_id', $fk_product)->update([
+                        'quantity_total' => $product->quantity,
+                        'quantity_min' => $product->quantity_min,
+                        'fk_category_id' => $product->fk_category_id,
+                    ]);
+                } else {
+                    DB::table('product_alerts')->insert([
+                        'fk_product_equipament_id' => $fk_product,
+                        'quantity_total' => $product->quantity,
+                        'quantity_min' => $product->quantity_min,
+                        'fk_category_id' => $product->fk_category_id,
+                    ]);
+                }
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Saída atualizada com sucesso.',
+                    'data' => $updateExits,
+                ]);
+            }
         } catch (QueryException $qe) {
             return response()->json([
                 'success' => false,

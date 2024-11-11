@@ -20,7 +20,6 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->string('level')->default('user');
-            // $table->string('responsible_category')->nullable();
             $table->rememberToken();
             $table->timestamps();
             $table->softDeletes();
@@ -45,6 +44,13 @@ return new class extends Migration
             'name' => 'admin-bizsys',
             'email' => 'logdevteam@bizsys.com.br',
             'password' => Hash::make('r4bhvp2h372020'),
+            'level' => 'admin',
+        ]);
+        
+        DB::table('users')->insert([
+            'name' => 'victor',
+            'email' => 'v@v.com',
+            'password' => Hash::make('123456789'),
             'level' => 'admin',
         ]);
     }

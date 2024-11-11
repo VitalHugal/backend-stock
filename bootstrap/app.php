@@ -14,7 +14,9 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        // $middleware->append(CheckToken::class);
+        // $middleware->alias([
+        //     'checkToken' => CheckToken::class,
+        // ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

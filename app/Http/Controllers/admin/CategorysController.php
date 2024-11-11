@@ -22,8 +22,9 @@ class CategorysController extends CrudController
     {
         try {
             $user = $request->user();
+            $level = $user->level;
 
-            if (!$user->tokenCan('admin')) {
+            if ($level == 'user') {
                 return response()->json([
                     'success' => false,
                     'message' => 'Você não tem permissão de acesso para seguir adiante.',
@@ -55,10 +56,10 @@ class CategorysController extends CrudController
     public function getId(Request $request, $id)
     {
         try {
-
             $user = $request->user();
+            $level = $user->level;
 
-            if (!$user->tokenCan('admin')) {
+            if ($level == 'user') {
                 return response()->json([
                     'success' => false,
                     'message' => 'Você não tem permissão de acesso para seguir adiante.',
@@ -96,8 +97,9 @@ class CategorysController extends CrudController
     {
         try {
             $user = $request->user();
+            $level = $user->level;
 
-            if (!$user->tokenCan('admin')) {
+            if ($level == 'user') {
                 return response()->json([
                     'success' => false,
                     'message' => 'Você não tem permissão de acesso para seguir adiante.',
@@ -150,8 +152,9 @@ class CategorysController extends CrudController
         try {
 
             $user = $request->user();
+            $level = $user->level;
 
-            if (!$user->tokenCan('admin')) {
+            if ($level == 'user') {
                 return response()->json([
                     'success' => false,
                     'message' => 'Você não tem permissão de acesso para seguir adiante.',
@@ -199,8 +202,9 @@ class CategorysController extends CrudController
     {
         try {
             $user = $request->user();
+            $level = $user->level;
 
-            if (!$user->tokenCan('admin')) {
+            if ($level == 'user') {
                 return response()->json([
                     'success' => false,
                     'message' => 'Você não tem permissão de acesso para seguir adiante.',
@@ -216,21 +220,18 @@ class CategorysController extends CrudController
                 ]);
             }
 
-            $formatedDate = now();
-
             $deleteCategory->delete();
 
             if ($deleteCategory) {
                 $data = DB::table('category_user')->where('fk_category_id', $id)->get();
-
                 $dataTwo = DB::table('products_equipaments')->where('fk_category_id', $id)->get();
 
-                if ($data) {
-                    DB::table('category_user')->where('fk_category_id', $id)->update(['deleted_at' => $formatedDate]);
+                if (!$data == null) {
+                    DB::table('category_user')->where('fk_category_id', $id)->delete();
                 }
 
-                if ($dataTwo) {
-                    DB::table('products_equipaments')->where('fk_category_id', $id)->update(['deleted_at' => $formatedDate]);
+                if ($dataTwo == null) {
+                    DB::table('products_equipaments')->where('fk_category_id', $id)->delete();
                 }
             }
 

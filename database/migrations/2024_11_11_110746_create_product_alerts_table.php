@@ -11,15 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('exits', function (Blueprint $table) {
+        Schema::create('product_alerts', function (Blueprint $table) {
             $table->id();
             $table->foreignId('fk_product_equipament_id')->constrained('products_equipaments')->onUpdate('cascade');
-            $table->foreignId('fk_user_id')->constrained('users')->onUpdate('cascade');
-            $table->string('reason_project');
-            $table->string('observation');
-            $table->integer('quantity');
-            $table->string('withdrawal_date');
-            $table->string('delivery_to');
+            $table->integer('quantity_min');
+            $table->foreignId('fk_category_id')->constrained('category')->onUpdate('cascade');
             $table->timestamps();
             $table->softDeletes();
         });
@@ -30,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('exits');
+        Schema::dropIfExists('product_alerts');
     }
 };
