@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\ProductAlert;
-use App\Http\Controllers\Controller;
 use Exception;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
@@ -38,15 +37,15 @@ class ProductAlertController extends CrudController
             }
 
             if ($user->level == 'user') {
-                
-                $productAlertUser = ProductAlert::with('category')
+
+                $productAlertUser = ProductAlert::with('category', 'productEquipament', 'inputs')
                     ->whereIn('fk_category_id', $categoryUser)
                     ->get()
                     ->map(function ($product) {
                         return [
                             'id' => $product->id,
                             'name' => $product->name,
-                            // 'quantity' => $product->quantity,
+                            'quantity_total' => $product->quantity,
                             'quantity_min' => $product->quantity_min,
                             'name-category' => $product->category ? $product->category->name : null,
                             'created_at' => $product->created_at,
@@ -62,6 +61,18 @@ class ProductAlertController extends CrudController
                     ]);
                 }
 
+                // Supondo que $productAlertUser seja uma coleção de registros de produtos em alerta
+                foreach ($productAlertUser as $key => $product) {
+                    // Verifica se a quantidade em estoque é maior que o mínimo necessário
+                    if ($product['quantity_stock'] > $product['quantity_min']) {
+                        // Remove o produto da coleção, pois não precisa mais estar em alerta
+                        unset($productAlertUser[$key]);
+                    }
+                }
+
+                // Reinicia as chaves do array para garantir que estejam em sequência
+                $productAlertUser = array_values($productAlertUser);
+
                 return response()->json([
                     'success' => true,
                     'message' => 'Produto(s)/Equipamento(s) em alerta recuperado com sucesso.',
@@ -69,17 +80,17 @@ class ProductAlertController extends CrudController
                 ]);
             }
 
-            $productAlertAll = ProductAlert::with('category', 'productEquipament')->get()
+            $productAlertAll = ProductAlert::with('category', 'productEquipament', 'inputs')->get()
                 ->map(function ($product) {
                     return [
                         'id' => $product->id,
-                            'name' => $product->productEquipament->name ?? null,
-                            // 'quantity' => $product->productEquipament->quantity,
-                            'quantity_min' => $product->productEquipament->quantity_min,
-                            'name-category' => $product->category ? $product->category->name : null,
-                            'created_at' => $product->created_at,
-                            'updated_at' => $product->updated_at,
-                            'deleted_at' => $product->deleted_at,
+                        'name' => $product->productEquipament->name ?? null,
+                        'quantity_stock' => $product->inputs->quantity ?? null,
+                        'quantity_min' => $product->productEquipament->quantity_min,
+                        'name-category' => $product->category ? $product->category->name : null,
+                        'created_at' => $product->created_at,
+                        'updated_at' => $product->updated_at,
+                        'deleted_at' => $product->deleted_at,
                     ];
                 });
 
@@ -88,6 +99,12 @@ class ProductAlertController extends CrudController
                     'success' => false,
                     'message' => 'Nenhum produto encontrado para a(s) categoria(s) do usuário.',
                 ]);
+            }
+
+            foreach ($productAlertAll as $key => $productAdmin) {
+                if ($productAdmin['quantity_stock'] > $productAdmin['quantity_min']) {
+                    unset($productAlertAll[$key]);
+                }
             }
 
             return response()->json([

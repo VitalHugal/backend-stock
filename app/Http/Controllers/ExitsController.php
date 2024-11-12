@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\Exits;
+use App\Models\Inputs;
 use App\Models\ProductEquipament;
 use Exception;
 use Illuminate\Database\QueryException;
@@ -277,6 +278,8 @@ class ExitsController extends CrudController
 
             $productEquipamentUser = ProductEquipament::where('id', $id)->first();
 
+            (int)$productQuantityMin = $productEquipamentUser->quantity_min;
+
             if ($user->level == 'user') {
                 $validationExits = in_array($productEquipamentUser->fk_category_id, $categoryUser);
                 if ($validationExits === false) {
@@ -306,6 +309,18 @@ class ExitsController extends CrudController
                 ]);
             }
 
+            $input = Inputs::where('fk_product_equipament_id', $id)->first();
+
+            $quantityTotalProduct = $input->quantity;
+
+
+            if ($request->quantity > $quantityTotalProduct) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Quantidade solicita é maior que o total no estoque. Temos apenas ' . $quantityTotalProduct . ' unidade(s).'
+                ]);
+            }
+
             if ($validateData) {
                 $exits = Exits::create([
                     'fk_product_equipament_id' => $request->fk_product_equipament_id,
@@ -318,15 +333,50 @@ class ExitsController extends CrudController
                 ]);
             }
 
-            if ($exits) {
+            if (isset($exits)) {
+                $updateInput = $input->update(['quantity' => $quantityTotalProduct - $exits['quantity']]);
 
-                ProductEquipament::where('id', $id)->update(['quantity' => $newQuantityProductEquipament]);
+                if ($updateInput) {
 
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Retirada concluída com sucesso',
-                    'data' => $exits,
-                ]);
+                    $newQuantityTotal = $quantityTotalProduct - $exits['quantity'];
+
+                    if ($newQuantityTotal <= $productQuantityMin) {
+
+                        $updateInputExists = false;
+                        $insertInput = false;
+
+                        $productAlert = DB::table('product_alerts')
+                            ->where('fk_product_equipament_id', $id)
+                            ->whereNull('deleted_at')
+                            ->first();
+
+                        if ($productAlert) {
+
+                            $updateInputExists = DB::table('product_alerts')
+                                ->where('fk_product_equipament_id', $id)
+                                ->update([
+                                    'quantity_min' => $productQuantityMin,
+                                    'fk_category_id' => $productEquipamentUser->fk_category_id,
+                                ]) > 0; // Retorna true se pelo menos uma linha foi afetada
+                        } else {
+
+                            $insertInput = DB::table('product_alerts')
+                                ->insert([
+                                    'fk_product_equipament_id' => $id,
+                                    'quantity_min' => $productQuantityMin,
+                                    'fk_category_id' => $productEquipamentUser->fk_category_id,
+                                ]);
+                        }
+
+                        if ($updateInputExists || $insertInput) {
+                            return response()->json([
+                                'success' => true,
+                                'message' => 'Retirada concluída com sucesso',
+                                'data' => $exits,
+                            ]);
+                        }
+                    }
+                }
             }
         } catch (QueryException $qe) {
             return response()->json([
@@ -373,6 +423,7 @@ class ExitsController extends CrudController
             $quantityNew = $request->quantity;
 
             $product = ProductEquipament::find($fk_product);
+
             if (!$product) {
                 return response()->json([
                     'success' => false,
@@ -380,7 +431,9 @@ class ExitsController extends CrudController
                 ]);
             }
 
-            $quantityTotalDB = $product->quantity;
+            $input = Inputs::where("fk_product_equipament_id", $fk_product)->first();
+
+            $quantityTotalProduct = $input->quantity;
 
             $validateData = $request->validate(
                 $this->exits->rulesExits(),
@@ -389,19 +442,19 @@ class ExitsController extends CrudController
 
             if ((int)$quantityOld > (int)$quantityNew) {
 
-                $returnDB = $quantityTotalDB + ($quantityOld - $quantityNew);
-                $product->update(['quantity' => $returnDB]);
+                $returnDB = $quantityTotalProduct + ($quantityOld - $quantityNew);
+                $input->update(['quantity' => $returnDB]);
             } elseif ((int)$quantityNew > (int)$quantityOld) {
 
                 $removeDB = $quantityNew - $quantityOld;
 
-                if ($quantityTotalDB < $removeDB) {
+                if ($quantityTotalProduct < $removeDB) {
                     return response()->json([
                         'success' => false,
-                        'message' => 'Quantidade insuficiente em estoque. Temos apenas ' . $quantityTotalDB . ' unidades disponíveis.',
+                        'message' => 'Quantidade insuficiente em estoque. Temos apenas ' . $quantityTotalProduct . ' unidades disponíveis.',
                     ]);
                 }
-                $product->update(['quantity' => $quantityTotalDB - $removeDB]);
+                $input->update(['quantity' => $quantityTotalProduct - $removeDB]);
             }
 
             $updateExits->fill($validateData);
@@ -409,21 +462,24 @@ class ExitsController extends CrudController
 
             if ($updateExits->save()) {
 
-                $productAlert = DB::table('product_alerts')->where('fk_product_equipament_id', $fk_product)->first();
+                if ($quantityTotalProduct <= $product->quantity_min) {
 
-                if ($productAlert) {
-                    DB::table('product_alerts')->where('fk_product_equipament_id', $fk_product)->update([
-                        'quantity_total' => $product->quantity,
-                        'quantity_min' => $product->quantity_min,
-                        'fk_category_id' => $product->fk_category_id,
-                    ]);
-                } else {
-                    DB::table('product_alerts')->insert([
-                        'fk_product_equipament_id' => $fk_product,
-                        'quantity_total' => $product->quantity,
-                        'quantity_min' => $product->quantity_min,
-                        'fk_category_id' => $product->fk_category_id,
-                    ]);
+                    $productAlert = DB::table('product_alerts')->where('fk_product_equipament_id', $fk_product)->first();
+
+                    if ($productAlert) {
+                        DB::table('product_alerts')->where('fk_product_equipament_id', $fk_product)->update([
+                            'quantity_total' => $quantityTotalProduct,
+                            'quantity_min' => $product->quantity_min,
+                            'fk_category_id' => $product->fk_category_id,
+                        ]);
+                    } else {
+                        DB::table('product_alerts')->insert([
+                            'fk_product_equipament_id' => $fk_product,
+                            'quantity_total' => $quantityTotalProduct,
+                            'quantity_min' => $product->quantity_min,
+                            'fk_category_id' => $product->fk_category_id,
+                        ]);
+                    }
                 }
 
                 return response()->json([
@@ -475,10 +531,16 @@ class ExitsController extends CrudController
             $deleteExits->delete();
 
             $product = ProductEquipament::where('id', $idProduct)->first();
+            $input = Inputs::where('fk_product_equipament_id', $idProduct)->first();
 
             if ($product) {
-                $quantityTotalDB = $product->quantity;
-                $product->update(['quantity' => $quantityTotalDB + $quantityReturnStock]);
+
+                $input = Inputs::where('fk_product_equipament_id', $idProduct)->first();
+
+                if ($input) {
+                    $quantityTotalDB = $input->quantity;
+                    $product->update(['quantity' => $quantityTotalDB + $quantityReturnStock]);
+                }
             }
 
             return response()->json([

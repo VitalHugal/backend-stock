@@ -46,4 +46,8 @@ class ProductAlert extends Model
     {
         return $this->belongsTo(ProductEquipament::class, 'fk_product_equipament_id');
     }
+    public function inputs()
+    {
+        return $this->belongsTo(Inputs::class, 'fk_product_equipament_id');
+    }
 }
