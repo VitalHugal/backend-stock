@@ -23,8 +23,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
     //INPUTS
     Route::post('/inputs', [InputsController::class, 'store']);
     Route::post('/update-inputs/{id}', [InputsController::class, 'update']);
-    Route::get('/get-all-inputs', [InputsController::class, 'index']);
-    Route::get('/inputs/{id}', [InputsController::class, 'show']);
+    Route::get('/get-all-inputs', [InputsController::class, 'getAllExits']);
+    Route::get('/get-inputs/{id}', [InputsController::class, 'getIdExits']);
     
 
     //PRODUCT_ALERT

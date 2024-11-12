@@ -36,4 +36,9 @@ class Inputs extends Model
             'exists:users,id' => 'Usuario informado não existe, verifique.',
         ];
     }
+
+    public function productEquipament()
+    {
+        return $this->belongsTo(ProductEquipament::class, 'fk_product_equipament_id');
+    }
 }
