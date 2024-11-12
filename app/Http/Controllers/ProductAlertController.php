@@ -61,16 +61,12 @@ class ProductAlertController extends CrudController
                     ]);
                 }
 
-                // Supondo que $productAlertUser seja uma coleção de registros de produtos em alerta
                 foreach ($productAlertUser as $key => $product) {
-                    // Verifica se a quantidade em estoque é maior que o mínimo necessário
                     if ($product['quantity_stock'] > $product['quantity_min']) {
-                        // Remove o produto da coleção, pois não precisa mais estar em alerta
                         unset($productAlertUser[$key]);
                     }
                 }
 
-                // Reinicia as chaves do array para garantir que estejam em sequência
                 $productAlertUser = array_values($productAlertUser);
 
                 return response()->json([

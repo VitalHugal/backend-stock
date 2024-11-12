@@ -311,13 +311,22 @@ class ExitsController extends CrudController
 
             $input = Inputs::where('fk_product_equipament_id', $id)->first();
 
-            $quantityTotalProduct = $input->quantity;
+            $quantityTotalInputs = Inputs::where('fk_product_equipament_id', $id)->sum('quantity');
+            $quantityTotalExits = Exits::where('fk_product_equipament_id', $id)->sum('quantity');
 
+            $quantityTotalProduct = $quantityTotalInputs - $quantityTotalExits;
+
+            if ($quantityTotalProduct <= 0) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Produto indisponível.'
+                ]);
+            }
 
             if ($request->quantity > $quantityTotalProduct) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Quantidade solicita é maior que o total no estoque. Temos apenas ' . $quantityTotalProduct . ' unidade(s).'
+                    'message' => 'Quantidade solicita indisponível no estoque. Temos apenas ' . $quantityTotalProduct . ' unidade(s).'
                 ]);
             }
 
@@ -332,6 +341,8 @@ class ExitsController extends CrudController
                     'delivery_to' => $request->delivery_to,
                 ]);
             }
+
+            $date = now();
 
             if (isset($exits)) {
                 $updateInput = $input->update(['quantity' => $quantityTotalProduct - $exits['quantity']]);
@@ -357,6 +368,7 @@ class ExitsController extends CrudController
                                 ->update([
                                     'quantity_min' => $productQuantityMin,
                                     'fk_category_id' => $productEquipamentUser->fk_category_id,
+                                    'created_at' => $date,
                                 ]) > 0; // Retorna true se pelo menos uma linha foi afetada
                         } else {
 
@@ -365,10 +377,11 @@ class ExitsController extends CrudController
                                     'fk_product_equipament_id' => $id,
                                     'quantity_min' => $productQuantityMin,
                                     'fk_category_id' => $productEquipamentUser->fk_category_id,
+                                    'created_at' => $date,
                                 ]);
                         }
 
-                        if ($updateInputExists || $insertInput) {
+                        if ($updateInputExists || $updateInputExists == false || $insertInput) {
                             return response()->json([
                                 'success' => true,
                                 'message' => 'Retirada concluída com sucesso',

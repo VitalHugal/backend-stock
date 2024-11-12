@@ -48,7 +48,7 @@ class ProductEquipamentController extends CrudController
                             'name-category' => $product->category ? $product->category->name : null,
                             'id' => $product->id,
                             'name' => $product->name,
-                            // 'quantity' => $product->quantity,
+                            'quantity_' => $product->quantity,
                             'quantity_min' => $product->quantity_min,
                             'fk_category_id' => $product->fk_category_id,
                             'created_at' => $product->created_at,
