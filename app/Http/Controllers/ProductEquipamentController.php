@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\Exits;
+use App\Models\Inputs;
 use App\Models\ProductEquipament;
 use Exception;
 use Illuminate\Database\QueryException;
@@ -44,11 +46,16 @@ class ProductEquipamentController extends CrudController
                     ->whereIn('fk_category_id', $categoryUser)
                     ->get()
                     ->map(function ($product) {
+
+                        $quantityTotalInputs = Inputs::where('fk_product_equipament_id', $product->id)->sum('quantity');
+                        $quantityTotalExits = Exits::where('fk_product_equipament_id', $product->id)->sum('quantity');
+                        $quantityStock = $quantityTotalInputs - $quantityTotalExits;
+
                         return [
                             'name-category' => $product->category ? $product->category->name : null,
                             'id' => $product->id,
                             'name' => $product->name,
-                            'quantity_' => $product->quantity,
+                            'quantity_stock' => $quantityStock,
                             'quantity_min' => $product->quantity_min,
                             'fk_category_id' => $product->fk_category_id,
                             'created_at' => $product->created_at,
@@ -73,11 +80,16 @@ class ProductEquipamentController extends CrudController
 
             $productAll = ProductEquipament::with('category')->get()
                 ->map(function ($product) {
+
+                    $quantityTotalInputs = Inputs::where('fk_product_equipament_id', $product->id)->sum('quantity');
+                    $quantityTotalExits = Exits::where('fk_product_equipament_id', $product->id)->sum('quantity');
+                    $quantityStock = $quantityTotalInputs - $quantityTotalExits;
+
                     return [
                         'name-category' => $product->category ? $product->category->name : null,
                         'id' => $product->id,
                         'name' => $product->name,
-                        // 'quantity' => $product->quantity,
+                        'quantity_stock' => $quantityStock,
                         'quantity_min' => $product->quantity_min,
                         'fk_category_id' => $product->fk_category_id,
                         'created_at' => $product->created_at,
@@ -147,11 +159,16 @@ class ProductEquipamentController extends CrudController
                     ->whereIn('fk_category_id', $categoryUser)->where('id', $id)
                     ->get()
                     ->map(function ($product) {
+
+                        $quantityTotalInputs = Inputs::where('fk_product_equipament_id', $product->id)->sum('quantity');
+                        $quantityTotalExits = Exits::where('fk_product_equipament_id', $product->id)->sum('quantity');
+                        $quantityStock = $quantityTotalInputs - $quantityTotalExits;
+
                         return [
                             'name-category' => $product->category ? $product->category->name : null,
                             'id' => $product->id,
                             'name' => $product->name,
-                            // 'quantity' => $product->quantity,
+                            'quantity_stock' => $quantityStock,
                             'quantity_min' => $product->quantity_min,
                             'fk_category_id' => $product->fk_category_id,
                             'created_at' => $product->created_at,
@@ -178,11 +195,16 @@ class ProductEquipamentController extends CrudController
                 ->where('id', $id)
                 ->get()
                 ->map(function ($product) {
+                    
+                    $quantityTotalInputs = Inputs::where('fk_product_equipament_id', $product->id)->sum('quantity');
+                    $quantityTotalExits = Exits::where('fk_product_equipament_id', $product->id)->sum('quantity');
+                    $quantityStock = $quantityTotalInputs - $quantityTotalExits;
+                    
                     return [
                         'name-category' => $product->category ? $product->category->name : null,
                         'id' => $product->id,
                         'name' => $product->name,
-                        // 'quantity' => $product->quantity,
+                        'quantity_stock' => $quantityStock,
                         'quantity_min' => $product->quantity_min,
                         'fk_category_id' => $product->fk_category_id,
                         'created_at' => $product->created_at,
