@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use Exception;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class InputsController extends CrudController
 {
@@ -63,7 +64,11 @@ class InputsController extends CrudController
 
             $updateInput = $this->input->find($id);
 
+            $date = now();
+            
             $user = $request->user();
+
+            $idUser = $user->id;
 
             if (!$updateInput) {
                 return response()->json([
@@ -71,7 +76,7 @@ class InputsController extends CrudController
                     'message' => 'Nenhuma entrada encontrada.',
                 ]);
             }
-
+            
             $validatedData = [
                 'fk_product_equipament_id' => $request->fk_product_equipament_id,
                 'quantity' => $request->quantity,
@@ -86,6 +91,8 @@ class InputsController extends CrudController
             $updateInput->save();
 
             if ($updateInput->save()) {
+            Log::info("User nº:{$idUser} updated entry nº:{$id} on {$date}");
+
                 return response()->json([
                     'success' => true,
                     'message' => 'Entrada atualizada com sucesso.',

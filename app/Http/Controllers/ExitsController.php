@@ -330,6 +330,13 @@ class ExitsController extends CrudController
                 ]);
             }
 
+            if ($request->quantity == '0' || $request->quantity == '0') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Quantidade minima: 1.'
+                ]);
+            }
+
             if ($validateData) {
                 $exits = Exits::create([
                     'fk_product_equipament_id' => $request->fk_product_equipament_id,
@@ -341,7 +348,6 @@ class ExitsController extends CrudController
                     'delivery_to' => $request->delivery_to,
                 ]);
             }
-
             $date = now();
 
             if (isset($exits)) {

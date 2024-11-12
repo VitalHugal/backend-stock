@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Exits;
+use App\Models\Inputs;
 use App\Models\ProductAlert;
 use Exception;
 use Illuminate\Database\QueryException;
@@ -42,10 +44,16 @@ class ProductAlertController extends CrudController
                     ->whereIn('fk_category_id', $categoryUser)
                     ->get()
                     ->map(function ($product) {
+
+                        $quantityTotalInputs = Inputs::where('fk_product_equipament_id', $product->productEquipament->id)->sum('quantity');
+                        $quantityTotalExits = Exits::where('fk_product_equipament_id', $product->productEquipament->id)->sum('quantity');
+                        $quantityStock = $quantityTotalInputs - $quantityTotalExits;
+
                         return [
                             'id' => $product->id,
                             'name' => $product->name,
-                            'quantity_total' => $product->quantity,
+                            'id_product' => $product->productEquipament->id ?? null,
+                            'quantity_stock' => $quantityStock,
                             'quantity_min' => $product->quantity_min,
                             'name-category' => $product->category ? $product->category->name : null,
                             'created_at' => $product->created_at,
@@ -78,10 +86,16 @@ class ProductAlertController extends CrudController
 
             $productAlertAll = ProductAlert::with('category', 'productEquipament', 'inputs')->get()
                 ->map(function ($product) {
+
+                    $quantityTotalInputs = Inputs::where('fk_product_equipament_id', $product->productEquipament->id)->sum('quantity');
+                    $quantityTotalExits = Exits::where('fk_product_equipament_id', $product->productEquipament->id)->sum('quantity');
+                    $quantityStock = $quantityTotalInputs - $quantityTotalExits;
+
                     return [
                         'id' => $product->id,
                         'name' => $product->productEquipament->name ?? null,
-                        'quantity_stock' => $product->inputs->quantity ?? null,
+                        'id_product' => $product->productEquipament->id ?? null,
+                        'quantity_stock' => $quantityStock,
                         'quantity_min' => $product->productEquipament->quantity_min,
                         'name-category' => $product->category ? $product->category->name : null,
                         'created_at' => $product->created_at,
