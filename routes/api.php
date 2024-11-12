@@ -22,10 +22,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     //INPUTS
     Route::post('/inputs', [InputsController::class, 'store']);
-    Route::post('/inputs/{id}', [InputsController::class, 'update']);
-    Route::get('/inputs', [InputsController::class, 'index']);
+    Route::post('/update-inputs/{id}', [InputsController::class, 'update']);
+    Route::get('/get-all-inputs', [InputsController::class, 'index']);
     Route::get('/inputs/{id}', [InputsController::class, 'show']);
-    Route::delete('/inputs/{id}', [InputsController::class, 'destroy']);
+    
 
     //PRODUCT_ALERT
     Route::get('/product-alert', [ProductAlertController::class, 'getAllProductAlert']);
@@ -60,6 +60,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::delete('/delete-exits/{id}', [ExitsController::class, 'delete']);
     Route::delete('/delete-product-equipaments/{id}', [ProductEquipamentController::class, 'delete']);
     Route::delete('/delete-reservation/{id}', [ReservationController::class, 'delete']);
+    Route::delete('/delete-inputs/{id}', [InputsController::class, 'delete']);
 
     //USERS
     Route::post('/register-user', [UsersController::class, 'store']);

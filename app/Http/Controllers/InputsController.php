@@ -65,7 +65,7 @@ class InputsController extends CrudController
             $updateInput = $this->input->find($id);
 
             $date = now();
-            
+
             $user = $request->user();
 
             $idUser = $user->id;
@@ -76,7 +76,7 @@ class InputsController extends CrudController
                     'message' => 'Nenhuma entrada encontrada.',
                 ]);
             }
-            
+
             $validatedData = [
                 'fk_product_equipament_id' => $request->fk_product_equipament_id,
                 'quantity' => $request->quantity,
@@ -91,7 +91,7 @@ class InputsController extends CrudController
             $updateInput->save();
 
             if ($updateInput->save()) {
-            Log::info("User nº:{$idUser} updated entry nº:{$id} on {$date}");
+                Log::info("User nº:{$idUser} updated entry nº:{$id} on {$date}");
 
                 return response()->json([
                     'success' => true,
@@ -99,6 +99,48 @@ class InputsController extends CrudController
                     'data' => $updateInput,
                 ]);
             }
+        } catch (QueryException $qe) {
+            return response()->json([
+                'success' => false,
+                'message' => "Error DB: " . $qe->getMessage(),
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => "Error: " . $e->getMessage(),
+            ]);
+        }
+    }
+
+    public function delete(Request $request, $id)
+    {
+        try {
+
+            $user = $request->user();
+            $level = $user->level;
+
+            if ($level == 'user') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Você não tem permissão de acesso para seguir adiante.',
+                ]);
+            }
+
+            $deleteInput = $this->input->find($id);
+
+            if (!$deleteInput) {
+                return response()->json([
+                    'success' => false,
+                    'message' => "Nenhum resultado encontrado.",
+                ]);
+            }
+
+            $deleteInput->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Entrada removida com sucesso.',
+            ]);
         } catch (QueryException $qe) {
             return response()->json([
                 'success' => false,
