@@ -13,6 +13,8 @@ class MeController extends CrudController
     {
         try {
             $user = $request->user();
+
+            dd($user);
             if ($user) {
                 return response()->json([
                     'success' => true,

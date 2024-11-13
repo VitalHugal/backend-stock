@@ -8,7 +8,6 @@ use App\Http\Controllers\InputsController;
 use App\Http\Controllers\ProductAlertController;
 use App\Http\Controllers\ProductEquipamentController;
 use App\Http\Controllers\ReservationController;
-use App\Http\Middleware\CheckToken;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -25,7 +24,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/update-inputs/{id}', [InputsController::class, 'update']);
     Route::get('/get-all-inputs', [InputsController::class, 'getAllInputs']);
     Route::get('/get-inputs/{id}', [InputsController::class, 'getIdInputs']);
-    
+
 
     //PRODUCT_ALERT
     Route::get('/product-alert', [ProductAlertController::class, 'getAllProductAlert']);
@@ -72,7 +71,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::delete('/delete-user/{id}', [UsersController::class, 'delete']);
     Route::post('/reset-password/{id}', [UsersController::class, 'updatePasswordAdmin']);
     Route::get('/view-category-user/{id}', [UsersController::class, 'viewCategoryUser']);
-
 
     //CATEGORYS
     Route::post('/category', [CategorysController::class, 'store']);
