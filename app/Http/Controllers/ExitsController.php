@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Exits;
 use App\Models\Inputs;
 use App\Models\ProductEquipament;
+use App\Models\Reservation;
 use Exception;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
@@ -309,31 +310,38 @@ class ExitsController extends CrudController
                 ]);
             }
 
-            $input = Inputs::where('fk_product_equipament_id', $id)->first();
-
             $quantityTotalInputs = Inputs::where('fk_product_equipament_id', $id)->sum('quantity');
             $quantityTotalExits = Exits::where('fk_product_equipament_id', $id)->sum('quantity');
 
-            $quantityTotalProduct = $quantityTotalInputs - $quantityTotalExits;
+            $quantityTotalReservation = 0;
+
+            if (in_array(1, $categoryUser, true) || in_array(5, $categoryUser, true)) {
+                $quantityTotalReservation = Reservation::where('reservation_finished', 'false')
+                    ->where('date_finished', 'false')
+                    ->sum('quantity');
+            }
+
+            // dd($quantityTotalProduct = $quantityTotalInputs - ($quantityTotalExits + $quantityTotalReservation), $quantityTotalInputs, $quantityTotalExits, $quantityTotalReservation);
+            $quantityTotalProduct = $quantityTotalInputs - ($quantityTotalExits + $quantityTotalReservation);
 
             if ($quantityTotalProduct <= 0) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Produto indisponível.'
+                    'message' => 'Produto indisponível.',
                 ]);
             }
 
             if ($request->quantity > $quantityTotalProduct) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Quantidade solicita indisponível no estoque. Temos apenas ' . $quantityTotalProduct . ' unidade(s).'
+                    'message' => 'Quantidade solicita indisponível no estoque. Temos apenas ' . $quantityTotalProduct . ' unidade(s).',
                 ]);
             }
 
             if ($request->quantity == '0' || $request->quantity == '0') {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Quantidade minima: 1.'
+                    'message' => 'Quantidade minima: 1.',
                 ]);
             }
 
@@ -348,54 +356,56 @@ class ExitsController extends CrudController
                     'delivery_to' => $request->delivery_to,
                 ]);
             }
+
             $date = now();
 
             if (isset($exits)) {
-                $updateInput = $input->update(['quantity' => $quantityTotalProduct - $exits['quantity']]);
 
-                if ($updateInput) {
+                $newQuantityTotal = $quantityTotalProduct - $exits['quantity'];
 
-                    $newQuantityTotal = $quantityTotalProduct - $exits['quantity'];
+                if ($newQuantityTotal <= $productQuantityMin) {
 
-                    if ($newQuantityTotal <= $productQuantityMin) {
+                    $updateInputExists = false;
+                    $insertInput = false;
 
-                        $updateInputExists = false;
-                        $insertInput = false;
+                    $productAlert = DB::table('product_alerts')
+                        ->where('fk_product_equipament_id', $id)
+                        ->whereNull('deleted_at')
+                        ->first();
 
-                        $productAlert = DB::table('product_alerts')
+                    if ($productAlert) {
+
+                        $updateInputExists = DB::table('product_alerts')
                             ->where('fk_product_equipament_id', $id)
-                            ->whereNull('deleted_at')
-                            ->first();
-
-                        if ($productAlert) {
-
-                            $updateInputExists = DB::table('product_alerts')
-                                ->where('fk_product_equipament_id', $id)
-                                ->update([
-                                    'quantity_min' => $productQuantityMin,
-                                    'fk_category_id' => $productEquipamentUser->fk_category_id,
-                                    'created_at' => $date,
-                                ]) > 0; // Retorna true se pelo menos uma linha foi afetada
-                        } else {
-
-                            $insertInput = DB::table('product_alerts')
-                                ->insert([
-                                    'fk_product_equipament_id' => $id,
-                                    'quantity_min' => $productQuantityMin,
-                                    'fk_category_id' => $productEquipamentUser->fk_category_id,
-                                    'created_at' => $date,
-                                ]);
-                        }
-
-                        if ($updateInputExists || $updateInputExists == false || $insertInput) {
-                            return response()->json([
-                                'success' => true,
-                                'message' => 'Retirada concluída com sucesso',
-                                'data' => $exits,
+                            ->update([
+                                'quantity_min' => $productQuantityMin,
+                                'fk_category_id' => $productEquipamentUser->fk_category_id,
+                                'created_at' => $date,
+                            ]) > 0; // Retorna true se pelo menos uma linha foi afetada
+                    } else {
+                        $insertInput = DB::table('product_alerts')
+                            ->insert([
+                                'fk_product_equipament_id' => $id,
+                                'quantity_min' => $productQuantityMin,
+                                'fk_category_id' => $productEquipamentUser->fk_category_id,
+                                'created_at' => $date,
                             ]);
-                        }
+                    }
+
+
+                    if ($updateInputExists || $updateInputExists == false || $insertInput) {
+                        return response()->json([
+                            'success' => true,
+                            'message' => 'Retirada concluída com sucesso',
+                            'data' => $exits,
+                        ]);
                     }
                 }
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Retirada concluída com sucesso',
+                    'data' => $exits,
+                ]);
             }
         } catch (QueryException $qe) {
             return response()->json([

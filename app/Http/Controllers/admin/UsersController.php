@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\CrudController;
+use App\Models\CategoryUser;
 use App\Models\User;
 use Exception;
 use Illuminate\Database\QueryException;
@@ -463,6 +464,56 @@ class UsersController extends CrudController
                     // 'data' => $request->password,
                 ]);
             }
+        } catch (QueryException $qe) {
+            return response()->json([
+                'success' => false,
+                'message' => "Error DB: " . $qe->getMessage(),
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => "Error: " . $e->getMessage(),
+            ]);
+        }
+    }
+
+    public function viewCategoryUser(Request $request, $id)
+    {
+        try {
+
+            $user = $request->user();
+            $level = $user->level;
+
+            if ($level == 'user') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Você não tem permissão de acesso para seguir adiante.',
+                ]);
+            }
+
+            $viewCategoryUser = $this->user->find($id);
+
+            if (!$viewCategoryUser) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Nenhum resultado encontrado.',
+                ]);
+            }
+
+            $categoryUser = CategoryUser::where('fk_user_id', $id)->with('category')->get();
+
+            $categoryUser = $categoryUser->map(function ($sector) {
+                return [
+                    'id-category' => $sector->category->id,
+                    'name-category' => $sector->category ? $sector->category->name : null,
+                ];
+            });
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Dados recuperados com sucesso.',
+                'data' => $categoryUser,
+            ]);
         } catch (QueryException $qe) {
             return response()->json([
                 'success' => false,

@@ -71,6 +71,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/get-user/{id}', [UsersController::class, 'getId']);
     Route::delete('/delete-user/{id}', [UsersController::class, 'delete']);
     Route::post('/reset-password/{id}', [UsersController::class, 'updatePasswordAdmin']);
+    Route::get('/view-category-user/{id}', [UsersController::class, 'viewCategoryUser']);
 
 
     //CATEGORYS
