@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Exits;
 use App\Models\Inputs;
 use App\Models\ProductAlert;
+use App\Models\Reservation;
 use Exception;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
@@ -29,7 +30,8 @@ class ProductAlertController extends CrudController
 
             $categoryUser = DB::table('category_user')
                 ->where('fk_user_id', $idUser)
-                ->pluck('fk_category_id');
+                ->pluck('fk_category_id')
+                ->toArray();
 
             if ($user->level !== 'admin' && $categoryUser == null) {
                 return response()->json([
@@ -38,22 +40,33 @@ class ProductAlertController extends CrudController
                 ]);
             }
 
+
             if ($user->level == 'user') {
+
+                $quantityTotalReservation = 0;
+                if (in_array(1, $categoryUser, true) || in_array(5, $categoryUser, true)) {
+                    $quantityTotalReservation = Reservation::where('reservation_finished', 'false')
+                        ->where('date_finished', 'false')
+                        ->sum('quantity');
+                }
 
                 $productAlertUser = ProductAlert::with('category', 'productEquipament', 'inputs')
                     ->whereIn('fk_category_id', $categoryUser)
                     ->get()
-                    ->map(function ($product) {
+                    ->map(function ($product) use ($quantityTotalReservation) {
 
-                        $quantityTotalInputs = Inputs::where('fk_product_equipament_id', $product->productEquipament->id)->sum('quantity');
-                        $quantityTotalExits = Exits::where('fk_product_equipament_id', $product->productEquipament->id)->sum('quantity');
-                        $quantityStock = $quantityTotalInputs - $quantityTotalExits;
+                        $productEquipamentId = $product->productEquipament->id ?? null;
+
+                        $quantityTotalInputs = Inputs::where('fk_product_equipament_id', $productEquipamentId)->sum('quantity');
+                        $quantityTotalExits = Exits::where('fk_product_equipament_id', $productEquipamentId)->sum('quantity');
+
+                        $quantityTotalProduct = $quantityTotalInputs - ($quantityTotalExits + $quantityTotalReservation);
 
                         return [
                             'id' => $product->id,
                             'name' => $product->name,
-                            'id_product' => $product->productEquipament->id ?? null,
-                            'quantity_stock' => $quantityStock,
+                            'id_product' => $productEquipamentId,
+                            'quantity_stock' =>  $quantityTotalProduct,
                             'quantity_min' => $product->quantity_min,
                             'name-category' => $product->category ? $product->category->name : null,
                             'created_at' => $product->created_at,
@@ -62,20 +75,17 @@ class ProductAlertController extends CrudController
                         ];
                     });
 
-                if ($productAlertUser == null) {
+                if ($productAlertUser->isEmpty()) {
                     return response()->json([
                         'success' => false,
                         'message' => 'Nenhum produto encontrado para a(s) categoria(s) do usuário.',
                     ]);
                 }
 
-                foreach ($productAlertUser as $key => $product) {
-                    if ($product['quantity_stock'] > $product['quantity_min']) {
-                        unset($productAlertUser[$key]);
-                    }
-                }
-
-                $productAlertUser = array_values($productAlertUser);
+                // Filtre os produtos para mostrar apenas aqueles em que `quantity_stock` é menor ou igual a `quantity_min`
+                $productAlertUser = $productAlertUser->filter(function ($product) {
+                    return $product['quantity_stock'] <= $product['quantity_min'];
+                })->values(); // Reindexa a coleção após a filtragem
 
                 return response()->json([
                     'success' => true,
@@ -84,18 +94,28 @@ class ProductAlertController extends CrudController
                 ]);
             }
 
-            $productAlertAll = ProductAlert::with('category', 'productEquipament', 'inputs')->get()
-                ->map(function ($product) {
+            $quantityTotalReservation = 0;
+            if (in_array(1, $categoryUser, true) || in_array(5, $categoryUser, true)) {
+                $quantityTotalReservation = Reservation::where('reservation_finished', 'false')
+                    ->where('date_finished', 'false')
+                    ->sum('quantity');
+            }
 
-                    $quantityTotalInputs = Inputs::where('fk_product_equipament_id', $product->productEquipament->id)->sum('quantity');
-                    $quantityTotalExits = Exits::where('fk_product_equipament_id', $product->productEquipament->id)->sum('quantity');
-                    $quantityStock = $quantityTotalInputs - $quantityTotalExits;
+            $productAlertAll = ProductAlert::with('category', 'productEquipament', 'inputs')->get()
+                ->map(function ($product) use ($quantityTotalReservation) {
+
+                    $productEquipamentId = $product->productEquipament->id ?? null;
+
+                    $quantityTotalInputs = Inputs::where('fk_product_equipament_id', $productEquipamentId)->sum('quantity');
+                    $quantityTotalExits = Exits::where('fk_product_equipament_id', $productEquipamentId)->sum('quantity');
+
+                    $quantityTotalProduct = $quantityTotalInputs - ($quantityTotalExits + $quantityTotalReservation);
 
                     return [
                         'id' => $product->id,
                         'name' => $product->productEquipament->name ?? null,
                         'id_product' => $product->productEquipament->id ?? null,
-                        'quantity_stock' => $quantityStock,
+                        'quantity_stock' => $quantityTotalProduct,
                         'quantity_min' => $product->productEquipament->quantity_min,
                         'name-category' => $product->category ? $product->category->name : null,
                         'created_at' => $product->created_at,
@@ -111,11 +131,9 @@ class ProductAlertController extends CrudController
                 ]);
             }
 
-            foreach ($productAlertAll as $key => $productAdmin) {
-                if ($productAdmin['quantity_stock'] > $productAdmin['quantity_min']) {
-                    unset($productAlertAll[$key]);
-                }
-            }
+            $productAlertAll = $productAlertAll->filter(function ($product) {
+                return $product['quantity_stock'] <= $product['quantity_min'];
+            })->values();
 
             return response()->json([
                 'success' => true,

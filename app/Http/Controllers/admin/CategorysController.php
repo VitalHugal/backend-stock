@@ -224,14 +224,9 @@ class CategorysController extends CrudController
 
             if ($deleteCategory) {
                 $data = DB::table('category_user')->where('fk_category_id', $id)->get();
-                $dataTwo = DB::table('products_equipaments')->where('fk_category_id', $id)->get();
 
                 if (!$data == null) {
                     DB::table('category_user')->where('fk_category_id', $id)->delete();
-                }
-
-                if ($dataTwo == null) {
-                    DB::table('products_equipaments')->where('fk_category_id', $id)->delete();
                 }
             }
 
