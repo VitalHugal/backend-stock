@@ -309,7 +309,7 @@ class InputsController extends CrudController
             $updateInput->fill($validatedData);
             $updateInput->save();
 
-            if ($updateInput->save()) {
+            if ($updateInput) {
                 Log::info("User nº:{$idUser} updated entry nº:{$id} on {$date}");
 
                 return response()->json([

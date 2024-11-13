@@ -460,21 +460,46 @@ class ExitsController extends CrudController
                 ]);
             }
 
-            $input = Inputs::where("fk_product_equipament_id", $fk_product)->first();
+            $productQuantityMin = $product->quantity_min;
 
-            $quantityTotalProduct = $input->quantity;
+            $quantityTotalInputs = Inputs::where('fk_product_equipament_id', $fk_product)->sum('quantity');
+            $quantityTotalExits = Exits::where('fk_product_equipament_id', $fk_product)->sum('quantity');
+
+            $quantityTotalReservation = 0;
+
+            if (in_array(1, $categoryUser, true) || in_array(5, $categoryUser, true)) {
+                $quantityTotalReservation = Reservation::where('reservation_finished', 'false')
+                    ->where('date_finished', 'false')
+                    ->sum('quantity');
+            }
+
+            // dd($quantityTotalProduct = $quantityTotalInputs - ($quantityTotalExits + $quantityTotalReservation), $quantityTotalInputs, $quantityTotalExits, $quantityTotalReservation);
+
+            $quantityTotalProduct = $quantityTotalInputs - ($quantityTotalExits + $quantityTotalReservation);
 
             $validateData = $request->validate(
                 $this->exits->rulesExits(),
                 $this->exits->feedbackExits()
             );
 
+            if ($quantityTotalProduct <= 0) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Produto indisponível.',
+                ]);
+            }
+
+            if ($request->quantity == '0' || $request->quantity == '0') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Quantidade minima: 1.',
+                ]);
+            }
+
             if ((int)$quantityOld > (int)$quantityNew) {
-
-                $returnDB = $quantityTotalProduct + ($quantityOld - $quantityNew);
-                $input->update(['quantity' => $returnDB]);
+                $returnDB = $quantityOld - $quantityNew;
+                $updateExits->update(['quantity' => $updateExits->quantity + $returnDB]);
             } elseif ((int)$quantityNew > (int)$quantityOld) {
-
                 $removeDB = $quantityNew - $quantityOld;
 
                 if ($quantityTotalProduct < $removeDB) {
@@ -483,37 +508,45 @@ class ExitsController extends CrudController
                         'message' => 'Quantidade insuficiente em estoque. Temos apenas ' . $quantityTotalProduct . ' unidades disponíveis.',
                     ]);
                 }
-                $input->update(['quantity' => $quantityTotalProduct - $removeDB]);
+
+                $updateExits->update(['quantity' => $updateExits->quantity - $removeDB]);
             }
 
             $updateExits->fill($validateData);
             $updateExits->save();
 
-            if ($updateExits->save()) {
+            $date = now();
 
-                if ($quantityTotalProduct <= $product->quantity_min) {
+            if ($updateExits) {
+                $newQuantityTotal = $quantityTotalProduct - $updateExits['quantity'];
 
-                    $productAlert = DB::table('product_alerts')->where('fk_product_equipament_id', $fk_product)->first();
+                if ($newQuantityTotal <= $productQuantityMin) {
+                    $productAlert = DB::table('product_alerts')
+                        ->where('fk_product_equipament_id', $fk_product)
+                        ->whereNull('deleted_at')
+                        ->first();
 
                     if ($productAlert) {
-                        DB::table('product_alerts')->where('fk_product_equipament_id', $fk_product)->update([
-                            'quantity_total' => $quantityTotalProduct,
-                            'quantity_min' => $product->quantity_min,
-                            'fk_category_id' => $product->fk_category_id,
-                        ]);
+                        DB::table('product_alerts')
+                            ->where('fk_product_equipament_id', $fk_product)
+                            ->update([
+                                'quantity_min' => $productQuantityMin,
+                                'fk_category_id' => $product->fk_category_id,
+                                'created_at' => $date,
+                            ]);
                     } else {
                         DB::table('product_alerts')->insert([
                             'fk_product_equipament_id' => $fk_product,
-                            'quantity_total' => $quantityTotalProduct,
-                            'quantity_min' => $product->quantity_min,
+                            'quantity_min' => $productQuantityMin,
                             'fk_category_id' => $product->fk_category_id,
+                            'created_at' => $date,
                         ]);
                     }
                 }
 
                 return response()->json([
                     'success' => true,
-                    'message' => 'Saída atualizada com sucesso.',
+                    'message' => 'Retirada atualizada com sucesso',
                     'data' => $updateExits,
                 ]);
             }
