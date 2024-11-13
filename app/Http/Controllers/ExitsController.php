@@ -11,6 +11,7 @@ use Exception;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 use function Laravel\Prompts\table;
 use function PHPUnit\Framework\isEmpty;
@@ -499,6 +500,8 @@ class ExitsController extends CrudController
             if ((int)$quantityOld > (int)$quantityNew) {
                 $returnDB = $quantityOld - $quantityNew;
                 $updateExits->update(['quantity' => $updateExits->quantity + $returnDB]);
+
+                Log::info("User nº:{$idUser} updates quantity from product in exit nº:{$id}. Returned {$returnDB} unit for bank of data.");
             } elseif ((int)$quantityNew > (int)$quantityOld) {
                 $removeDB = $quantityNew - $quantityOld;
 
@@ -508,8 +511,8 @@ class ExitsController extends CrudController
                         'message' => 'Quantidade insuficiente em estoque. Temos apenas ' . $quantityTotalProduct . ' unidades disponíveis.',
                     ]);
                 }
-
                 $updateExits->update(['quantity' => $updateExits->quantity - $removeDB]);
+                Log::info("User nº:{$idUser} updates quantity from product in exit nº:{$id}. Removed {$removeDB} unit for bank of data.");
             }
 
             $updateExits->fill($validateData);

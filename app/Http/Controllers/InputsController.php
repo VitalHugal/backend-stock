@@ -22,7 +22,7 @@ class InputsController extends CrudController
         $this->input = $inputs;
     }
 
-    public function getAllExits(Request $request)
+    public function getAllInputs(Request $request)
     {
         try {
 
@@ -118,7 +118,7 @@ class InputsController extends CrudController
         }
     }
 
-    public function getIdExits(Request $request, $id)
+    public function getIdInputs(Request $request, $id)
     {
         try {
             $user = $request->user();
@@ -163,7 +163,7 @@ class InputsController extends CrudController
                 if (!$input) {
                     return response()->json([
                         'success' => false,
-                        'message' => 'Saída não encontrada.',
+                        'message' => 'Entrada não encontrada.',
                     ]);
                 }
 
@@ -180,13 +180,13 @@ class InputsController extends CrudController
                 if ($inputDataUser == null) {
                     return response()->json([
                         'success' => false,
-                        'message' => 'Nenhuma saida encontrada.',
+                        'message' => 'Nenhuma entrada encontrada.',
                     ]);
                 }
 
                 return response()->json([
                     'success' => true,
-                    'message' => 'Saída recuperada com sucesso.',
+                    'message' => 'Entrada recuperada com sucesso.',
                     'data' => $inputDataUser,
                 ]);
             }
@@ -200,7 +200,7 @@ class InputsController extends CrudController
             if (!$input) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Saída não encontrada.',
+                    'message' => 'Entrada não encontrada.',
                 ]);
             }
 
@@ -217,13 +217,13 @@ class InputsController extends CrudController
             if ($inputDataAdim == null) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Nenhuma saida encontrada.',
+                    'message' => 'Nenhuma entrada encontrada.',
                 ]);
             }
 
             return response()->json([
                 'success' => true,
-                'message' => 'Saída recuperada com sucesso.',
+                'message' => 'Entrada recuperada com sucesso.',
                 'data' => $inputDataAdim,
             ]);
         } catch (QueryException $qe) {

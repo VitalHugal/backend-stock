@@ -11,6 +11,7 @@ use Exception;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 use function PHPUnit\Framework\isEmpty;
 
@@ -479,6 +480,7 @@ class ReservationController extends CrudController
             if ((int)$quantityOld > (int)$quantityNew) {
                 $returnDB = $quantityOld - $quantityNew;
                 $updateReservation->update(['quantity' => $updateReservation->quantity + $returnDB]);
+                Log::info("User nº:{$idUserRequest} updates quantity from product in reserve nº:{$id}. Returned {$returnDB} unit for bank of data.");
             } elseif ((int)$quantityNew > (int)$quantityOld) {
                 $removeDB = $quantityNew - $quantityOld;
 
@@ -490,6 +492,7 @@ class ReservationController extends CrudController
                 }
 
                 $updateReservation->update(['quantity' => $updateReservation->quantity - $removeDB]);
+                Log::info("User nº:{$idUserRequest} updates quantity from product in reserve nº:{$id}. Returned {$removeDB} unit for bank of data.");
             }
 
             $updateReservation->fill($validateData);
