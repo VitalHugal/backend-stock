@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Exits;
 use App\Models\Inputs;
 use App\Models\ProductEquipament;
+use App\Models\Reservation;
 use Exception;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
@@ -30,7 +31,8 @@ class ProductEquipamentController extends CrudController
 
             $categoryUser = DB::table('category_user')
                 ->where('fk_user_id', $idUser)
-                ->pluck('fk_category_id');
+                ->pluck('fk_category_id')
+                ->toArray();
 
             if ($user->level !== 'admin' && $categoryUser == null) {
                 return response()->json([
@@ -41,21 +43,30 @@ class ProductEquipamentController extends CrudController
 
 
             if ($user->level == 'user') {
-                // Busca todos os produtos com o nome da categoria relacionado
+
+                $quantityTotalReservation = 0;
+
+                if (in_array(1, $categoryUser, true) || in_array(5, $categoryUser, true)) {
+                    $quantityTotalReservation = Reservation::where('reservation_finished', 'false')
+                        ->where('date_finished', 'false')
+                        ->sum('quantity');
+                }
+
                 $productEquipamentUser = ProductEquipament::with('category')
                     ->whereIn('fk_category_id', $categoryUser)
                     ->get()
-                    ->map(function ($product) {
+                    ->map(function ($product) use ($quantityTotalReservation) {
 
                         $quantityTotalInputs = Inputs::where('fk_product_equipament_id', $product->id)->sum('quantity');
                         $quantityTotalExits = Exits::where('fk_product_equipament_id', $product->id)->sum('quantity');
-                        $quantityStock = $quantityTotalInputs - $quantityTotalExits;
+
+                        $quantityTotalProduct = $quantityTotalInputs - ($quantityTotalExits + $quantityTotalReservation);
 
                         return [
                             'name-category' => $product->category ? $product->category->name : null,
                             'id' => $product->id,
                             'name' => $product->name,
-                            'quantity_stock' => $quantityStock,
+                            'quantity_stock' => $quantityTotalProduct,
                             'quantity_min' => $product->quantity_min,
                             'fk_category_id' => $product->fk_category_id,
                             'created_at' => $product->created_at,
@@ -78,18 +89,27 @@ class ProductEquipamentController extends CrudController
                 ]);
             }
 
+            $quantityTotalReservation = 0;
+
+            if (in_array(1, $categoryUser, true) || in_array(5, $categoryUser, true)) {
+                $quantityTotalReservation = Reservation::where('reservation_finished', 'false')
+                    ->where('date_finished', 'false')
+                    ->sum('quantity');
+            }
+
             $productAll = ProductEquipament::with('category')->get()
-                ->map(function ($product) {
+                ->map(function ($product) use ($quantityTotalReservation) {
 
                     $quantityTotalInputs = Inputs::where('fk_product_equipament_id', $product->id)->sum('quantity');
                     $quantityTotalExits = Exits::where('fk_product_equipament_id', $product->id)->sum('quantity');
-                    $quantityStock = $quantityTotalInputs - $quantityTotalExits;
+
+                    $quantityTotalProduct = $quantityTotalInputs - ($quantityTotalExits - $quantityTotalReservation);
 
                     return [
                         'name-category' => $product->category ? $product->category->name : null,
                         'id' => $product->id,
                         'name' => $product->name,
-                        'quantity_stock' => $quantityStock,
+                        'quantity_stock' => $quantityTotalProduct,
                         'quantity_min' => $product->quantity_min,
                         'fk_category_id' => $product->fk_category_id,
                         'created_at' => $product->created_at,
@@ -154,21 +174,28 @@ class ProductEquipamentController extends CrudController
                     }
                 }
 
-                // Busca todos os produtos com o nome da categoria relacionado
+                $quantityTotalReservation = 0;
+
+                if (in_array(1, $categoryUser, true) || in_array(5, $categoryUser, true)) {
+                    $quantityTotalReservation = Reservation::where('reservation_finished', 'false')
+                        ->where('date_finished', 'false')
+                        ->sum('quantity');
+                }
+
                 $productEquipamentUser = ProductEquipament::with('category')
                     ->whereIn('fk_category_id', $categoryUser)->where('id', $id)
                     ->get()
-                    ->map(function ($product) {
+                    ->map(function ($product) use ($quantityTotalReservation) {
 
                         $quantityTotalInputs = Inputs::where('fk_product_equipament_id', $product->id)->sum('quantity');
                         $quantityTotalExits = Exits::where('fk_product_equipament_id', $product->id)->sum('quantity');
-                        $quantityStock = $quantityTotalInputs - $quantityTotalExits;
+                        $quantityTotalProduct = $quantityTotalInputs - ($quantityTotalExits - $quantityTotalReservation);
 
                         return [
                             'name-category' => $product->category ? $product->category->name : null,
                             'id' => $product->id,
                             'name' => $product->name,
-                            'quantity_stock' => $quantityStock,
+                            'quantity_stock' => $quantityTotalProduct,
                             'quantity_min' => $product->quantity_min,
                             'fk_category_id' => $product->fk_category_id,
                             'created_at' => $product->created_at,
@@ -191,20 +218,28 @@ class ProductEquipamentController extends CrudController
                 ]);
             }
 
+            $quantityTotalReservation = 0;
+
+                if (in_array(1, $categoryUser, true) || in_array(5, $categoryUser, true)) {
+                    $quantityTotalReservation = Reservation::where('reservation_finished', 'false')
+                        ->where('date_finished', 'false')
+                        ->sum('quantity');
+                }
+
             $productAdmin = ProductEquipament::with('category')
                 ->where('id', $id)
                 ->get()
-                ->map(function ($product) {
-                    
+                ->map(function ($product) use ($quantityTotalReservation){
+
                     $quantityTotalInputs = Inputs::where('fk_product_equipament_id', $product->id)->sum('quantity');
                     $quantityTotalExits = Exits::where('fk_product_equipament_id', $product->id)->sum('quantity');
-                    $quantityStock = $quantityTotalInputs - $quantityTotalExits;
-                    
+                    $quantityTotalProduct = $quantityTotalInputs - ($quantityTotalExits - $quantityTotalReservation);
+
                     return [
                         'name-category' => $product->category ? $product->category->name : null,
                         'id' => $product->id,
                         'name' => $product->name,
-                        'quantity_stock' => $quantityStock,
+                        'quantity_stock' => $quantityTotalProduct,
                         'quantity_min' => $product->quantity_min,
                         'fk_category_id' => $product->fk_category_id,
                         'created_at' => $product->created_at,
@@ -261,13 +296,11 @@ class ProductEquipamentController extends CrudController
             );
 
             $name = $request->name;
-            $quantity = $request->quantity;
             $quantity_min = $request->quantity_min;
             $fk_category_id = $request->fk_category_id;
 
             $createProductEquipaments = $this->productEquipaments->create([
                 'name' => $name,
-                // 'quantity' => $quantity,
                 'quantity_min' => $quantity_min,
                 'fk_category_id' => $fk_category_id,
             ]);

@@ -40,7 +40,6 @@ class ProductAlertController extends CrudController
                 ]);
             }
 
-
             if ($user->level == 'user') {
 
                 $quantityTotalReservation = 0;
