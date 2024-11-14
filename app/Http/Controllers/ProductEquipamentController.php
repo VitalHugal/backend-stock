@@ -58,7 +58,6 @@ class ProductEquipamentController extends CrudController
                         $quantityTotalExits = Exits::where('fk_product_equipament_id', $product->id)->sum('quantity');
 
                         $quantityTotalProduct = $quantityTotalInputs - ($quantityTotalExits + $quantityReserveNotFinished);
-
                         return [
                             'name-category' => $product->category ? $product->category->name : null,
                             'id' => $product->id,
@@ -95,7 +94,6 @@ class ProductEquipamentController extends CrudController
 
                     $quantityTotalInputs = Inputs::where('fk_product_equipament_id', $product->id)->sum('quantity');
                     $quantityTotalExits = Exits::where('fk_product_equipament_id', $product->id)->sum('quantity');
-
                     $quantityTotalProduct = $quantityTotalInputs - ($quantityTotalExits - $quantityReserveNotFinished);
 
                     return [

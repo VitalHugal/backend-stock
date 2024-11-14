@@ -66,7 +66,6 @@ class ProductAlertController extends CrudController
                         $quantityTotalInputs = Inputs::where('fk_product_equipament_id', $productEquipamentId)->sum('quantity');
                         $quantityTotalExits = Exits::where('fk_product_equipament_id', $productEquipamentId)->sum('quantity');
                         $quantityTotalProduct = $quantityTotalInputs - ($quantityTotalExits + $quantityReserveNotFinished);
-
                         return [
                             'id' => $product->id,
                             'name' => $product->name,

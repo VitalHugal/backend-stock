@@ -177,6 +177,16 @@ class UsersController extends CrudController
                 ]);
             }
 
+            $verifyEmail = User::where('email', $request->email)->first();
+            if ($verifyEmail) {
+                if ($verifyEmail->id != $id) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'E-mail indiponível, tente novamente.',
+                    ]);
+                }
+            }
+
             $validateModel = $request->validate(
                 $this->user->rulesUpdateUser(),
                 $this->user->feedbackUpdateUser()
