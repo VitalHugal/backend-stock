@@ -48,4 +48,9 @@ class ProductEquipament extends Model
     {
         return $this->hasMany(ProductEquipament::class, 'fk_exit_id');
     }
+
+    public function inputs()
+    {
+        return $this->belongsTo(Inputs::class, 'fk_product_equipament_id');
+    }
 }

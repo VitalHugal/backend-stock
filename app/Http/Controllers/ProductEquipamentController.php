@@ -130,6 +130,7 @@ class ProductEquipamentController extends CrudController
                 'message' => 'Produto(s)/Equipamento(s) recuperados com sucesso.',
                 'data' => $productAll,
             ]);
+            
         } catch (QueryException $qe) {
             return response()->json([
                 'success' => false,
