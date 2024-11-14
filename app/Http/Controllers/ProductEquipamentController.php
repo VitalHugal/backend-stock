@@ -59,8 +59,8 @@ class ProductEquipamentController extends CrudController
 
                         $quantityTotalProduct = $quantityTotalInputs - ($quantityTotalExits + $quantityReserveNotFinished);
                         return [
-                            'name-category' => $product->category ? $product->category->name : null,
                             'id' => $product->id,
+                            'name-category' => $product->category ? $product->category->name : null,
                             'name' => $product->name,
                             'quantity_stock' => $quantityTotalProduct,
                             'quantity_min' => $product->quantity_min,
@@ -97,8 +97,8 @@ class ProductEquipamentController extends CrudController
                     $quantityTotalProduct = $quantityTotalInputs - ($quantityTotalExits - $quantityReserveNotFinished);
 
                     return [
-                        'name-category' => $product->category ? $product->category->name : null,
                         'id' => $product->id,
+                        'name-category' => $product->category ? $product->category->name : null,
                         'name' => $product->name,
                         'quantity_stock' => $quantityTotalProduct,
                         'quantity_min' => $product->quantity_min,
@@ -180,8 +180,8 @@ class ProductEquipamentController extends CrudController
                         $quantityTotalProduct = $quantityTotalInputs - ($quantityTotalExits - $quantityReserveNotFinished);
 
                         return [
-                            'name-category' => $product->category ? $product->category->name : null,
                             'id' => $product->id,
+                            'name-category' => $product->category ? $product->category->name : null,
                             'name' => $product->name,
                             'quantity_stock' => $quantityTotalProduct,
                             'quantity_min' => $product->quantity_min,
