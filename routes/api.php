@@ -25,7 +25,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/get-all-inputs', [InputsController::class, 'getAllInputs']);
     Route::get('/get-inputs/{id}', [InputsController::class, 'getIdInputs']);
 
-
     //PRODUCT_ALERT
     Route::get('/product-alert', [ProductAlertController::class, 'getAllProductAlert']);
 
@@ -49,27 +48,28 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/get-product-equipaments/{id}', [ProductEquipamentController::class, 'getIdProductEquipament']);
 
     //ME
-    Route::get('/my-profile', [UsersController::class, 'myProfile']);
     Route::post('/update-password', [UsersController::class, 'updatePassword']);
+    Route::get('/my-profile', [UsersController::class, 'myProfile']);
 
-    /////////////////////////////////////////////////
-    // ROTAS APENAS PARA USER COM NIVEL ADMINISTRADOR
-    /////////////////////////////////////////////////
+    /////////////////////////////////////////////////////
+    // ROTAS APENAS PARA USER COM NIVEL ADMINISTRADOR //
+    ///////////////////////////////////////////////////
 
     Route::delete('/delete-exits/{id}', [ExitsController::class, 'delete']);
     Route::delete('/delete-product-equipaments/{id}', [ProductEquipamentController::class, 'delete']);
     Route::delete('/delete-reservation/{id}', [ReservationController::class, 'delete']);
     Route::delete('/delete-inputs/{id}', [InputsController::class, 'delete']);
+    Route::delete('/delete-user/{id}', [UsersController::class, 'delete']);
+    Route::delete('/delete-category/{id}', [CategorysController::class, 'delete']);
 
     //USERS
     Route::post('/register-user', [UsersController::class, 'store']);
     Route::post('/update-user/{id}', [UsersController::class, 'update']);
     Route::post('/update-level/{id}', [UsersController::class, 'updateLevel']);
     Route::post('/assign-category-user/{id}', [UsersController::class, 'assignCategoryUser']);
+    Route::post('/reset-password/{id}', [UsersController::class, 'updatePasswordAdmin']);
     Route::get('/get-all-user', [UsersController::class, 'getAll']);
     Route::get('/get-user/{id}', [UsersController::class, 'getId']);
-    Route::delete('/delete-user/{id}', [UsersController::class, 'delete']);
-    Route::post('/reset-password/{id}', [UsersController::class, 'updatePasswordAdmin']);
     Route::get('/view-category-user/{id}', [UsersController::class, 'viewCategoryUser']);
 
     //CATEGORYS
@@ -77,5 +77,4 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/update-category/{id}', [CategorysController::class, 'update']);
     Route::get('/get-all-category', [CategorysController::class, 'getAllCategorys']);
     Route::get('/get-category/{id}', [CategorysController::class, 'getId']);
-    Route::delete('/delete-category/{id}', [CategorysController::class, 'delete']);
 });

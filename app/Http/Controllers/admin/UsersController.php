@@ -178,8 +178,8 @@ class UsersController extends CrudController
             }
 
             $validateModel = $request->validate(
-                $this->user->rulesCreateUser(),
-                $this->user->feedbackCreateUser()
+                $this->user->rulesUpdateUser(),
+                $this->user->feedbackUpdateUser()
             );
 
             $updateUser->fill($validateModel);

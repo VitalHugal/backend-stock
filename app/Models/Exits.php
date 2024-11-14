@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Exits extends Model
 {
     use HasFactory, SoftDeletes;
-    
+
     protected $fillable = [
         'fk_product_equipament_id',
         'fk_user_id',
@@ -50,5 +50,10 @@ class Exits extends Model
     public function productEquipament()
     {
         return $this->belongsTo(ProductEquipament::class, 'fk_product_equipament_id');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'fk_user_id');
     }
 }

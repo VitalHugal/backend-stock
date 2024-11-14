@@ -8,6 +8,7 @@ use App\Models\Inputs;
 use App\Models\ProductEquipament;
 use App\Models\Reservation;
 use Exception;
+use Illuminate\Cache\Repository;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -49,15 +50,16 @@ class ExitsController extends CrudController
 
             // Verifica o nível de acesso e filtra as saídas
             if ($level == 'user') {
-                $exits = Exits::with(['productEquipament.category'])
+                $exits = Exits::with(['productEquipament.category', "user"])
                     ->whereHas('productEquipament', function ($query) use ($categoryUser) {
                         $query->whereIn('fk_category_id', $categoryUser);
                     })
                     ->get()
                     ->map(function ($exit) {
                         return [
-                            'exit_id' => $exit->id,
+                            'id' => $exit->id,
                             'fk_user_id' => $exit->fk_user_id,
+                            'name_user_exits' => $exit->user->name,
                             'reason_project' => $exit->reason_project,
                             'observation' => $exit->observation,
                             'quantity' => $exit->quantity,
@@ -84,15 +86,16 @@ class ExitsController extends CrudController
                 ]);
             }
 
-            $exitsAdmin = Exits::with(['productEquipament.category'])
+            $exitsAdmin = Exits::with(['productEquipament.category', "user"])
                 ->whereHas('productEquipament', function ($query) use ($categoryUser) {
                     // $query->whereIn('fk_category_id', $categoryUser);
                 })
                 ->get()
                 ->map(function ($exit) {
                     return [
-                        'exit_id' => $exit->id,
+                        'id' => $exit->id,
                         'fk_user_id' => $exit->fk_user_id,
+                        'name_user_exits' => $exit->user->name,
                         'reason_project' => $exit->reason_project,
                         'observation' => $exit->observation,
                         'quantity' => $exit->quantity,
@@ -150,13 +153,12 @@ class ExitsController extends CrudController
             }
 
             if ($user->level == 'user') {
-
                 $exitRequest = Exits::where('id', $id)->first();
 
                 if ($exitRequest) {
                     $productInExits = $exitRequest->fk_product_equipament_id;
                     $productEspecific = ProductEquipament::where('id', $productInExits)->first();
-                    $verifyPresenceProdcutEspecificInCategory = in_array($productEspecific, $categoryUser);
+                    $verifyPresenceProdcutEspecificInCategory = in_array($productEspecific->id, $categoryUser);
 
                     if ($verifyPresenceProdcutEspecificInCategory === false) {
                         return response()->json([
@@ -165,8 +167,7 @@ class ExitsController extends CrudController
                         ]);
                     }
                 }
-
-                $exit = Exits::with(['productEquipament.category'])
+                $exit = Exits::with(['productEquipament.category', "user"])
                     ->where('id', $id)
                     ->whereHas('productEquipament', function ($query) use ($categoryUser) {
                         $query->whereIn('fk_category_id', $categoryUser);
@@ -180,8 +181,9 @@ class ExitsController extends CrudController
                 }
 
                 $exitDataUser = [
-                    'exit_id' => $exit->id,
+                    'id' => $exit->id,
                     'fk_user_id' => $exit->fk_user_id,
+                    'name_user_exits' => $exit->user->name,
                     'reason_project' => $exit->reason_project,
                     'observation' => $exit->observation,
                     'quantity' => $exit->quantity,
@@ -206,8 +208,7 @@ class ExitsController extends CrudController
                     'data' => $exitDataUser,
                 ]);
             }
-
-            $exit = Exits::with(['productEquipament.category'])
+            $exit = Exits::with(['productEquipament.category', "user"])
                 ->where('id', $id)
                 ->whereHas('productEquipament', function ($query) use ($categoryUser) {
                     // $query->whereIn('fk_category_id', $categoryUser);
@@ -220,9 +221,10 @@ class ExitsController extends CrudController
                 ]);
             }
 
-            $exitDataAdm = [
-                'exit_id' => $exit->id,
+            $exitDataAdmin = [
+                'id' => $exit->id,
                 'fk_user_id' => $exit->fk_user_id,
+                'name_user_exits' => $exit->user->name,
                 'reason_project' => $exit->reason_project,
                 'observation' => $exit->observation,
                 'quantity' => $exit->quantity,
@@ -234,7 +236,7 @@ class ExitsController extends CrudController
                 'category_name' => $exit->productEquipament->category->name,
             ];
 
-            if ($exitDataAdm == null) {
+            if ($exitDataAdmin == null) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Nenhuma saida encontrada.',
@@ -244,7 +246,7 @@ class ExitsController extends CrudController
             return response()->json([
                 'success' => true,
                 'message' => 'Saída recuperada com sucesso.',
-                'data' => $exitDataAdm,
+                'data' => $exitDataAdmin,
             ]);
         } catch (QueryException $qe) {
             return response()->json([

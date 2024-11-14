@@ -17,10 +17,6 @@ class Category extends Model
     protected $table = 'category';
     protected $dates = ['deleted_at'];
 
-    public function users()
-    {
-        return $this->belongsToMany(User::class, 'category_user', 'fk_category_id', 'fk_user_id');
-    }
 
     public function rulesCategory()
     {
@@ -36,5 +32,10 @@ class Category extends Model
             'max:255' => 'O campo deve conter até 255 caracteres.',
             'max:65000' => 'O campo deve conter até 65.000 caracteres.',
         ];
+    }
+    
+    public function users()
+    {
+        return $this->belongsToMany(User::class, 'category_user', 'fk_category_id', 'fk_user_id');
     }
 }

@@ -79,6 +79,25 @@ class User extends Authenticatable
     }
 
     ///////////////////////////////////////////////////////////////////////////////
+    public function rulesUpdateUser()
+    {
+        return [
+            'name' => 'required|max:255',
+            'email' => 'email|required|max:255|',
+            // 'responsible_category' => '',
+        ];
+    }
+
+    public function feedbackUpdateUser()
+    {
+        return [
+            'required' => 'Campo obrigatório.',
+            'max:255' => 'O campo deve ter no máximo 255 caracteres.',
+            'email' => 'E-mail inválido.',
+        ];
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////
 
     public function rulesCategoryUser()
     {
