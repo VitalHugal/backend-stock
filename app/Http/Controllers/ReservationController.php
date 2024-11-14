@@ -342,9 +342,10 @@ class ReservationController extends CrudController
                     'data' => $reservation,
                 ]);
             }
-            $date = now();
-
+            
             if (isset($reservation)) {
+                
+                $date = now();
 
                 // $newQuantityTotal = $quantityTotalProduct - $reservation['quantity'];
 
@@ -495,9 +496,11 @@ class ReservationController extends CrudController
             $updateReservation->fill($validateData);
             $updateReservation->save();
 
-            $date = now();
 
             if ($updateReservation) {
+
+                $date = now();
+
                 // $newQuantityTotal = $quantityTotalProduct - $updateReservation['quantity'];
 
                 // if ($newQuantityTotal <= $productQuantityMin) {
