@@ -41,4 +41,8 @@ class Inputs extends Model
     {
         return $this->belongsTo(ProductEquipament::class, 'fk_product_equipament_id');
     }
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'fk_user_id');
+    }
 }

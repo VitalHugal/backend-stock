@@ -44,17 +44,18 @@ class InputsController extends CrudController
 
             // Verifica o nível de acesso e filtra as saídas
             if ($level == 'user') {
-                $inputs = Inputs::with(['productEquipament.category'])
+                $inputs = Inputs::with(['productEquipament.category', 'user'])
                     ->whereHas('productEquipament', function ($query) use ($categoryUser) {
                         $query->whereIn('fk_category_id', $categoryUser);
                     })
                     ->get()
                     ->map(function ($input) {
                         return [
-                            'input_id' => $input->id,
+                            'id' => $input->id,
                             'product_name' => $input->productEquipament->name,
                             'category_name' => $input->productEquipament->category->name,
                             'quantity' => $input->quantity,
+                            'username' => $input->user->name,
                             'fk_user_id' => $input->fk_user_id,
                             'created_at' => $input->created_at,
                             'updated_at' => $input->updated_at,
@@ -76,17 +77,18 @@ class InputsController extends CrudController
                 ]);
             }
 
-            $inputsAdmin = Inputs::with(['productEquipament.category'])
+            $inputsAdmin = Inputs::with(['productEquipament.category', 'user'])
                 ->whereHas('productEquipament', function ($query) use ($categoryUser) {
                     // $query->whereIn('fk_category_id', $categoryUser);
                 })
                 ->get()
                 ->map(function ($input) {
                     return [
-                        'input_id' => $input->id,
+                        'id' => $input->id,
                         'product_name' => $input->productEquipament->name,
                         'category_name' => $input->productEquipament->category->name,
                         'quantity' => $input->quantity,
+                        'username' => $input->user->name,
                         'fk_user_id' => $input->fk_user_id,
                         'created_at' => $input->created_at,
                         'updated_at' => $input->updated_at,
@@ -154,7 +156,7 @@ class InputsController extends CrudController
                     }
                 }
 
-                $input = Inputs::with(['productEquipament.category'])
+                $input = Inputs::with(['productEquipament.category', 'user'])
                     ->where('id', $id)
                     ->whereHas('productEquipament', function ($query) use ($categoryUser) {
                         $query->whereIn('fk_category_id', $categoryUser);
@@ -172,6 +174,7 @@ class InputsController extends CrudController
                     'product_name' => $input->productEquipament->name,
                     'category_name' => $input->productEquipament->category->name,
                     'quantity' => $input->quantity,
+                    'username' => $input->user->name,
                     'fk_user_id' => $input->fk_user_id,
                     'created_at' => $input->created_at,
                     'updated_at' => $input->updated_at,
@@ -209,6 +212,7 @@ class InputsController extends CrudController
                 'product_name' => $input->productEquipament->name,
                 'category_name' => $input->productEquipament->category->name,
                 'quantity' => $input->quantity,
+                'username' => $input->user->name,
                 'fk_user_id' => $input->fk_user_id,
                 'created_at' => $input->created_at,
                 'updated_at' => $input->updated_at,
@@ -282,12 +286,10 @@ class InputsController extends CrudController
         try {
 
             $updateInput = $this->input->find($id);
+            $user = $request->user();
+            $idUser = $user->id;
 
             $date = now();
-
-            $user = $request->user();
-
-            $idUser = $user->id;
 
             if (!$updateInput) {
                 return response()->json([

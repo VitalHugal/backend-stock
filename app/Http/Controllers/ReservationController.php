@@ -61,9 +61,9 @@ class ReservationController extends CrudController
                     ->get()
                     ->map(function ($reservation) {
                         return [
-                            'exit_id' => $reservation->id,
-                            'fk_user_id' => $reservation->fk_user_id,
-                            'name_user_id' => $reservation->user->name ?? null,
+                            'id' => $reservation->id,
+                            'fk_user_id_create' => $reservation->fk_user_id,
+                            'name_user_create' => $reservation->user->name ?? null,
                             'reason_project' => $reservation->reason_project,
                             'observation' => $reservation->observation,
                             'quantity' => $reservation->quantity,
@@ -73,7 +73,7 @@ class ReservationController extends CrudController
                             'reservation_finished' => $reservation->reservation_finished,
                             'date_finished' => $reservation->date_finished,
                             'fk_user_id_finished' => $reservation->fk_user_id_finished,
-                            'name_user_id_finished' => $reservation->userFinished->name ?? null,
+                            'name_user_finished' => $reservation->userFinished->name ?? null,
                             'product_name' => $reservation->productEquipament->name ?? null,
                             'category_name' => $reservation->productEquipament->category->name ?? null,
                         ];
@@ -109,9 +109,9 @@ class ReservationController extends CrudController
                     ->get()
                     ->map(function ($reservation) {
                         return [
-                            'exit_id' => $reservation->id,
-                            'fk_user_id' => $reservation->fk_user_id,
-                            'name_user_id' => $reservation->user->name ?? null,
+                            'id' => $reservation->id,
+                            'fk_user_id_create' => $reservation->fk_user_id,
+                            'name_user_create' => $reservation->user->name ?? null,
                             'reason_project' => $reservation->reason_project,
                             'observation' => $reservation->observation,
                             'quantity' => $reservation->quantity,
@@ -121,7 +121,7 @@ class ReservationController extends CrudController
                             'reservation_finished' => $reservation->reservation_finished,
                             'date_finished' => $reservation->date_finished,
                             'fk_user_id_finished' => $reservation->fk_user_id_finished,
-                            'name_user_id_finished' => $reservation->userFinished->name ?? null,
+                            'name_user_finished' => $reservation->userFinished->name ?? null,
                             'product_name' => $reservation->productEquipament->name ?? null,
                             'category_name' => $reservation->productEquipament->category->name ?? null,
                         ];
@@ -136,7 +136,7 @@ class ReservationController extends CrudController
 
                 return response()->json([
                     'success' => true,
-                    'message' => 'Todas as reservas recuperadas com sucesso admin.',
+                    'message' => 'Todas as reservas recuperadas com sucesso',
                     'data' => $reservationsAdmin,
                 ]);
             }
@@ -202,9 +202,9 @@ class ReservationController extends CrudController
             }
 
             $reservationData = [
-                'exit_id' => $reservation->id,
-                'fk_user_id' => $reservation->fk_user_id,
-                'name_user_id' => $reservation->user->name ?? null,
+                'id' => $reservation->id,
+                'fk_user_id_create' => $reservation->fk_user_id,
+                'name_user_create' => $reservation->user->name ?? null,
                 'reason_project' => $reservation->reason_project,
                 'observation' => $reservation->observation,
                 'quantity' => $reservation->quantity,
@@ -214,7 +214,7 @@ class ReservationController extends CrudController
                 'reservation_finished' => $reservation->reservation_finished,
                 'date_finished' => $reservation->date_finished,
                 'fk_user_id_finished' => $reservation->fk_user_id_finished,
-                'name_user_id_finished' => $reservation->user->name ?? null,
+                'name_user_finished' => $reservation->userFinished->name ?? null,
                 'product_name' => $reservation->productEquipament->name ?? null,
                 'category_name' => $reservation->productEquipament->category->name ?? null,
             ];
@@ -626,7 +626,7 @@ class ReservationController extends CrudController
                     $this->reservation->feedbackFinishedReservation()
                 )
             );
-            
+
             $reservation->fk_user_id_finished = $idUserRequest;
             $reservation->date_finished = now();
 
