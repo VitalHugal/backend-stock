@@ -88,8 +88,8 @@ class Reservation extends Model
     public function rulesFinishedReservation()
     {
         return [
-            'reservation_finished' => 'required|in:true|',
-            'date_finished' => 'required',
+            'reservation_finished' => 'required|boolean|',
+            'date_finished' => '',
             'fk_user_id_finished' => 'exists:users,id'
         ];
     }
@@ -97,7 +97,7 @@ class Reservation extends Model
     {
         return [
             'required' => 'Campo obrigatório.',
-            'in:true' => 'Válido apenas "true" para esse campo.',
+            'boolean' => 'Válido apenas "1" para esse campo.',
             'exists:users,id' => 'Usuário não encontrado, tente novamente.',
         ];
     }

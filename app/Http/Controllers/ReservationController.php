@@ -280,11 +280,11 @@ class ReservationController extends CrudController
 
             $quantityTotalInputs = Inputs::where('fk_product_equipament_id', $id)->sum('quantity');
             $quantityTotalExits = Exits::where('fk_product_equipament_id', $id)->sum('quantity');
-            $quantityTotalReservation = Reservation::where('reservation_finished', 'false')
-                ->where('date_finished', 'false')
+            $quantityReserveNotFinished = Reservation::where('reservation_finished', 0)
+                ->where('fk_user_id_finished', null)
                 ->sum('quantity');
 
-            $quantityTotalProduct = $quantityTotalInputs - ($quantityTotalExits + $quantityTotalReservation);
+            $quantityTotalProduct = $quantityTotalInputs - ($quantityTotalExits + $quantityReserveNotFinished);
 
             if ($quantityTotalProduct <= 0) {
                 return response()->json([
@@ -329,8 +329,8 @@ class ReservationController extends CrudController
                     'withdrawal_date' => $request->withdrawal_date,
                     'return_date' => $request->return_date,
                     'delivery_to' => $request->delivery_to,
-                    'reservation_finished' => 'false',
-                    'date_finished' => 'false',
+                    'reservation_finished' => false,
+                    'date_finished' => null,
                     'fk_user_id_finished' => null,
                 ]);
             }
@@ -346,46 +346,46 @@ class ReservationController extends CrudController
 
             if (isset($reservation)) {
 
-                $newQuantityTotal = $quantityTotalProduct - $reservation['quantity'];
+                // $newQuantityTotal = $quantityTotalProduct - $reservation['quantity'];
 
-                if ($newQuantityTotal <= $productQuantityMin) {
+                // if ($newQuantityTotal <= $productQuantityMin) {
 
-                    $updateInputExists = false;
-                    $insertInput = false;
+                //     $updateInputExists = false;
+                //     $insertInput = false;
 
-                    $productAlert = DB::table('product_alerts')
-                        ->where('fk_product_equipament_id', $id)
-                        ->whereNull('deleted_at')
-                        ->first();
+                //     $productAlert = DB::table('product_alerts')
+                //         ->where('fk_product_equipament_id', $id)
+                //         ->whereNull('deleted_at')
+                //         ->first();
 
-                    if ($productAlert) {
+                //     if ($productAlert) {
 
-                        $updateInputExists = DB::table('product_alerts')
-                            ->where('fk_product_equipament_id', $id)
-                            ->update([
-                                'quantity_min' => $productQuantityMin,
-                                'fk_category_id' => $productEquipamentUser->fk_category_id,
-                                'created_at' => $date,
-                            ]) > 0; // Retorna true se pelo menos uma linha foi afetada
-                    } else {
-                        $insertInput = DB::table('product_alerts')
-                            ->insert([
-                                'fk_product_equipament_id' => $id,
-                                'quantity_min' => $productQuantityMin,
-                                'fk_category_id' => $productEquipamentUser->fk_category_id,
-                                'created_at' => $date,
-                            ]);
-                    }
+                //         $updateInputExists = DB::table('product_alerts')
+                //             ->where('fk_product_equipament_id', $id)
+                //             ->update([
+                //                 'quantity_min' => $productQuantityMin,
+                //                 'fk_category_id' => $productEquipamentUser->fk_category_id,
+                //                 'created_at' => $date,
+                //             ]) > 0; // Retorna true se pelo menos uma linha foi afetada
+                //     } else {
+                //         $insertInput = DB::table('product_alerts')
+                //             ->insert([
+                //                 'fk_product_equipament_id' => $id,
+                //                 'quantity_min' => $productQuantityMin,
+                //                 'fk_category_id' => $productEquipamentUser->fk_category_id,
+                //                 'created_at' => $date,
+                //             ]);
+                //     }
 
 
-                    if ($updateInputExists || $updateInputExists == false || $insertInput) {
-                        return response()->json([
-                            'success' => true,
-                            'message' => 'Retirada concluída com sucesso',
-                            'data' => $reservation,
-                        ]);
-                    }
-                }
+                //     if ($updateInputExists || $updateInputExists == false || $insertInput) {
+                //         return response()->json([
+                //             'success' => true,
+                //             'message' => 'Retirada concluída com sucesso',
+                //             'data' => $reservation,
+                //         ]);
+                //     }
+                // }
                 return response()->json([
                     'success' => true,
                     'message' => 'Retirada concluída com sucesso',
@@ -449,18 +449,15 @@ class ReservationController extends CrudController
 
             $quantityTotalInputs = Inputs::where('fk_product_equipament_id', $fk_product)->sum('quantity');
             $quantityTotalExits = Exits::where('fk_product_equipament_id', $fk_product)->sum('quantity');
-            $quantityTotalReservation = Reservation::where('reservation_finished', 'false')
-                ->where('date_finished', 'false')
+            $quantityReserveNotFinished = Reservation::where('reservation_finished', 0)
+                ->where('fk_user_id_finished', null)
                 ->sum('quantity');
 
-
-            // dd($quantityTotalProduct = $quantityTotalInputs - ($quantityTotalExits + $quantityTotalReservation), $quantityTotalInputs, $quantityTotalExits, $quantityTotalReservation);
-
-            $quantityTotalProduct = $quantityTotalInputs - ($quantityTotalExits + $quantityTotalReservation);
+            $quantityTotalProduct = ($quantityTotalInputs) - ($quantityTotalExits + $quantityReserveNotFinished);
 
             $validateData = $request->validate(
-                $this->reservation->rulesExits(),
-                $this->reservation->feedbackExits()
+                $this->reservation->rulesReservation(),
+                $this->reservation->feedbackReservation()
             );
 
             if ($quantityTotalProduct <= 0) {
@@ -501,31 +498,31 @@ class ReservationController extends CrudController
             $date = now();
 
             if ($updateReservation) {
-                $newQuantityTotal = $quantityTotalProduct - $updateReservation['quantity'];
+                // $newQuantityTotal = $quantityTotalProduct - $updateReservation['quantity'];
 
-                if ($newQuantityTotal <= $productQuantityMin) {
-                    $productAlert = DB::table('product_alerts')
-                        ->where('fk_product_equipament_id', $fk_product)
-                        ->whereNull('deleted_at')
-                        ->first();
+                // if ($newQuantityTotal <= $productQuantityMin) {
+                //     $productAlert = DB::table('product_alerts')
+                //         ->where('fk_product_equipament_id', $fk_product)
+                //         ->whereNull('deleted_at')
+                //         ->first();
 
-                    if ($productAlert) {
-                        DB::table('product_alerts')
-                            ->where('fk_product_equipament_id', $fk_product)
-                            ->update([
-                                'quantity_min' => $productQuantityMin,
-                                'fk_category_id' => $product->fk_category_id,
-                                'created_at' => $date,
-                            ]);
-                    } else {
-                        DB::table('product_alerts')->insert([
-                            'fk_product_equipament_id' => $fk_product,
-                            'quantity_min' => $productQuantityMin,
-                            'fk_category_id' => $product->fk_category_id,
-                            'created_at' => $date,
-                        ]);
-                    }
-                }
+                //     if ($productAlert) {
+                //         DB::table('product_alerts')
+                //             ->where('fk_product_equipament_id', $fk_product)
+                //             ->update([
+                //                 'quantity_min' => $productQuantityMin,
+                //                 'fk_category_id' => $product->fk_category_id,
+                //                 'created_at' => $date,
+                //             ]);
+                //     } else {
+                //         DB::table('product_alerts')->insert([
+                //             'fk_product_equipament_id' => $fk_product,
+                //             'quantity_min' => $productQuantityMin,
+                //             'fk_category_id' => $product->fk_category_id,
+                //             'created_at' => $date,
+                //         ]);
+                //     }
+                // }
 
                 return response()->json([
                     'success' => true,
@@ -568,18 +565,7 @@ class ReservationController extends CrudController
                 ]);
             }
 
-            $quantityReturnStock = $deleteReservation->quantity;
-            $idProduct = $deleteReservation->fk_product_equipament_id;
-
             $deleteReservation->delete();
-
-            $product = ProductEquipament::where('id', $idProduct)->first();
-
-            if ($product) {
-
-                $quantityTotalDB = $product->quantity;
-                $product->update(['quantity' => $quantityTotalDB + $quantityReturnStock]);
-            }
 
             return response()->json([
                 'success' => true,
@@ -627,15 +613,12 @@ class ReservationController extends CrudController
                 ]);
             }
 
-            if ($reservation->reservation_finished == 'true' && $reservation->date_finished !== '0') {
+            if ($reservation->reservation_finished == true && $reservation->date_finished !== null) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Esta reserva já foi finalizada.',
                 ]);
             }
-
-            $quantityReturnDB = $reservation->quantity;
-            $idProduct = $reservation->fk_product_equipament_id;
 
             $reservation->fill(
                 $request->validate(
@@ -643,18 +626,13 @@ class ReservationController extends CrudController
                     $this->reservation->feedbackFinishedReservation()
                 )
             );
-
+            
             $reservation->fk_user_id_finished = $idUserRequest;
+            $reservation->date_finished = now();
 
             $reservation->save();
 
             if ($reservation) {
-                $product = ProductEquipament::where('id', $idProduct)->first();
-
-                if ($product) {
-                    $quantityTotalDB = $product->quantity;
-                    $product->update(['quantity' => $quantityTotalDB + $quantityReturnDB]);
-                }
 
                 return response()->json([
                     'success' => true,

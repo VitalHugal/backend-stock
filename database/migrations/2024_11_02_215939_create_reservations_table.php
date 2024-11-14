@@ -21,8 +21,8 @@ return new class extends Migration
             $table->string('withdrawal_date');
             $table->string('return_date');
             $table->string('delivery_to');
-            $table->string('reservation_finished');
-            $table->string('date_finished');
+            $table->boolean('reservation_finished');
+            $table->string('date_finished')->nullable();
             $table->foreignId('fk_user_id_finished')->nullable()->constrained('users')->onUpdate('cascade');
             $table->timestamps();
             $table->softDeletes();
