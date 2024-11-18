@@ -46,37 +46,6 @@ class ExitsController extends CrudController
                 ]);
             }
 
-            // Verifica o nível de acesso e filtra as saídas
-            // if ($level == 'user') {
-            //     $exits = Exits::with(['productEquipament.category', "user"])
-            //         ->whereHas('productEquipament', function ($query) use ($categoryUser) {
-            //             $query->whereIn('fk_category_id', $categoryUser);
-            //         })
-            //         ->get()
-            //         ->map(function ($exit) {
-            //             return [
-            //                 'id' => $exit->id,
-            //                 'fk_user_id' => $exit->fk_user_id,
-            //                 'name_user_exits' => $exit->user->name,
-            //                 'reason_project' => $exit->reason_project,
-            //                 'observation' => $exit->observation,
-            //                 'quantity' => $exit->quantity,
-            //                 'withdrawal_date' => $exit->withdrawal_date,
-            //                 'delivery_to' => $exit->delivery_to,
-            //                 'created_at' => $exit->created_at,
-            //                 'updated_at' => $exit->updated_at,
-            //                 'product_name' => $exit->productEquipament->name,
-            //                 'category_name' => $exit->productEquipament->category->name,
-            //             ];
-            //         });
-
-            //     return response()->json([
-            //         'success' => true,
-            //         'message' => 'Saídas recuperadas com sucesso.',
-            //         'data' => $exits,
-            //     ]);
-            // }
-
             if ($level == 'user') {
                 $exits = Exits::with(['productEquipament.category', "user"])
                     ->whereHas('productEquipament', function ($query) use ($categoryUser) {
