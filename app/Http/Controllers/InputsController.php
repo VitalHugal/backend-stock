@@ -123,7 +123,9 @@ class InputsController extends CrudController
     public function getIdInputs(Request $request, $id)
     {
         try {
+
             $user = $request->user();
+            $level = $user->level;
             $idUser = $user->id;
 
             $categoryUser = DB::table('category_user')
@@ -131,104 +133,85 @@ class InputsController extends CrudController
                 ->pluck('fk_category_id')
                 ->toArray();
 
-
-            if ($user->level !== 'admin' && $categoryUser == null) {
+            if ($user->level !== 'admin' && empty($categoryUser)) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Você não tem permissão de acesso para seguir adiante.',
                 ]);
             }
+            
+            $verifyId = $this->input->find($id);
 
-            if ($user->level == 'user') {
-
-                $inputRequest = Inputs::where('id', $id)->first();
-
-                if ($inputRequest) {
-                    $productInExits = $inputRequest->fk_product_equipament_id;
-                    $productEspecific = ProductEquipament::where('id', $productInExits)->first();
-                    $verifyPresenceProdcutEspecificInCategory = in_array($productEspecific, $categoryUser);
-
-                    if ($verifyPresenceProdcutEspecificInCategory === false) {
-                        return response()->json([
-                            'sucess' => false,
-                            'message' => 'Você não pode ter acesso a um produto que não pertence ao seu setor.'
-                        ]);
-                    }
-                }
-
-                $input = Inputs::with(['productEquipament.category', 'user'])
-                    ->where('id', $id)
-                    ->whereHas('productEquipament', function ($query) use ($categoryUser) {
-                        $query->whereIn('fk_category_id', $categoryUser);
-                    })->first();
-
-                if (!$input) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'Entrada não encontrada.',
-                    ]);
-                }
-
-                $inputDataUser = [
-                    'input_id' => $input->id,
-                    'product_name' => $input->productEquipament->name,
-                    'category_name' => $input->productEquipament->category->name,
-                    'quantity' => $input->quantity,
-                    'username' => $input->user->name,
-                    'fk_user_id' => $input->fk_user_id,
-                    'created_at' => $input->created_at,
-                    'updated_at' => $input->updated_at,
-                ];
-
-                if ($inputDataUser == null) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'Nenhuma entrada encontrada.',
-                    ]);
-                }
-
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Entrada recuperada com sucesso.',
-                    'data' => $inputDataUser,
-                ]);
-            }
-
-            $input = Inputs::with(['productEquipament.category'])
-                ->where('id', $id)
-                ->whereHas('productEquipament', function ($query) use ($categoryUser) {
-                    // $query->whereIn('fk_category_id', $categoryUser);
-                })->first();
-
-            if (!$input) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Entrada não encontrada.',
-                ]);
-            }
-
-            $inputDataAdim = [
-                'input_id' => $input->id,
-                'product_name' => $input->productEquipament->name,
-                'category_name' => $input->productEquipament->category->name,
-                'quantity' => $input->quantity,
-                'username' => $input->user->name,
-                'fk_user_id' => $input->fk_user_id,
-                'created_at' => $input->created_at,
-                'updated_at' => $input->updated_at,
-            ];
-
-            if ($inputDataAdim == null) {
+            if (!$verifyId) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Nenhuma entrada encontrada.',
                 ]);
             }
+            // Verifica o nível de acesso e filtra as saídas
+            if ($level == 'user') {
+                $inputs = Inputs::with(['productEquipament.category', 'user'])->where('id', $id)
+                    ->whereHas('productEquipament', function ($query) use ($categoryUser) {
+                        $query->whereIn('fk_category_id', $categoryUser);
+                    })
+                    ->get()
+                    ->map(function ($input) {
+                        return [
+                            'id' => $input->id,
+                            'product_name' => $input->productEquipament->name,
+                            'category_name' => $input->productEquipament->category->name,
+                            'quantity' => $input->quantity,
+                            'username' => $input->user->name,
+                            'fk_user_id' => $input->fk_user_id,
+                            'created_at' => $input->created_at,
+                            'updated_at' => $input->updated_at,
+
+                        ];
+                    });
+
+                // if (empty($inputs)) {
+                //     return response()->json([
+                //         'success' => false,
+                //         'message' => 'Nenhuma entrada encontrada.',
+                //     ]);
+                // }
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Entrada recuperada com sucesso.',
+                    'data' => $inputs,
+                ]);
+            }
+
+            $inputsAdmin = Inputs::with(['productEquipament.category', 'user'])->where('id', $id)
+                ->whereHas('productEquipament', function ($query) use ($categoryUser) {
+                    // $query->whereIn('fk_category_id', $categoryUser);
+                })
+                ->get()
+                ->map(function ($input) {
+                    return [
+                        'id' => $input->id,
+                        'product_name' => $input->productEquipament->name,
+                        'category_name' => $input->productEquipament->category->name,
+                        'quantity' => $input->quantity,
+                        'username' => $input->user->name,
+                        'fk_user_id' => $input->fk_user_id,
+                        'created_at' => $input->created_at,
+                        'updated_at' => $input->updated_at,
+                    ];
+                });
+
+            // if (empty($inputsAdmin)) {
+            //     return response()->json([
+            //         'success' => false,
+            //         'message' => 'Nenhuma entrada encontrada.',
+            //     ]);
+            // }
 
             return response()->json([
                 'success' => true,
                 'message' => 'Entrada recuperada com sucesso.',
-                'data' => $inputDataAdim,
+                'data' => $inputsAdmin,
             ]);
         } catch (QueryException $qe) {
             return response()->json([
@@ -241,6 +224,125 @@ class InputsController extends CrudController
                 'message' => "Error: " . $e->getMessage(),
             ]);
         }
+        // try {
+        //     $user = $request->user();
+        //     $idUser = $user->id;
+
+        //     $categoryUser = DB::table('category_user')
+        //         ->where('fk_user_id', $idUser)
+        //         ->pluck('fk_category_id')
+        //         ->toArray();
+
+
+        //     if ($user->level !== 'admin' && $categoryUser == null) {
+        //         return response()->json([
+        //             'success' => false,
+        //             'message' => 'Você não tem permissão de acesso para seguir adiante.',
+        //         ]);
+        //     }
+
+        //     if ($user->level == 'user') {
+
+        //         $inputRequest = Inputs::where('id', $id)->first();
+
+        //         if ($inputRequest) {
+        //             $productInExits = $inputRequest->fk_product_equipament_id;
+        //             $productEspecific = ProductEquipament::where('id', $productInExits)->first();
+        //             $verifyPresenceProdcutEspecificInCategory = in_array($productEspecific, $categoryUser);
+
+        //             if ($verifyPresenceProdcutEspecificInCategory === false) {
+        //                 return response()->json([
+        //                     'sucess' => false,
+        //                     'message' => 'Você não pode ter acesso a um produto que não pertence ao seu setor.'
+        //                 ]);
+        //             }
+        //         }
+
+        //         $input = Inputs::with(['productEquipament.category', 'user'])
+        //             ->where('id', $id)
+        //             ->whereHas('productEquipament', function ($query) use ($categoryUser) {
+        //                 $query->whereIn('fk_category_id', $categoryUser);
+        //             })->first();
+
+        //         if (!$input) {
+        //             return response()->json([
+        //                 'success' => false,
+        //                 'message' => 'Entrada não encontrada.',
+        //             ]);
+        //         }
+
+        //         $inputDataUser = [
+        //             'input_id' => $input->id,
+        //             'product_name' => $input->productEquipament->name,
+        //             'category_name' => $input->productEquipament->category->name,
+        //             'quantity' => $input->quantity,
+        //             'username' => $input->user->name,
+        //             'fk_user_id' => $input->fk_user_id,
+        //             'created_at' => $input->created_at,
+        //             'updated_at' => $input->updated_at,
+        //         ];
+
+        //         if ($inputDataUser == null) {
+        //             return response()->json([
+        //                 'success' => false,
+        //                 'message' => 'Nenhuma entrada encontrada.',
+        //             ]);
+        //         }
+
+        //         return response()->json([
+        //             'success' => true,
+        //             'message' => 'Entrada recuperada com sucesso.',
+        //             'data' => $inputDataUser,
+        //         ]);
+        //     }
+
+        //     $input = Inputs::with(['productEquipament.category'])
+        //         ->where('id', $id)
+        //         ->whereHas('productEquipament', function ($query) use ($categoryUser) {
+        //             // $query->whereIn('fk_category_id', $categoryUser);
+        //         })->first();
+
+        //     if (!$input) {
+        //         return response()->json([
+        //             'success' => false,
+        //             'message' => 'Entrada não encontrada.',
+        //         ]);
+        //     }
+
+        //     $inputDataAdim = [
+        //         'input_id' => $input->id,
+        //         'product_name' => $input->productEquipament->name,
+        //         'category_name' => $input->productEquipament->category->name,
+        //         'quantity' => $input->quantity,
+        //         'username' => $input->user->name,
+        //         'fk_user_id' => $input->fk_user_id,
+        //         'created_at' => $input->created_at,
+        //         'updated_at' => $input->updated_at,
+        //     ];
+
+        //     if ($inputDataAdim == null) {
+        //         return response()->json([
+        //             'success' => false,
+        //             'message' => 'Nenhuma entrada encontrada.',
+        //         ]);
+        //     }
+
+        //     return response()->json([
+        //         'success' => true,
+        //         'message' => 'Entrada recuperada com sucesso.',
+        //         'data' => $inputDataAdim,
+        //     ]);
+        // } catch (QueryException $qe) {
+        //     return response()->json([
+        //         'success' => false,
+        //         'message' => "Error DB: " . $qe->getMessage(),
+        //     ]);
+        // } catch (Exception $e) {
+        //     return response()->json([
+        //         'success' => false,
+        //         'message' => "Error: " . $e->getMessage(),
+        //     ]);
+        // }
     }
 
     public function store(Request $request)
