@@ -78,7 +78,6 @@ class ExitsController extends CrudController
                 ]);
             }
 
-
             $exitsAdmin = Exits::with(['productEquipament.category', "user"])
                 ->whereHas('productEquipament', function ($query) use ($categoryUser) {
                     // $query->whereIn('fk_category_id', $categoryUser);
