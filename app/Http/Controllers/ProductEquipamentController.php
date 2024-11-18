@@ -41,7 +41,6 @@ class ProductEquipamentController extends CrudController
                 ]);
             }
 
-
             if ($user->level == 'user') {
 
                 $quantityReserveNotFinished = Reservation::where('reservation_finished', 0)
@@ -107,7 +106,7 @@ class ProductEquipamentController extends CrudController
 
             return response()->json([
                 'success' => true,
-                'message' => 'Produto(s)/Equipamento(s) recuperados com sucesso admin.',
+                'message' => 'Produto(s)/Equipamento(s) recuperados com sucesso.',
                 'data' => $productAllAdmin,
             ]);
         } catch (QueryException $qe) {
@@ -140,6 +139,7 @@ class ProductEquipamentController extends CrudController
                     'message' => 'Você não tem permissão de acesso para seguir adiante.',
                 ]);
             }
+            
             if ($user->level == 'user') {
 
                 $product = ProductEquipament::where('id', $id)->first();

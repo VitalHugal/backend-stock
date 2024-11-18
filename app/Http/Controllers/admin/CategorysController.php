@@ -123,11 +123,6 @@ class CategorysController extends CrudController
 
             if ($createCategory) {
 
-                DB::table('category_user')->insert([
-                    'fk_user_id' => 1,
-                    'fk_category_id' => $createCategory['id'],
-                ]);
-
                 return response()->json([
                     'success' => true,
                     'message' => 'Categoria criada com sucesso.',
