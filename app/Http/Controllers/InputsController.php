@@ -48,28 +48,25 @@ class InputsController extends CrudController
                     ->whereHas('productEquipament', function ($query) use ($categoryUser) {
                         $query->whereIn('fk_category_id', $categoryUser);
                     })
-                    ->get()
-                    ->map(function ($input) {
+                    ->paginate(10);
+                    
+                    $inputs->getCollection()->transform(function ($input) {
                         return [
                             'id' => $input->id,
-                            'product_name' => $input->productEquipament->name,
-                            'category_name' => $input->productEquipament->category->name,
-                            'quantity' => $input->quantity,
-                            'username' => $input->user->name,
                             'fk_user_id' => $input->fk_user_id,
+                            'name_user_exits' => $input->user->name,
+                            'reason_project' => $input->reason_project,
+                            'observation' => $input->observation,
+                            'quantity' => $input->quantity,
+                            'withdrawal_date' => $input->withdrawal_date,
+                            'delivery_to' => $input->delivery_to,
                             'created_at' => $input->created_at,
                             'updated_at' => $input->updated_at,
-
+                            'product_name' => $input->productEquipament->name,
+                            'category_name' => $input->productEquipament->category->name,
                         ];
                     });
-
-                if ($inputs == null) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'Nenhuma entrada encontrada.',
-                    ]);
-                }
-
+                    
                 return response()->json([
                     'success' => true,
                     'message' => 'Entradas recuperadas com sucesso.',
@@ -81,26 +78,24 @@ class InputsController extends CrudController
                 ->whereHas('productEquipament', function ($query) use ($categoryUser) {
                     // $query->whereIn('fk_category_id', $categoryUser);
                 })
-                ->get()
-                ->map(function ($input) {
+                ->paginate(10);
+                
+                $inputsAdmin->getCollection()->transform(function ($input) {
                     return [
                         'id' => $input->id,
-                        'product_name' => $input->productEquipament->name,
-                        'category_name' => $input->productEquipament->category->name,
-                        'quantity' => $input->quantity,
-                        'username' => $input->user->name,
                         'fk_user_id' => $input->fk_user_id,
+                        'name_user_exits' => $input->user->name,
+                        'reason_project' => $input->reason_project,
+                        'observation' => $input->observation,
+                        'quantity' => $input->quantity,
+                        'withdrawal_date' => $input->withdrawal_date,
+                        'delivery_to' => $input->delivery_to,
                         'created_at' => $input->created_at,
                         'updated_at' => $input->updated_at,
+                        'product_name' => $input->productEquipament->name,
+                        'category_name' => $input->productEquipament->category->name,
                     ];
                 });
-
-            if ($inputsAdmin == null) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Nenhuma entrada encontrada.',
-                ]);
-            }
 
             return response()->json([
                 'success' => true,
@@ -169,13 +164,6 @@ class InputsController extends CrudController
                         ];
                     });
 
-                // if (empty($inputs)) {
-                //     return response()->json([
-                //         'success' => false,
-                //         'message' => 'Nenhuma entrada encontrada.',
-                //     ]);
-                // }
-
                 return response()->json([
                     'success' => true,
                     'message' => 'Entrada recuperada com sucesso.',
@@ -200,13 +188,6 @@ class InputsController extends CrudController
                         'updated_at' => $input->updated_at,
                     ];
                 });
-
-            // if (empty($inputsAdmin)) {
-            //     return response()->json([
-            //         'success' => false,
-            //         'message' => 'Nenhuma entrada encontrada.',
-            //     ]);
-            // }
 
             return response()->json([
                 'success' => true,

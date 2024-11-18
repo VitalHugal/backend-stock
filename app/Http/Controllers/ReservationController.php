@@ -58,8 +58,9 @@ class ReservationController extends CrudController
                     ->whereHas('productEquipament', function ($query) use ($categoryUser) {
                         $query->whereIn('fk_category_id', $categoryUser);
                     })
-                    ->get()
-                    ->map(function ($reservation) {
+                    ->paginate(10);
+                    
+                    $reservations->getCollection()->transform(function ($reservation) {
                         return [
                             'id' => $reservation->id,
                             'fk_user_id_create' => $reservation->fk_user_id,
@@ -78,13 +79,6 @@ class ReservationController extends CrudController
                             'category_name' => $reservation->productEquipament->category->name ?? null,
                         ];
                     });
-
-                if ($reservations === null) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'Nenhuma reserva encontrada.',
-                    ]);
-                }
 
                 return response()->json([
                     'success' => true,
@@ -106,8 +100,9 @@ class ReservationController extends CrudController
                 }
 
                 $reservationsAdmin = Reservation::with(['productEquipament.category', 'user', 'userFinished'])
-                    ->get()
-                    ->map(function ($reservation) {
+                    ->paginate(10);
+                    
+                    $reservationsAdmin->getCollection()->transform(function ($reservation) {
                         return [
                             'id' => $reservation->id,
                             'fk_user_id_create' => $reservation->fk_user_id,
@@ -127,16 +122,9 @@ class ReservationController extends CrudController
                         ];
                     });
 
-                if ($reservationsAdmin === null) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'Nenhuma reserva encontrada.',
-                    ]);
-                }
-
                 return response()->json([
                     'success' => true,
-                    'message' => 'Todas as reservas recuperadas com sucesso',
+                    'message' => 'Todas as reservas recuperadas com sucesso.',
                     'data' => $reservationsAdmin,
                 ]);
             }

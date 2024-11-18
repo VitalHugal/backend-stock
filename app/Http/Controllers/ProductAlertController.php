@@ -88,6 +88,7 @@ class ProductAlertController extends CrudController
             $quantityReserveNotFinished = Reservation::where('reservation_finished', 0)
                 ->where('fk_user_id_finished', null)
                 ->sum('quantity');
+                
 
             $productAlertAll = ProductEquipament::with('category', 'inputs')->get()
                 ->filter(function ($product) use ($quantityReserveNotFinished) {

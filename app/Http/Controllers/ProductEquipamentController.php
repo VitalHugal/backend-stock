@@ -48,54 +48,16 @@ class ProductEquipamentController extends CrudController
                     ->where('fk_user_id_finished', null)
                     ->sum('quantity');
 
-
                 $productEquipamentUser = ProductEquipament::with('category')
                     ->whereIn('fk_category_id', $categoryUser)
-                    ->get()
-                    ->map(function ($product) use ($quantityReserveNotFinished) {
+                    ->paginate(10);
 
-                        $quantityTotalInputs = Inputs::where('fk_product_equipament_id', $product->id)->sum('quantity');
-                        $quantityTotalExits = Exits::where('fk_product_equipament_id', $product->id)->sum('quantity');
-
-                        $quantityTotalProduct = $quantityTotalInputs - ($quantityTotalExits + $quantityReserveNotFinished);
-                        return [
-                            'id' => $product->id,
-                            'name-category' => $product->category ? $product->category->name : null,
-                            'name' => $product->name,
-                            'quantity_stock' => $quantityTotalProduct,
-                            'quantity_min' => $product->quantity_min,
-                            'fk_category_id' => $product->fk_category_id,
-                            'created_at' => $product->created_at,
-                            'updated_at' => $product->updated_at,
-                            'deleted_at' => $product->deleted_at,
-                        ];
-                    });
-
-                if ($productEquipamentUser == null) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'Nenhum produto encontrado para a(s) categoria(s) do usuário.',
-                    ]);
-                }
-
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Produto(s)/Equipamento(s) recuperados com sucesso.',
-                    'data' => $productEquipamentUser,
-                ]);
-            }
-
-            $quantityReserveNotFinished = Reservation::where('reservation_finished', 0)
-                ->where('fk_user_id_finished', null)
-                ->sum('quantity');
-
-            $productAllAdmin = ProductEquipament::with('category')->get()
-                ->map(function ($product) use ($quantityReserveNotFinished) {
+                $productEquipamentUser->getCollection()->transform(function ($product) use ($quantityReserveNotFinished) {
 
                     $quantityTotalInputs = Inputs::where('fk_product_equipament_id', $product->id)->sum('quantity');
                     $quantityTotalExits = Exits::where('fk_product_equipament_id', $product->id)->sum('quantity');
-                    $quantityTotalProduct = $quantityTotalInputs - ($quantityTotalExits - $quantityReserveNotFinished);
 
+                    $quantityTotalProduct = $quantityTotalInputs - ($quantityTotalExits + $quantityReserveNotFinished);
                     return [
                         'id' => $product->id,
                         'name-category' => $product->category ? $product->category->name : null,
@@ -109,16 +71,43 @@ class ProductEquipamentController extends CrudController
                     ];
                 });
 
-            if ($productAllAdmin == null) {
                 return response()->json([
-                    'success' => false,
-                    'message' => 'Nenhum produto encontrado para a(s) categoria(s) do usuário.',
+                    'success' => true,
+                    'message' => 'Produto(s)/Equipamento(s) recuperados com sucesso.',
+                    'data' => $productEquipamentUser,
                 ]);
             }
 
+            $quantityReserveNotFinished = Reservation::where('reservation_finished', 0)
+                ->where('fk_user_id_finished', null)
+                ->sum('quantity');
+
+            $productAllAdmin = ProductEquipament::with('category')
+                // ->get()
+                ->paginate(10);
+
+            $productAllAdmin->getCollection()->transform(function ($product) use ($quantityReserveNotFinished) {
+
+                $quantityTotalInputs = Inputs::where('fk_product_equipament_id', $product->id)->sum('quantity');
+                $quantityTotalExits = Exits::where('fk_product_equipament_id', $product->id)->sum('quantity');
+                $quantityTotalProduct = $quantityTotalInputs - ($quantityTotalExits - $quantityReserveNotFinished);
+
+                return [
+                    'id' => $product->id,
+                    'name-category' => $product->category ? $product->category->name : null,
+                    'name' => $product->name,
+                    'quantity_stock' => $quantityTotalProduct,
+                    'quantity_min' => $product->quantity_min,
+                    'fk_category_id' => $product->fk_category_id,
+                    'created_at' => $product->created_at,
+                    'updated_at' => $product->updated_at,
+                    'deleted_at' => $product->deleted_at,
+                ];
+            });
+
             return response()->json([
                 'success' => true,
-                'message' => 'Produto(s)/Equipamento(s) recuperados com sucesso.',
+                'message' => 'Produto(s)/Equipamento(s) recuperados com sucesso admin.',
                 'data' => $productAllAdmin,
             ]);
         } catch (QueryException $qe) {

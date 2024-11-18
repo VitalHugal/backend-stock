@@ -2,13 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use App\Models\Exits;
 use App\Models\Inputs;
 use App\Models\ProductEquipament;
 use App\Models\Reservation;
 use Exception;
-use Illuminate\Cache\Repository;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -49,49 +47,45 @@ class ExitsController extends CrudController
             }
 
             // Verifica o nível de acesso e filtra as saídas
+            // if ($level == 'user') {
+            //     $exits = Exits::with(['productEquipament.category', "user"])
+            //         ->whereHas('productEquipament', function ($query) use ($categoryUser) {
+            //             $query->whereIn('fk_category_id', $categoryUser);
+            //         })
+            //         ->get()
+            //         ->map(function ($exit) {
+            //             return [
+            //                 'id' => $exit->id,
+            //                 'fk_user_id' => $exit->fk_user_id,
+            //                 'name_user_exits' => $exit->user->name,
+            //                 'reason_project' => $exit->reason_project,
+            //                 'observation' => $exit->observation,
+            //                 'quantity' => $exit->quantity,
+            //                 'withdrawal_date' => $exit->withdrawal_date,
+            //                 'delivery_to' => $exit->delivery_to,
+            //                 'created_at' => $exit->created_at,
+            //                 'updated_at' => $exit->updated_at,
+            //                 'product_name' => $exit->productEquipament->name,
+            //                 'category_name' => $exit->productEquipament->category->name,
+            //             ];
+            //         });
+
+            //     return response()->json([
+            //         'success' => true,
+            //         'message' => 'Saídas recuperadas com sucesso.',
+            //         'data' => $exits,
+            //     ]);
+            // }
+
             if ($level == 'user') {
                 $exits = Exits::with(['productEquipament.category', "user"])
                     ->whereHas('productEquipament', function ($query) use ($categoryUser) {
                         $query->whereIn('fk_category_id', $categoryUser);
                     })
-                    ->get()
-                    ->map(function ($exit) {
-                        return [
-                            'id' => $exit->id,
-                            'fk_user_id' => $exit->fk_user_id,
-                            'name_user_exits' => $exit->user->name,
-                            'reason_project' => $exit->reason_project,
-                            'observation' => $exit->observation,
-                            'quantity' => $exit->quantity,
-                            'withdrawal_date' => $exit->withdrawal_date,
-                            'delivery_to' => $exit->delivery_to,
-                            'created_at' => $exit->created_at,
-                            'updated_at' => $exit->updated_at,
-                            'product_name' => $exit->productEquipament->name,
-                            'category_name' => $exit->productEquipament->category->name,
-                        ];
-                    });
+                    ->paginate(10); // Adicionando paginação com 10 itens por página
 
-                if ($exits == null) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'Nenhuma saida encontrada.',
-                    ]);
-                }
-
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Saídas recuperadas com sucesso.',
-                    'data' => $exits,
-                ]);
-            }
-
-            $exitsAdmin = Exits::with(['productEquipament.category', "user"])
-                ->whereHas('productEquipament', function ($query) use ($categoryUser) {
-                    // $query->whereIn('fk_category_id', $categoryUser);
-                })
-                ->get()
-                ->map(function ($exit) {
+                // Transformando os itens dentro da paginação
+                $exits->getCollection()->transform(function ($exit) {
                     return [
                         'id' => $exit->id,
                         'fk_user_id' => $exit->fk_user_id,
@@ -108,12 +102,37 @@ class ExitsController extends CrudController
                     ];
                 });
 
-            if ($exitsAdmin == null) {
                 return response()->json([
-                    'success' => false,
-                    'message' => 'Nenhuma saida encontrada.',
+                    'success' => true,
+                    'message' => 'Saídas recuperadas com sucesso.',
+                    'data' => $exits,
                 ]);
             }
+
+
+            $exitsAdmin = Exits::with(['productEquipament.category', "user"])
+                ->whereHas('productEquipament', function ($query) use ($categoryUser) {
+                    // $query->whereIn('fk_category_id', $categoryUser);
+                })
+                ->paginate(10);
+                
+               // Transformando os itens dentro da paginação
+               $exitsAdmin->getCollection()->transform(function ($exit) {
+                return [
+                    'id' => $exit->id,
+                    'fk_user_id' => $exit->fk_user_id,
+                    'name_user_exits' => $exit->user->name,
+                    'reason_project' => $exit->reason_project,
+                    'observation' => $exit->observation,
+                    'quantity' => $exit->quantity,
+                    'withdrawal_date' => $exit->withdrawal_date,
+                    'delivery_to' => $exit->delivery_to,
+                    'created_at' => $exit->created_at,
+                    'updated_at' => $exit->updated_at,
+                    'product_name' => $exit->productEquipament->name,
+                    'category_name' => $exit->productEquipament->category->name,
+                ];
+            });
 
             return response()->json([
                 'success' => true,
@@ -195,13 +214,6 @@ class ExitsController extends CrudController
                     'category_name' => $exit->productEquipament->category->name,
                 ];
 
-                if ($exitDataUser == null) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'Nenhuma saida encontrada.',
-                    ]);
-                }
-
                 return response()->json([
                     'success' => true,
                     'message' => 'Saída recuperada com sucesso.',
@@ -235,13 +247,6 @@ class ExitsController extends CrudController
                 'product_name' => $exit->productEquipament ? $exit->productEquipament->name : null,
                 'category_name' => $exit->productEquipament->category->name,
             ];
-
-            if ($exitDataAdmin == null) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Nenhuma saida encontrada.',
-                ]);
-            }
 
             return response()->json([
                 'success' => true,
@@ -398,6 +403,7 @@ class ExitsController extends CrudController
                 //         ]);
                 //     }
                 // }
+
                 return response()->json([
                     'success' => true,
                     'message' => 'Retirada concluída com sucesso',
@@ -507,9 +513,9 @@ class ExitsController extends CrudController
             $updateExits->fill($validateData);
             $updateExits->save();
 
-            $date = now();
-
             if ($updateExits) {
+
+                // $date = now();
                 // $newQuantityTotal = $quantityTotalProduct - $updateExits['quantity'];
 
                 // if ($newQuantityTotal <= $productQuantityMin) {
