@@ -14,6 +14,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
+use function PHPUnit\Framework\isEmpty;
 
 class ReservationController extends CrudController
 {
@@ -569,11 +570,18 @@ class ReservationController extends CrudController
                 ];
             });
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Reservas em atraso recuperadas com sucesso.',
-                'data' => $reservesData,
-            ]);
+            if ($reservesData) {
+
+                if (isEmpty($reservesData)) {
+                   
+                }
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Reservas em atraso recuperadas com sucesso.',
+                    'data' => $reservesData,
+                ]);
+            }
+            
         } catch (QueryException $qe) {
             return response()->json([
                 'success' => false,
