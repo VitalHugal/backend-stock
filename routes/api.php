@@ -52,9 +52,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/update-password', [UsersController::class, 'updatePassword']);
     Route::get('/my-profile', [UsersController::class, 'myProfile']);
 
-    /////////////////////////////////////////////////////
-    // ROTAS APENAS PARA USER COM NIVEL ADMINISTRADOR //
-    ///////////////////////////////////////////////////
+    //
+    // ROUTES FOR ADMINISTRATOR LEVEL USERS ONLY
+    //
 
     Route::delete('/delete-exits/{id}', [ExitsController::class, 'delete']);
     Route::delete('/delete-product-equipaments/{id}', [ProductEquipamentController::class, 'delete']);
