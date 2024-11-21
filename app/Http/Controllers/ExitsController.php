@@ -328,7 +328,7 @@ class ExitsController extends CrudController
             }
 
 
-            if (isset($exits)) {
+            if ($exits) {
 
                 // $date = now();
                 // $newQuantityTotal = $quantityTotalProduct - $exits['quantity'];
