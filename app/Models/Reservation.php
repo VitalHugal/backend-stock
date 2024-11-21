@@ -116,4 +116,9 @@ class Reservation extends Model
     {
         return $this->belongsTo(User::class, 'fk_user_id_finished');
     }
+
+    public function category()
+    {
+        return $this->belongsTo(Category::class, 'fk_category_id');
+    }
 }

@@ -7,13 +7,13 @@ use App\Models\Exits;
 use App\Models\Inputs;
 use App\Models\ProductEquipament;
 use App\Models\Reservation;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
-use function PHPUnit\Framework\isEmpty;
 
 class ReservationController extends CrudController
 {
@@ -59,26 +59,26 @@ class ReservationController extends CrudController
                         $query->whereIn('fk_category_id', $categoryUser);
                     })
                     ->paginate(10);
-                    
-                    $reservations->getCollection()->transform(function ($reservation) {
-                        return [
-                            'id' => $reservation->id,
-                            'fk_user_id_create' => $reservation->fk_user_id,
-                            'name_user_create' => $reservation->user->name ?? null,
-                            'reason_project' => $reservation->reason_project,
-                            'observation' => $reservation->observation,
-                            'quantity' => $reservation->quantity,
-                            'withdrawal_date' => $reservation->withdrawal_date,
-                            'return_date' => $reservation->return_date,
-                            'delivery_to' => $reservation->delivery_to,
-                            'reservation_finished' => $reservation->reservation_finished,
-                            'date_finished' => $reservation->date_finished,
-                            'fk_user_id_finished' => $reservation->fk_user_id_finished,
-                            'name_user_finished' => $reservation->userFinished->name ?? null,
-                            'product_name' => $reservation->productEquipament->name ?? null,
-                            'category_name' => $reservation->productEquipament->category->name ?? null,
-                        ];
-                    });
+
+                $reservations->getCollection()->transform(function ($reservation) {
+                    return [
+                        'id' => $reservation->id,
+                        'fk_user_id_create' => $reservation->fk_user_id,
+                        'name_user_create' => $reservation->user->name ?? null,
+                        'reason_project' => $reservation->reason_project,
+                        'observation' => $reservation->observation,
+                        'quantity' => $reservation->quantity,
+                        'withdrawal_date' => $reservation->withdrawal_date,
+                        'return_date' => $reservation->return_date,
+                        'delivery_to' => $reservation->delivery_to,
+                        'reservation_finished' => $reservation->reservation_finished,
+                        'date_finished' => $reservation->date_finished,
+                        'fk_user_id_finished' => $reservation->fk_user_id_finished,
+                        'name_user_finished' => $reservation->userFinished->name ?? null,
+                        'product_name' => $reservation->productEquipament->name ?? null,
+                        'category_name' => $reservation->productEquipament->category->name ?? null,
+                    ];
+                });
 
                 return response()->json([
                     'success' => true,
@@ -101,26 +101,26 @@ class ReservationController extends CrudController
 
                 $reservationsAdmin = Reservation::with(['productEquipament.category', 'user', 'userFinished'])
                     ->paginate(10);
-                    
-                    $reservationsAdmin->getCollection()->transform(function ($reservation) {
-                        return [
-                            'id' => $reservation->id,
-                            'fk_user_id_create' => $reservation->fk_user_id,
-                            'name_user_create' => $reservation->user->name ?? null,
-                            'reason_project' => $reservation->reason_project,
-                            'observation' => $reservation->observation,
-                            'quantity' => $reservation->quantity,
-                            'withdrawal_date' => $reservation->withdrawal_date,
-                            'return_date' => $reservation->return_date,
-                            'delivery_to' => $reservation->delivery_to,
-                            'reservation_finished' => $reservation->reservation_finished,
-                            'date_finished' => $reservation->date_finished,
-                            'fk_user_id_finished' => $reservation->fk_user_id_finished,
-                            'name_user_finished' => $reservation->userFinished->name ?? null,
-                            'product_name' => $reservation->productEquipament->name ?? null,
-                            'category_name' => $reservation->productEquipament->category->name ?? null,
-                        ];
-                    });
+
+                $reservationsAdmin->getCollection()->transform(function ($reservation) {
+                    return [
+                        'id' => $reservation->id,
+                        'fk_user_id_create' => $reservation->fk_user_id,
+                        'name_user_create' => $reservation->user->name ?? null,
+                        'reason_project' => $reservation->reason_project,
+                        'observation' => $reservation->observation,
+                        'quantity' => $reservation->quantity,
+                        'withdrawal_date' => $reservation->withdrawal_date,
+                        'return_date' => $reservation->return_date,
+                        'delivery_to' => $reservation->delivery_to,
+                        'reservation_finished' => $reservation->reservation_finished,
+                        'date_finished' => $reservation->date_finished,
+                        'fk_user_id_finished' => $reservation->fk_user_id_finished,
+                        'name_user_finished' => $reservation->userFinished->name ?? null,
+                        'product_name' => $reservation->productEquipament->name ?? null,
+                        'category_name' => $reservation->productEquipament->category->name ?? null,
+                    ];
+                });
 
                 return response()->json([
                     'success' => true,
@@ -330,9 +330,9 @@ class ReservationController extends CrudController
                     'data' => $reservation,
                 ]);
             }
-            
+
             if (isset($reservation)) {
-                
+
                 $date = now();
 
                 // $newQuantityTotal = $quantityTotalProduct - $reservation['quantity'];
@@ -521,6 +521,59 @@ class ReservationController extends CrudController
                     'data' => $updateReservation,
                 ]);
             }
+        } catch (QueryException $qe) {
+            return response()->json([
+                'success' => false,
+                'message' => "Error DB: " . $qe->getMessage(),
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => "Error: " . $e->getMessage(),
+            ]);
+        }
+    }
+    public function delayedReservations(Request $request)
+    {
+        try {
+            $user = $request->user();
+            $idUserRequest = $user->id;
+
+            $categoryUser = DB::table('category_user')
+                ->where('fk_user_id', $idUserRequest)
+                ->pluck('fk_category_id')
+                ->toArray();
+
+            if ($user->level !== 'admin' && !in_array(1, $categoryUser) && !in_array(5, $categoryUser)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Você não tem permissão de acesso para seguir adiante.',
+                ]);
+            }
+
+            $reservations = Reservation::with('productEquipament','category')
+                ->where('return_date', '<', Carbon::now())
+                ->where('reservation_finished', false)
+                ->whereNull('date_finished')
+                ->whereNull('fk_user_id_finished')
+                ->get();
+
+            $reservesData = $reservations->map(function ($reserve) {
+                return [
+                    'id' => $reserve->id,
+                    'delivery_to' => $reserve->delivery_to,
+                    'return_date' => $reserve->return_date,
+                    'category' => $reserve->productEquipament->category->name,
+                    'product' => $reserve->productEquipament->name,
+                    'quantity' => $reserve->quantity,
+                ];
+            });
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Reservas em atraso recuperadas com sucesso.',
+                'data' => $reservesData,
+            ]);
         } catch (QueryException $qe) {
             return response()->json([
                 'success' => false,

@@ -34,6 +34,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/update-reservation/{id}', [ReservationController::class, 'updateReservation']);
     Route::get('/get-all-reservation', [ReservationController::class, 'getAllReservation']);
     Route::get('/get-reservation/{id}', [ReservationController::class, 'getIdReservation']);
+    Route::get('/get-all-delayed-reservation', [ReservationController::class, 'delayedReservations']);
 
     //EXITS
     Route::post('/exits/{id}', [ExitsController::class, 'exits']);
