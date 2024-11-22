@@ -83,9 +83,9 @@ class ExitsController extends CrudController
                     // $query->whereIn('fk_category_id', $categoryUser);
                 })
                 ->paginate(10);
-                
-               // Transformando os itens dentro da paginação
-               $exitsAdmin->getCollection()->transform(function ($exit) {
+
+            // Transformando os itens dentro da paginação
+            $exitsAdmin->getCollection()->transform(function ($exit) {
                 return [
                     'id' => $exit->id,
                     'fk_user_id' => $exit->fk_user_id,
@@ -288,8 +288,10 @@ class ExitsController extends CrudController
 
             $quantityTotalInputs = Inputs::where('fk_product_equipament_id', $id)->sum('quantity');
             $quantityTotalExits = Exits::where('fk_product_equipament_id', $id)->sum('quantity');
-            $quantityReserveNotFinished = Reservation::where('reservation_finished', 0)
-                ->where('fk_user_id_finished', null)
+            $quantityReserveNotFinished = Reservation::where('fk_product_equipament_id', $id)
+                ->where('reservation_finished', false)
+                ->whereNull('date_finished')
+                ->whereNull('fk_user_id_finished')
                 ->sum('quantity');
 
             $quantityTotalProduct = $quantityTotalInputs - ($quantityTotalExits + $quantityReserveNotFinished);
@@ -435,8 +437,10 @@ class ExitsController extends CrudController
 
             $quantityTotalInputs = Inputs::where('fk_product_equipament_id', $fk_product)->sum('quantity');
             $quantityTotalExits = Exits::where('fk_product_equipament_id', $fk_product)->sum('quantity');
-            $quantityReserveNotFinished = Reservation::where('reservation_finished', 0)
-                ->where('fk_user_id_finished', null)
+            $quantityReserveNotFinished = Reservation::where('fk_product_equipament_id', $fk_product)
+                ->where('reservation_finished', false)
+                ->whereNull('date_finished')
+                ->whereNull('fk_user_id_finished')
                 ->sum('quantity');
 
             $quantityTotalProduct = ($quantityTotalInputs) - ($quantityTotalExits + $quantityReserveNotFinished);

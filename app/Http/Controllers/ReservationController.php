@@ -269,8 +269,10 @@ class ReservationController extends CrudController
 
             $quantityTotalInputs = Inputs::where('fk_product_equipament_id', $id)->sum('quantity');
             $quantityTotalExits = Exits::where('fk_product_equipament_id', $id)->sum('quantity');
-            $quantityReserveNotFinished = Reservation::where('reservation_finished', 0)
-                ->where('fk_user_id_finished', null)
+            $quantityReserveNotFinished = Reservation::where('fk_product_equipament_id', $id)
+                ->where('reservation_finished', false)
+                ->whereNull('date_finished')
+                ->whereNull('fk_user_id_finished')
                 ->sum('quantity');
 
             $quantityTotalProduct = $quantityTotalInputs - ($quantityTotalExits + $quantityReserveNotFinished);
@@ -439,8 +441,10 @@ class ReservationController extends CrudController
 
             $quantityTotalInputs = Inputs::where('fk_product_equipament_id', $fk_product)->sum('quantity');
             $quantityTotalExits = Exits::where('fk_product_equipament_id', $fk_product)->sum('quantity');
-            $quantityReserveNotFinished = Reservation::where('reservation_finished', 0)
-                ->where('fk_user_id_finished', null)
+            $quantityReserveNotFinished = Reservation::where('fk_product_equipament_id',  $fk_product)
+                ->where('reservation_finished', false)
+                ->whereNull('date_finished')
+                ->whereNull('fk_user_id_finished')
                 ->sum('quantity');
 
             $quantityTotalProduct = ($quantityTotalInputs) - ($quantityTotalExits + $quantityReserveNotFinished);
@@ -552,7 +556,7 @@ class ReservationController extends CrudController
                 ]);
             }
 
-            $reservations = Reservation::with('productEquipament','category')
+            $reservations = Reservation::with('productEquipament', 'category')
                 ->where('return_date', '<', Carbon::now())
                 ->where('reservation_finished', false)
                 ->whereNull('date_finished')
@@ -572,16 +576,18 @@ class ReservationController extends CrudController
 
             if ($reservesData) {
 
-                if (isEmpty($reservesData)) {
-                   
-                }
+                // if (isEmpty($reservesData)) {
+                //    return response()->json([
+                //     'success' => true,
+                //     'message' => 'vazio',
+                //    ]);
+                // }
                 return response()->json([
                     'success' => true,
                     'message' => 'Reservas em atraso recuperadas com sucesso.',
                     'data' => $reservesData,
                 ]);
             }
-            
         } catch (QueryException $qe) {
             return response()->json([
                 'success' => false,
