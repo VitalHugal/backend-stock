@@ -62,6 +62,19 @@ class ReservationController extends CrudController
                     ->paginate(10);
 
                 $reservations->getCollection()->transform(function ($reservation) {
+
+                    $formatedDateWithdrawalDate = explode(" ", $reservation->withdrawal_date);
+                    $formatedHoursWithdrawalDate = $formatedDateWithdrawalDate[1];
+                    $formatedDateWithdrawalDate = explode('-', $formatedDateWithdrawalDate[0]);
+
+                    $dateFinalWithdrawalDate = $formatedDateWithdrawalDate[2] . '/' . $formatedDateWithdrawalDate[1] . '/' . $formatedDateWithdrawalDate[0] . ' ' . $formatedHoursWithdrawalDate;
+
+                    $formatedDateReturn = explode(" ", $reservation->return_date);
+                    $formatedHours = $formatedDateReturn[1];
+                    $formatedDateReturn = explode('-', $formatedDateReturn[0]);
+
+                    $dateFinalReturn = $formatedDateReturn[2] . '/' . $formatedDateReturn[1] . '/' . $formatedDateReturn[0] . ' ' . $formatedHours;
+
                     return [
                         'id' => $reservation->id,
                         'fk_user_id_create' => $reservation->fk_user_id,
@@ -69,8 +82,8 @@ class ReservationController extends CrudController
                         'reason_project' => $reservation->reason_project,
                         'observation' => $reservation->observation,
                         'quantity' => $reservation->quantity,
-                        'withdrawal_date' => $reservation->withdrawal_date,
-                        'return_date' => $reservation->return_date,
+                        'withdrawal_date' => $dateFinalWithdrawalDate,
+                        'return_date' => $dateFinalReturn,
                         'delivery_to' => $reservation->delivery_to,
                         'reservation_finished' => $reservation->reservation_finished,
                         'date_finished' => $reservation->date_finished,
@@ -104,6 +117,19 @@ class ReservationController extends CrudController
                     ->paginate(10);
 
                 $reservationsAdmin->getCollection()->transform(function ($reservation) {
+
+                    $formatedDateWithdrawalDate = explode(" ", $reservation->withdrawal_date);
+                    $formatedHoursWithdrawalDate = $formatedDateWithdrawalDate[1];
+                    $formatedDateWithdrawalDate = explode('-', $formatedDateWithdrawalDate[0]);
+
+                    $dateFinalWithdrawalDate = $formatedDateWithdrawalDate[2] . '/' . $formatedDateWithdrawalDate[1] . '/' . $formatedDateWithdrawalDate[0] . ' ' . $formatedHoursWithdrawalDate;
+
+                    $formatedDateReturn = explode(" ", $reservation->return_date);
+                    $formatedHours = $formatedDateReturn[1];
+                    $formatedDateReturn = explode('-', $formatedDateReturn[0]);
+
+                    $dateFinalReturn = $formatedDateReturn[2] . '/' . $formatedDateReturn[1] . '/' . $formatedDateReturn[0] . ' ' . $formatedHours;
+
                     return [
                         'id' => $reservation->id,
                         'fk_user_id_create' => $reservation->fk_user_id,
@@ -111,8 +137,8 @@ class ReservationController extends CrudController
                         'reason_project' => $reservation->reason_project,
                         'observation' => $reservation->observation,
                         'quantity' => $reservation->quantity,
-                        'withdrawal_date' => $reservation->withdrawal_date,
-                        'return_date' => $reservation->return_date,
+                        'withdrawal_date' => $dateFinalWithdrawalDate,
+                        'return_date' => $dateFinalReturn,
                         'delivery_to' => $reservation->delivery_to,
                         'reservation_finished' => $reservation->reservation_finished,
                         'date_finished' => $reservation->date_finished,
@@ -174,6 +200,63 @@ class ReservationController extends CrudController
                         ]);
                     }
                 }
+
+                $reservation = Reservation::with(['productEquipament.category', 'user'])
+                    ->where('id', $id)
+                    ->whereHas('productEquipament', function ($query) use ($categoryUser) {
+                        $query->whereIn('fk_category_id', $categoryUser);
+                    })
+                    ->first();
+
+                if (!$reservation) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Reserva não encontrada.',
+                    ]);
+                }
+
+                $formatedDateWithdrawalDate = explode(" ", $reservation->withdrawal_date);
+                $formatedHoursWithdrawalDate = $formatedDateWithdrawalDate[1];
+                $formatedDateWithdrawalDate = explode('-', $formatedDateWithdrawalDate[0]);
+
+                $dateFinalWithdrawalDate = $formatedDateWithdrawalDate[2] . '/' . $formatedDateWithdrawalDate[1] . '/' . $formatedDateWithdrawalDate[0] . ' ' . $formatedHoursWithdrawalDate;
+
+                $formatedDateReturn = explode(" ", $reservation->return_date);
+                $formatedHours = $formatedDateReturn[1];
+                $formatedDateReturn = explode('-', $formatedDateReturn[0]);
+
+                $dateFinalReturn = $formatedDateReturn[2] . '/' . $formatedDateReturn[1] . '/' . $formatedDateReturn[0] . ' ' . $formatedHours;
+
+                $reservationData = [
+                    'id' => $reservation->id,
+                    'fk_user_id_create' => $reservation->fk_user_id,
+                    'name_user_create' => $reservation->user->name ?? null,
+                    'reason_project' => $reservation->reason_project,
+                    'observation' => $reservation->observation,
+                    'quantity' => $reservation->quantity,
+                    'withdrawal_date' => $dateFinalWithdrawalDate,
+                    'return_date' => $dateFinalReturn,
+                    'delivery_to' => $reservation->delivery_to,
+                    'reservation_finished' => $reservation->reservation_finished,
+                    'date_finished' => $reservation->date_finished,
+                    'fk_user_id_finished' => $reservation->fk_user_id_finished,
+                    'name_user_finished' => $reservation->userFinished->name ?? null,
+                    'product_name' => $reservation->productEquipament->name ?? null,
+                    'category_name' => $reservation->productEquipament->category->name ?? null,
+                ];
+
+                if ($reservationData == null) {
+                    return response()->json([
+                        'success' => true,
+                        'message' => 'Nenhuma reserva encontrada.',
+                    ]);
+                }
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Reserva recuperada com sucesso.',
+                    'data' => $reservationData,
+                ]);
             }
 
             $reservation = Reservation::with(['productEquipament.category', 'user'])
@@ -190,15 +273,27 @@ class ReservationController extends CrudController
                 ]);
             }
 
-            $reservationData = [
+            $formatedDateWithdrawalDate = explode(" ", $reservation->withdrawal_date);
+            $formatedHoursWithdrawalDate = $formatedDateWithdrawalDate[1];
+            $formatedDateWithdrawalDate = explode('-', $formatedDateWithdrawalDate[0]);
+
+            $dateFinalWithdrawalDate = $formatedDateWithdrawalDate[2] . '/' . $formatedDateWithdrawalDate[1] . '/' . $formatedDateWithdrawalDate[0] . ' ' . $formatedHoursWithdrawalDate;
+
+            $formatedDateReturn = explode(" ", $reservation->return_date);
+            $formatedHours = $formatedDateReturn[1];
+            $formatedDateReturn = explode('-', $formatedDateReturn[0]);
+
+            $dateFinalReturn = $formatedDateReturn[2] . '/' . $formatedDateReturn[1] . '/' . $formatedDateReturn[0] . ' ' . $formatedHours;
+
+            $reservationDataAdmin = [
                 'id' => $reservation->id,
                 'fk_user_id_create' => $reservation->fk_user_id,
                 'name_user_create' => $reservation->user->name ?? null,
                 'reason_project' => $reservation->reason_project,
                 'observation' => $reservation->observation,
                 'quantity' => $reservation->quantity,
-                'withdrawal_date' => $reservation->withdrawal_date,
-                'return_date' => $reservation->return_date,
+                'withdrawal_date' => $dateFinalWithdrawalDate,
+                'return_date' => $dateFinalReturn,
                 'delivery_to' => $reservation->delivery_to,
                 'reservation_finished' => $reservation->reservation_finished,
                 'date_finished' => $reservation->date_finished,
@@ -208,7 +303,7 @@ class ReservationController extends CrudController
                 'category_name' => $reservation->productEquipament->category->name ?? null,
             ];
 
-            if ($reservationData == null) {
+            if ($reservationDataAdmin == null) {
                 return response()->json([
                     'success' => true,
                     'message' => 'Nenhuma reserva encontrada.',
@@ -218,7 +313,7 @@ class ReservationController extends CrudController
             return response()->json([
                 'success' => true,
                 'message' => 'Reserva recuperada com sucesso.',
-                'data' => $reservationData,
+                'data' => $reservationDataAdmin,
             ]);
         } catch (QueryException $qe) {
             return response()->json([
@@ -334,50 +429,7 @@ class ReservationController extends CrudController
                 ]);
             }
 
-            if (isset($reservation)) {
-
-                $date = now();
-
-                // $newQuantityTotal = $quantityTotalProduct - $reservation['quantity'];
-
-                // if ($newQuantityTotal <= $productQuantityMin) {
-
-                //     $updateInputExists = false;
-                //     $insertInput = false;
-
-                //     $productAlert = DB::table('product_alerts')
-                //         ->where('fk_product_equipament_id', $id)
-                //         ->whereNull('deleted_at')
-                //         ->first();
-
-                //     if ($productAlert) {
-
-                //         $updateInputExists = DB::table('product_alerts')
-                //             ->where('fk_product_equipament_id', $id)
-                //             ->update([
-                //                 'quantity_min' => $productQuantityMin,
-                //                 'fk_category_id' => $productEquipamentUser->fk_category_id,
-                //                 'created_at' => $date,
-                //             ]) > 0; // Retorna true se pelo menos uma linha foi afetada
-                //     } else {
-                //         $insertInput = DB::table('product_alerts')
-                //             ->insert([
-                //                 'fk_product_equipament_id' => $id,
-                //                 'quantity_min' => $productQuantityMin,
-                //                 'fk_category_id' => $productEquipamentUser->fk_category_id,
-                //                 'created_at' => $date,
-                //             ]);
-                //     }
-
-
-                //     if ($updateInputExists || $updateInputExists == false || $insertInput) {
-                //         return response()->json([
-                //             'success' => true,
-                //             'message' => 'Retirada concluída com sucesso',
-                //             'data' => $reservation,
-                //         ]);
-                //     }
-                // }
+            if ($reservation) {
                 return response()->json([
                     'success' => true,
                     'message' => 'Retirada concluída com sucesso',
@@ -491,35 +543,6 @@ class ReservationController extends CrudController
 
 
             if ($updateReservation) {
-
-                $date = now();
-
-                // $newQuantityTotal = $quantityTotalProduct - $updateReservation['quantity'];
-
-                // if ($newQuantityTotal <= $productQuantityMin) {
-                //     $productAlert = DB::table('product_alerts')
-                //         ->where('fk_product_equipament_id', $fk_product)
-                //         ->whereNull('deleted_at')
-                //         ->first();
-
-                //     if ($productAlert) {
-                //         DB::table('product_alerts')
-                //             ->where('fk_product_equipament_id', $fk_product)
-                //             ->update([
-                //                 'quantity_min' => $productQuantityMin,
-                //                 'fk_category_id' => $product->fk_category_id,
-                //                 'created_at' => $date,
-                //             ]);
-                //     } else {
-                //         DB::table('product_alerts')->insert([
-                //             'fk_product_equipament_id' => $fk_product,
-                //             'quantity_min' => $productQuantityMin,
-                //             'fk_category_id' => $product->fk_category_id,
-                //             'created_at' => $date,
-                //         ]);
-                //     }
-                // }
-
                 return response()->json([
                     'success' => true,
                     'message' => 'Retirada atualizada com sucesso',
@@ -556,6 +579,8 @@ class ReservationController extends CrudController
                 ]);
             }
 
+            // dd(Carbon::now());
+
             $reservations = Reservation::with('productEquipament', 'category')
                 ->where('return_date', '<', Carbon::now())
                 ->where('reservation_finished', false)
@@ -575,13 +600,6 @@ class ReservationController extends CrudController
             });
 
             if ($reservesData) {
-
-                // if (isEmpty($reservesData)) {
-                //    return response()->json([
-                //     'success' => true,
-                //     'message' => 'vazio',
-                //    ]);
-                // }
                 return response()->json([
                     'success' => true,
                     'message' => 'Reservas em atraso recuperadas com sucesso.',

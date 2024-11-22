@@ -55,6 +55,13 @@ class ExitsController extends CrudController
 
                 // Transformando os itens dentro da paginação
                 $exits->getCollection()->transform(function ($exit) {
+                    
+                    $formatedDateWithdrawalDate = explode(" ", $exit->withdrawal_date);
+                    $formatedHoursWithdrawalDate = $formatedDateWithdrawalDate[1];
+                    $formatedDateWithdrawalDate = explode('-', $formatedDateWithdrawalDate[0]);
+
+                    $dateFinalWithdrawalDate = $formatedDateWithdrawalDate[2] . '/' . $formatedDateWithdrawalDate[1] . '/' . $formatedDateWithdrawalDate[0] . ' ' . $formatedHoursWithdrawalDate;
+
                     return [
                         'id' => $exit->id,
                         'fk_user_id' => $exit->fk_user_id,
@@ -62,7 +69,7 @@ class ExitsController extends CrudController
                         'reason_project' => $exit->reason_project,
                         'observation' => $exit->observation,
                         'quantity' => $exit->quantity,
-                        'withdrawal_date' => $exit->withdrawal_date,
+                        'withdrawal_date' => $dateFinalWithdrawalDate,
                         'delivery_to' => $exit->delivery_to,
                         'created_at' => $exit->created_at,
                         'updated_at' => $exit->updated_at,
@@ -86,6 +93,13 @@ class ExitsController extends CrudController
 
             // Transformando os itens dentro da paginação
             $exitsAdmin->getCollection()->transform(function ($exit) {
+                
+                $formatedDateWithdrawalDate = explode(" ", $exit->withdrawal_date);
+                $formatedHoursWithdrawalDate = $formatedDateWithdrawalDate[1];
+                $formatedDateWithdrawalDate = explode('-', $formatedDateWithdrawalDate[0]);
+
+                $dateFinalWithdrawalDate = $formatedDateWithdrawalDate[2] . '/' . $formatedDateWithdrawalDate[1] . '/' . $formatedDateWithdrawalDate[0] . ' ' . $formatedHoursWithdrawalDate;
+
                 return [
                     'id' => $exit->id,
                     'fk_user_id' => $exit->fk_user_id,
@@ -93,7 +107,7 @@ class ExitsController extends CrudController
                     'reason_project' => $exit->reason_project,
                     'observation' => $exit->observation,
                     'quantity' => $exit->quantity,
-                    'withdrawal_date' => $exit->withdrawal_date,
+                    'withdrawal_date' => $dateFinalWithdrawalDate,
                     'delivery_to' => $exit->delivery_to,
                     'created_at' => $exit->created_at,
                     'updated_at' => $exit->updated_at,
@@ -331,49 +345,6 @@ class ExitsController extends CrudController
 
 
             if ($exits) {
-
-                // $date = now();
-                // $newQuantityTotal = $quantityTotalProduct - $exits['quantity'];
-
-                // if ($newQuantityTotal <= $productQuantityMin) {
-
-                //     $updateInputExists = false;
-                //     $insertInput = false;
-
-                //     $productAlert = DB::table('product_alerts')
-                //         ->where('fk_product_equipament_id', $id)
-                //         ->whereNull('deleted_at')
-                //         ->first();
-
-                //     if ($productAlert) {
-
-                //         $updateInputExists = DB::table('product_alerts')
-                //             ->where('fk_product_equipament_id', $id)
-                //             ->update([
-                //                 'quantity_min' => $productQuantityMin,
-                //                 'fk_category_id' => $productEquipamentUser->fk_category_id,
-                //                 'created_at' => $date,
-                //             ]) > 0; // Retorna true se pelo menos uma linha foi afetada
-                //     } else {
-                //         $insertInput = DB::table('product_alerts')
-                //             ->insert([
-                //                 'fk_product_equipament_id' => $id,
-                //                 'quantity_min' => $productQuantityMin,
-                //                 'fk_category_id' => $productEquipamentUser->fk_category_id,
-                //                 'created_at' => $date,
-                //             ]);
-                //     }
-
-
-                //     if ($updateInputExists || $updateInputExists == false || $insertInput) {
-                //         return response()->json([
-                //             'success' => true,
-                //             'message' => 'Retirada concluída com sucesso',
-                //             'data' => $exits,
-                //         ]);
-                //     }
-                // }
-
                 return response()->json([
                     'success' => true,
                     'message' => 'Retirada concluída com sucesso',
@@ -486,34 +457,6 @@ class ExitsController extends CrudController
             $updateExits->save();
 
             if ($updateExits) {
-
-                // $date = now();
-                // $newQuantityTotal = $quantityTotalProduct - $updateExits['quantity'];
-
-                // if ($newQuantityTotal <= $productQuantityMin) {
-                //     $productAlert = DB::table('product_alerts')
-                //         ->where('fk_product_equipament_id', $fk_product)
-                //         ->whereNull('deleted_at')
-                //         ->first();
-
-                //     if ($productAlert) {
-                //         DB::table('product_alerts')
-                //             ->where('fk_product_equipament_id', $fk_product)
-                //             ->update([
-                //                 'quantity_min' => $productQuantityMin,
-                //                 'fk_category_id' => $product->fk_category_id,
-                //                 'created_at' => $date,
-                //             ]);
-                //     } else {
-                //         DB::table('product_alerts')->insert([
-                //             'fk_product_equipament_id' => $fk_product,
-                //             'quantity_min' => $productQuantityMin,
-                //             'fk_category_id' => $product->fk_category_id,
-                //             'created_at' => $date,
-                //         ]);
-                //     }
-                // }
-
                 return response()->json([
                     'success' => true,
                     'message' => 'Retirada atualizada com sucesso',

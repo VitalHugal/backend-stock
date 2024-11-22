@@ -49,24 +49,20 @@ class InputsController extends CrudController
                         $query->whereIn('fk_category_id', $categoryUser);
                     })
                     ->paginate(10);
-                    
-                    $inputs->getCollection()->transform(function ($input) {
-                        return [
-                            'id' => $input->id,
-                            'fk_user_id' => $input->fk_user_id,
-                            'name_user_exits' => $input->user->name,
-                            'reason_project' => $input->reason_project,
-                            'observation' => $input->observation,
-                            'quantity' => $input->quantity,
-                            'withdrawal_date' => $input->withdrawal_date,
-                            'delivery_to' => $input->delivery_to,
-                            'created_at' => $input->created_at,
-                            'updated_at' => $input->updated_at,
-                            'product_name' => $input->productEquipament->name,
-                            'category_name' => $input->productEquipament->category->name,
-                        ];
-                    });
-                    
+
+                $inputs->getCollection()->transform(function ($input) {
+                    return [
+                        'id' => $input->id,
+                        'quantity' => $input->quantity,
+                        'product_name' => $input->productEquipament->name,
+                        'category_name' => $input->productEquipament->category->name,
+                        'fk_user_id' => $input->fk_user_id,
+                        'name_user_exits' => $input->user->name,
+                        'created_at' => $input->created_at,
+                        'updated_at' => $input->updated_at,
+                    ];
+                });
+
                 return response()->json([
                     'success' => true,
                     'message' => 'Entradas recuperadas com sucesso.',
@@ -79,23 +75,19 @@ class InputsController extends CrudController
                     // $query->whereIn('fk_category_id', $categoryUser);
                 })
                 ->paginate(10);
-                
-                $inputsAdmin->getCollection()->transform(function ($input) {
-                    return [
-                        'id' => $input->id,
-                        'fk_user_id' => $input->fk_user_id,
-                        'name_user_exits' => $input->user->name,
-                        'reason_project' => $input->reason_project,
-                        'observation' => $input->observation,
-                        'quantity' => $input->quantity,
-                        'withdrawal_date' => $input->withdrawal_date,
-                        'delivery_to' => $input->delivery_to,
-                        'created_at' => $input->created_at,
-                        'updated_at' => $input->updated_at,
-                        'product_name' => $input->productEquipament->name,
-                        'category_name' => $input->productEquipament->category->name,
-                    ];
-                });
+
+            $inputsAdmin->getCollection()->transform(function ($input) {
+                return [
+                    'id' => $input->id,
+                    'quantity' => $input->quantity,
+                    'product_name' => $input->productEquipament->name,
+                    'category_name' => $input->productEquipament->category->name,
+                    'fk_user_id' => $input->fk_user_id,
+                    'name_user_exits' => $input->user->name,
+                    'created_at' => $input->created_at,
+                    'updated_at' => $input->updated_at,
+                ];
+            });
 
             return response()->json([
                 'success' => true,
@@ -134,7 +126,7 @@ class InputsController extends CrudController
                     'message' => 'Você não tem permissão de acesso para seguir adiante.',
                 ]);
             }
-            
+
             $verifyId = $this->input->find($id);
 
             if (!$verifyId) {
@@ -153,11 +145,11 @@ class InputsController extends CrudController
                     ->map(function ($input) {
                         return [
                             'id' => $input->id,
+                            'quantity' => $input->quantity,
                             'product_name' => $input->productEquipament->name,
                             'category_name' => $input->productEquipament->category->name,
-                            'quantity' => $input->quantity,
-                            'username' => $input->user->name,
                             'fk_user_id' => $input->fk_user_id,
+                            'name_user_exits' => $input->user->name,
                             'created_at' => $input->created_at,
                             'updated_at' => $input->updated_at,
 
@@ -179,13 +171,13 @@ class InputsController extends CrudController
                 ->map(function ($input) {
                     return [
                         'id' => $input->id,
-                        'product_name' => $input->productEquipament->name,
-                        'category_name' => $input->productEquipament->category->name,
-                        'quantity' => $input->quantity,
-                        'username' => $input->user->name,
-                        'fk_user_id' => $input->fk_user_id,
-                        'created_at' => $input->created_at,
-                        'updated_at' => $input->updated_at,
+                    'quantity' => $input->quantity,
+                    'product_name' => $input->productEquipament->name,
+                    'category_name' => $input->productEquipament->category->name,
+                    'fk_user_id' => $input->fk_user_id,
+                    'name_user_exits' => $input->user->name,
+                    'created_at' => $input->created_at,
+                    'updated_at' => $input->updated_at,
                     ];
                 });
 
@@ -205,125 +197,6 @@ class InputsController extends CrudController
                 'message' => "Error: " . $e->getMessage(),
             ]);
         }
-        // try {
-        //     $user = $request->user();
-        //     $idUser = $user->id;
-
-        //     $categoryUser = DB::table('category_user')
-        //         ->where('fk_user_id', $idUser)
-        //         ->pluck('fk_category_id')
-        //         ->toArray();
-
-
-        //     if ($user->level !== 'admin' && $categoryUser == null) {
-        //         return response()->json([
-        //             'success' => false,
-        //             'message' => 'Você não tem permissão de acesso para seguir adiante.',
-        //         ]);
-        //     }
-
-        //     if ($user->level == 'user') {
-
-        //         $inputRequest = Inputs::where('id', $id)->first();
-
-        //         if ($inputRequest) {
-        //             $productInExits = $inputRequest->fk_product_equipament_id;
-        //             $productEspecific = ProductEquipament::where('id', $productInExits)->first();
-        //             $verifyPresenceProdcutEspecificInCategory = in_array($productEspecific, $categoryUser);
-
-        //             if ($verifyPresenceProdcutEspecificInCategory === false) {
-        //                 return response()->json([
-        //                     'sucess' => false,
-        //                     'message' => 'Você não pode ter acesso a um produto que não pertence ao seu setor.'
-        //                 ]);
-        //             }
-        //         }
-
-        //         $input = Inputs::with(['productEquipament.category', 'user'])
-        //             ->where('id', $id)
-        //             ->whereHas('productEquipament', function ($query) use ($categoryUser) {
-        //                 $query->whereIn('fk_category_id', $categoryUser);
-        //             })->first();
-
-        //         if (!$input) {
-        //             return response()->json([
-        //                 'success' => false,
-        //                 'message' => 'Entrada não encontrada.',
-        //             ]);
-        //         }
-
-        //         $inputDataUser = [
-        //             'input_id' => $input->id,
-        //             'product_name' => $input->productEquipament->name,
-        //             'category_name' => $input->productEquipament->category->name,
-        //             'quantity' => $input->quantity,
-        //             'username' => $input->user->name,
-        //             'fk_user_id' => $input->fk_user_id,
-        //             'created_at' => $input->created_at,
-        //             'updated_at' => $input->updated_at,
-        //         ];
-
-        //         if ($inputDataUser == null) {
-        //             return response()->json([
-        //                 'success' => false,
-        //                 'message' => 'Nenhuma entrada encontrada.',
-        //             ]);
-        //         }
-
-        //         return response()->json([
-        //             'success' => true,
-        //             'message' => 'Entrada recuperada com sucesso.',
-        //             'data' => $inputDataUser,
-        //         ]);
-        //     }
-
-        //     $input = Inputs::with(['productEquipament.category'])
-        //         ->where('id', $id)
-        //         ->whereHas('productEquipament', function ($query) use ($categoryUser) {
-        //             // $query->whereIn('fk_category_id', $categoryUser);
-        //         })->first();
-
-        //     if (!$input) {
-        //         return response()->json([
-        //             'success' => false,
-        //             'message' => 'Entrada não encontrada.',
-        //         ]);
-        //     }
-
-        //     $inputDataAdim = [
-        //         'input_id' => $input->id,
-        //         'product_name' => $input->productEquipament->name,
-        //         'category_name' => $input->productEquipament->category->name,
-        //         'quantity' => $input->quantity,
-        //         'username' => $input->user->name,
-        //         'fk_user_id' => $input->fk_user_id,
-        //         'created_at' => $input->created_at,
-        //         'updated_at' => $input->updated_at,
-        //     ];
-
-        //     if ($inputDataAdim == null) {
-        //         return response()->json([
-        //             'success' => false,
-        //             'message' => 'Nenhuma entrada encontrada.',
-        //         ]);
-        //     }
-
-        //     return response()->json([
-        //         'success' => true,
-        //         'message' => 'Entrada recuperada com sucesso.',
-        //         'data' => $inputDataAdim,
-        //     ]);
-        // } catch (QueryException $qe) {
-        //     return response()->json([
-        //         'success' => false,
-        //         'message' => "Error DB: " . $qe->getMessage(),
-        //     ]);
-        // } catch (Exception $e) {
-        //     return response()->json([
-        //         'success' => false,
-        //         'message' => "Error: " . $e->getMessage(),
-        //     ]);
-        // }
     }
 
     public function store(Request $request)
