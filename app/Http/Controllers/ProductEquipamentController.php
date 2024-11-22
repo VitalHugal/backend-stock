@@ -165,19 +165,20 @@ class ProductEquipamentController extends CrudController
                     }
                 }
 
-                $quantityReserveNotFinished = Reservation::where('fk_product_equipament_id', $id)
-                    ->where('reservation_finished', false)
-                    ->whereNull('date_finished')
-                    ->whereNull('fk_user_id_finished')
-                    ->sum('quantity');
-
                 $productEquipamentUser = ProductEquipament::with('category')
                     ->whereIn('fk_category_id', $categoryUser)->where('id', $id)
                     ->get()
-                    ->map(function ($product) use ($quantityReserveNotFinished) {
+                    ->map(function ($product) {
 
                         $quantityTotalInputs = Inputs::where('fk_product_equipament_id', $product->id)->sum('quantity');
                         $quantityTotalExits = Exits::where('fk_product_equipament_id', $product->id)->sum('quantity');
+
+                        $quantityReserveNotFinished = Reservation::where('fk_product_equipament_id', $product->id)
+                            ->where('reservation_finished', false)
+                            ->whereNull('date_finished')
+                            ->whereNull('fk_user_id_finished')
+                            ->sum('quantity');
+
                         $quantityTotalProduct = $quantityTotalInputs - ($quantityTotalExits + $quantityReserveNotFinished);
 
                         return [
@@ -207,19 +208,18 @@ class ProductEquipamentController extends CrudController
                 ]);
             }
 
-            $quantityReserveNotFinished = Reservation::where('fk_product_equipament_id', $id)
-                ->where('reservation_finished', false)
-                ->whereNull('date_finished')
-                ->whereNull('fk_user_id_finished')
-                ->sum('quantity');
-
             $productAdmin = ProductEquipament::with('category')
                 ->where('id', $id)
                 ->get()
-                ->map(function ($product) use ($quantityReserveNotFinished) {
+                ->map(function ($product) {
 
                     $quantityTotalInputs = Inputs::where('fk_product_equipament_id', $product->id)->sum('quantity');
                     $quantityTotalExits = Exits::where('fk_product_equipament_id', $product->id)->sum('quantity');
+                    $quantityReserveNotFinished = Reservation::where('fk_product_equipament_id', $product->id)
+                        ->where('reservation_finished', false)
+                        ->whereNull('date_finished')
+                        ->whereNull('fk_user_id_finished')
+                        ->sum('quantity');
 
                     $quantityTotalProduct = $quantityTotalInputs - ($quantityTotalExits + $quantityReserveNotFinished);
 
