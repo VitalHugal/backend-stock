@@ -25,9 +25,7 @@ class LoginController extends Controller
             }
 
             $token = $user;
-
             $token->tokens()->delete();
-
             $token = null;
 
             if ($user->level === 'admin') {

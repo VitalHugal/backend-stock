@@ -18,6 +18,7 @@ class CategorysController extends CrudController
         parent::__construct($category);
         $this->category = $category;
     }
+    
     public function getAllCategorys(Request $request)
     {
         try {
