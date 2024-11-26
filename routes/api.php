@@ -56,6 +56,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     // ROUTES FOR ADMINISTRATOR LEVEL USERS ONLY 
     //-------------------------------------------
 
+    //ALL DELETE
     Route::delete('/delete-exits/{id}', [ExitsController::class, 'delete']);
     Route::delete('/delete-product-equipaments/{id}', [ProductEquipamentController::class, 'delete']);
     Route::delete('/delete-reservation/{id}', [ReservationController::class, 'delete']);
