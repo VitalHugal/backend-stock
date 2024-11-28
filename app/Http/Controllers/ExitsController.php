@@ -55,7 +55,7 @@ class ExitsController extends CrudController
 
                 // Transformando os itens dentro da paginação
                 $exits->getCollection()->transform(function ($exit) {
-                    
+
                     $formatedDateWithdrawalDate = explode(" ", $exit->withdrawal_date);
                     $formatedHoursWithdrawalDate = $formatedDateWithdrawalDate[1];
                     $formatedDateWithdrawalDate = explode('-', $formatedDateWithdrawalDate[0]);
@@ -93,7 +93,7 @@ class ExitsController extends CrudController
 
             // Transformando os itens dentro da paginação
             $exitsAdmin->getCollection()->transform(function ($exit) {
-                
+
                 $formatedDateWithdrawalDate = explode(" ", $exit->withdrawal_date);
                 $formatedHoursWithdrawalDate = $formatedDateWithdrawalDate[1];
                 $formatedDateWithdrawalDate = explode('-', $formatedDateWithdrawalDate[0]);
@@ -181,6 +181,12 @@ class ExitsController extends CrudController
                     ]);
                 }
 
+                $formatedDateWithdrawalDate = explode(" ", $exit->withdrawal_date);
+                $formatedHoursWithdrawalDate = $formatedDateWithdrawalDate[1];
+                $formatedDateWithdrawalDate = explode('-', $formatedDateWithdrawalDate[0]);
+
+                $dateFinalWithdrawalDate = $formatedDateWithdrawalDate[2] . '/' . $formatedDateWithdrawalDate[1] . '/' . $formatedDateWithdrawalDate[0] . ' ' . $formatedHoursWithdrawalDate;
+
                 $exitDataUser = [
                     'id' => $exit->id,
                     'fk_user_id' => $exit->fk_user_id,
@@ -188,7 +194,7 @@ class ExitsController extends CrudController
                     'reason_project' => $exit->reason_project,
                     'observation' => $exit->observation,
                     'quantity' => $exit->quantity,
-                    'withdrawal_date' => $exit->withdrawal_date,
+                    'withdrawal_date' => $dateFinalWithdrawalDate,
                     'delivery_to' => $exit->delivery_to,
                     'created_at' => $exit->created_at,
                     'updated_at' => $exit->updated_at,
@@ -215,6 +221,12 @@ class ExitsController extends CrudController
                 ]);
             }
 
+            $formatedDateWithdrawalDate = explode(" ", $exit->withdrawal_date);
+            $formatedHoursWithdrawalDate = $formatedDateWithdrawalDate[1];
+            $formatedDateWithdrawalDate = explode('-', $formatedDateWithdrawalDate[0]);
+
+            $dateFinalWithdrawalDate = $formatedDateWithdrawalDate[2] . '/' . $formatedDateWithdrawalDate[1] . '/' . $formatedDateWithdrawalDate[0] . ' ' . $formatedHoursWithdrawalDate;
+
             $exitDataAdmin = [
                 'id' => $exit->id,
                 'fk_user_id' => $exit->fk_user_id,
@@ -222,7 +234,7 @@ class ExitsController extends CrudController
                 'reason_project' => $exit->reason_project,
                 'observation' => $exit->observation,
                 'quantity' => $exit->quantity,
-                'withdrawal_date' => $exit->withdrawal_date,
+                'withdrawal_date' => $dateFinalWithdrawalDate,
                 'delivery_to' => $exit->delivery_to,
                 'created_at' => $exit->created_at,
                 'updated_at' => $exit->updated_at,

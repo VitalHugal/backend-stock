@@ -51,6 +51,12 @@ class InputsController extends CrudController
                     ->paginate(10);
 
                 $inputs->getCollection()->transform(function ($input) {
+
+                    $formatedDateWithdrawalDate = explode(" ", $input->created_at);
+                    $formatedHoursWithdrawalDate = $formatedDateWithdrawalDate[1];
+                    $formatedDateWithdrawalDate = explode('-', $formatedDateWithdrawalDate[0]);
+
+                    $dateFinalCreatedAtDate = $formatedDateWithdrawalDate[2] . '/' . $formatedDateWithdrawalDate[1] . '/' . $formatedDateWithdrawalDate[0] . ' ' . $formatedHoursWithdrawalDate;
                     return [
                         'id' => $input->id,
                         'quantity' => $input->quantity,
@@ -58,7 +64,7 @@ class InputsController extends CrudController
                         'category_name' => $input->productEquipament->category->name,
                         'fk_user_id' => $input->fk_user_id,
                         'name_user_exits' => $input->user->name,
-                        'created_at' => $input->created_at,
+                        'created_at' => $dateFinalCreatedAtDate,
                         'updated_at' => $input->updated_at,
                     ];
                 });
@@ -77,6 +83,13 @@ class InputsController extends CrudController
                 ->paginate(10);
 
             $inputsAdmin->getCollection()->transform(function ($input) {
+
+                $formatedDateWithdrawalDate = explode(" ", $input->created_at);
+                $formatedHoursWithdrawalDate = $formatedDateWithdrawalDate[1];
+                $formatedDateWithdrawalDate = explode('-', $formatedDateWithdrawalDate[0]);
+
+                $dateFinalCreatedAtDate = $formatedDateWithdrawalDate[2] . '/' . $formatedDateWithdrawalDate[1] . '/' . $formatedDateWithdrawalDate[0] . ' ' . $formatedHoursWithdrawalDate;
+
                 return [
                     'id' => $input->id,
                     'quantity' => $input->quantity,
@@ -84,7 +97,7 @@ class InputsController extends CrudController
                     'category_name' => $input->productEquipament->category->name,
                     'fk_user_id' => $input->fk_user_id,
                     'name_user_exits' => $input->user->name,
-                    'created_at' => $input->created_at,
+                    'created_at' => $dateFinalCreatedAtDate,
                     'updated_at' => $input->updated_at,
                 ];
             });
@@ -143,6 +156,12 @@ class InputsController extends CrudController
                     })
                     ->get()
                     ->map(function ($input) {
+
+                        $formatedDateWithdrawalDate = explode(" ", $input->created_at);
+                        $formatedHoursWithdrawalDate = $formatedDateWithdrawalDate[1];
+                        $formatedDateWithdrawalDate = explode('-', $formatedDateWithdrawalDate[0]);
+
+                        $dateFinalCreatedAtDate = $formatedDateWithdrawalDate[2] . '/' . $formatedDateWithdrawalDate[1] . '/' . $formatedDateWithdrawalDate[0] . ' ' . $formatedHoursWithdrawalDate;
                         return [
                             'id' => $input->id,
                             'quantity' => $input->quantity,
@@ -150,7 +169,7 @@ class InputsController extends CrudController
                             'category_name' => $input->productEquipament->category->name,
                             'fk_user_id' => $input->fk_user_id,
                             'name_user_exits' => $input->user->name,
-                            'created_at' => $input->created_at,
+                            'created_at' => $dateFinalCreatedAtDate,
                             'updated_at' => $input->updated_at,
 
                         ];
@@ -169,15 +188,22 @@ class InputsController extends CrudController
                 })
                 ->get()
                 ->map(function ($input) {
+
+                    $formatedDateWithdrawalDate = explode(" ", $input->created_at);
+                    $formatedHoursWithdrawalDate = $formatedDateWithdrawalDate[1];
+                    $formatedDateWithdrawalDate = explode('-', $formatedDateWithdrawalDate[0]);
+
+                    $dateFinalCreatedAtDate = $formatedDateWithdrawalDate[2] . '/' . $formatedDateWithdrawalDate[1] . '/' . $formatedDateWithdrawalDate[0] . ' ' . $formatedHoursWithdrawalDate;
+
                     return [
                         'id' => $input->id,
-                    'quantity' => $input->quantity,
-                    'product_name' => $input->productEquipament->name,
-                    'category_name' => $input->productEquipament->category->name,
-                    'fk_user_id' => $input->fk_user_id,
-                    'name_user_exits' => $input->user->name,
-                    'created_at' => $input->created_at,
-                    'updated_at' => $input->updated_at,
+                        'quantity' => $input->quantity,
+                        'product_name' => $input->productEquipament->name,
+                        'category_name' => $input->productEquipament->category->name,
+                        'fk_user_id' => $input->fk_user_id,
+                        'name_user_exits' => $input->user->name,
+                        'created_at' => $dateFinalCreatedAtDate,
+                        'updated_at' => $input->updated_at,
                     ];
                 });
 
