@@ -51,7 +51,8 @@ class ProductEquipamentController extends CrudController
                         ->whereIn('fk_category_id', $categoryUser)
                         ->where('name', 'like', '%' . $request->input('name') . '%')
                         // ->orderBy('name', 'asc')
-                        ->paginate(10);
+                        ->paginate(10)
+                        ->appends(['name' => $request->input('name')]);
 
                     if ($productEquipamentUserSearch->isEmpty()) {
                         return response()->json([
@@ -142,7 +143,8 @@ class ProductEquipamentController extends CrudController
                     // ->whereIn('fk_category_id', $categoryUser)
                     ->where('name', 'like', '%' . $request->input('name') . '%')
                     // ->orderBy('name', 'asc')
-                    ->paginate(10);
+                    ->paginate(10)
+                    ->appends(['name' => $request->input('name')]);
 
                 if ($productAllAdminSearch->isEmpty()) {
                     return response()->json([
