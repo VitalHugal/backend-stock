@@ -66,6 +66,7 @@ class InputsController extends CrudController
                     return [
                         'id' => $input->id,
                         'quantity' => $input->quantity,
+                        'id_product' => $input->productEquipament->id,
                         'product_name' => $input->productEquipament->name,
                         'category_name' => $input->productEquipament->category->name,
                         'fk_user_id' => $input->fk_user_id,
@@ -103,6 +104,7 @@ class InputsController extends CrudController
 
                 return [
                     'id' => $input->id,
+                    'id_product' => $input->productEquipament->id,
                     'quantity' => $input->quantity,
                     'product_name' => $input->productEquipament->name,
                     'category_name' => $input->productEquipament->category->name,
