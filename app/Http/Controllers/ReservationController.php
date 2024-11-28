@@ -66,14 +66,22 @@ class ReservationController extends CrudController
                     $formatedDateWithdrawalDate = explode(" ", $reservation->withdrawal_date);
                     $formatedHoursWithdrawalDate = $formatedDateWithdrawalDate[1];
                     $formatedDateWithdrawalDate = explode('-', $formatedDateWithdrawalDate[0]);
-
                     $dateFinalWithdrawalDate = $formatedDateWithdrawalDate[2] . '/' . $formatedDateWithdrawalDate[1] . '/' . $formatedDateWithdrawalDate[0] . ' ' . $formatedHoursWithdrawalDate;
 
                     $formatedDateReturn = explode(" ", $reservation->return_date);
                     $formatedHours = $formatedDateReturn[1];
                     $formatedDateReturn = explode('-', $formatedDateReturn[0]);
-
                     $dateFinalReturn = $formatedDateReturn[2] . '/' . $formatedDateReturn[1] . '/' . $formatedDateReturn[0] . ' ' . $formatedHours;
+
+                    $formatedDateWithdrawalDate = explode(" ", $reservation->updated_at);
+                    $formatedHoursWithdrawalDate = $formatedDateWithdrawalDate[1];
+                    $formatedDateWithdrawalDate = explode('-', $formatedDateWithdrawalDate[0]);
+                    $dateFinalUpdateAtDate = $formatedDateWithdrawalDate[2] . '/' . $formatedDateWithdrawalDate[1] . '/' . $formatedDateWithdrawalDate[0] . ' ' . $formatedHoursWithdrawalDate;
+
+                    $formatedDateWithdrawalDate = explode(" ", $reservation->created_at);
+                    $formatedHoursWithdrawalDate = $formatedDateWithdrawalDate[1];
+                    $formatedDateWithdrawalDate = explode('-', $formatedDateWithdrawalDate[0]);
+                    $dateFinalCreatedAtDate = $formatedDateWithdrawalDate[2] . '/' . $formatedDateWithdrawalDate[1] . '/' . $formatedDateWithdrawalDate[0] . ' ' . $formatedHoursWithdrawalDate;
 
                     return [
                         'id' => $reservation->id,
@@ -91,6 +99,8 @@ class ReservationController extends CrudController
                         'name_user_finished' => $reservation->userFinished->name ?? null,
                         'product_name' => $reservation->productEquipament->name ?? null,
                         'category_name' => $reservation->productEquipament->category->name ?? null,
+                        'created_at' => $dateFinalCreatedAtDate,
+                        'updated_at' => $dateFinalUpdateAtDate,
                     ];
                 });
 
@@ -121,14 +131,22 @@ class ReservationController extends CrudController
                     $formatedDateWithdrawalDate = explode(" ", $reservation->withdrawal_date);
                     $formatedHoursWithdrawalDate = $formatedDateWithdrawalDate[1];
                     $formatedDateWithdrawalDate = explode('-', $formatedDateWithdrawalDate[0]);
-
                     $dateFinalWithdrawalDate = $formatedDateWithdrawalDate[2] . '/' . $formatedDateWithdrawalDate[1] . '/' . $formatedDateWithdrawalDate[0] . ' ' . $formatedHoursWithdrawalDate;
 
                     $formatedDateReturn = explode(" ", $reservation->return_date);
                     $formatedHours = $formatedDateReturn[1];
                     $formatedDateReturn = explode('-', $formatedDateReturn[0]);
-
                     $dateFinalReturn = $formatedDateReturn[2] . '/' . $formatedDateReturn[1] . '/' . $formatedDateReturn[0] . ' ' . $formatedHours;
+
+                    $formatedDateWithdrawalDate = explode(" ", $reservation->updated_at);
+                    $formatedHoursWithdrawalDate = $formatedDateWithdrawalDate[1];
+                    $formatedDateWithdrawalDate = explode('-', $formatedDateWithdrawalDate[0]);
+                    $dateFinalUpdateAtDate = $formatedDateWithdrawalDate[2] . '/' . $formatedDateWithdrawalDate[1] . '/' . $formatedDateWithdrawalDate[0] . ' ' . $formatedHoursWithdrawalDate;
+
+                    $formatedDateWithdrawalDate = explode(" ", $reservation->created_at);
+                    $formatedHoursWithdrawalDate = $formatedDateWithdrawalDate[1];
+                    $formatedDateWithdrawalDate = explode('-', $formatedDateWithdrawalDate[0]);
+                    $dateFinalCreatedAtDate = $formatedDateWithdrawalDate[2] . '/' . $formatedDateWithdrawalDate[1] . '/' . $formatedDateWithdrawalDate[0] . ' ' . $formatedHoursWithdrawalDate;
 
                     return [
                         'id' => $reservation->id,
@@ -146,6 +164,8 @@ class ReservationController extends CrudController
                         'name_user_finished' => $reservation->userFinished->name ?? null,
                         'product_name' => $reservation->productEquipament->name ?? null,
                         'category_name' => $reservation->productEquipament->category->name ?? null,
+                        'created_at' => $dateFinalCreatedAtDate,
+                        'updated_at' => $dateFinalUpdateAtDate,
                     ];
                 });
 
@@ -220,14 +240,22 @@ class ReservationController extends CrudController
                 $formatedDateWithdrawalDate = explode(" ", $reservation->withdrawal_date);
                 $formatedHoursWithdrawalDate = $formatedDateWithdrawalDate[1];
                 $formatedDateWithdrawalDate = explode('-', $formatedDateWithdrawalDate[0]);
-
                 $dateFinalWithdrawalDate = $formatedDateWithdrawalDate[2] . '/' . $formatedDateWithdrawalDate[1] . '/' . $formatedDateWithdrawalDate[0] . ' ' . $formatedHoursWithdrawalDate;
 
                 $formatedDateReturn = explode(" ", $reservation->return_date);
                 $formatedHours = $formatedDateReturn[1];
                 $formatedDateReturn = explode('-', $formatedDateReturn[0]);
-
                 $dateFinalReturn = $formatedDateReturn[2] . '/' . $formatedDateReturn[1] . '/' . $formatedDateReturn[0] . ' ' . $formatedHours;
+
+                $formatedDateWithdrawalDate = explode(" ", $reservation->updated_at);
+                $formatedHoursWithdrawalDate = $formatedDateWithdrawalDate[1];
+                $formatedDateWithdrawalDate = explode('-', $formatedDateWithdrawalDate[0]);
+                $dateFinalUpdateAtDate = $formatedDateWithdrawalDate[2] . '/' . $formatedDateWithdrawalDate[1] . '/' . $formatedDateWithdrawalDate[0] . ' ' . $formatedHoursWithdrawalDate;
+
+                $formatedDateWithdrawalDate = explode(" ", $reservation->created_at);
+                $formatedHoursWithdrawalDate = $formatedDateWithdrawalDate[1];
+                $formatedDateWithdrawalDate = explode('-', $formatedDateWithdrawalDate[0]);
+                $dateFinalCreatedAtDate = $formatedDateWithdrawalDate[2] . '/' . $formatedDateWithdrawalDate[1] . '/' . $formatedDateWithdrawalDate[0] . ' ' . $formatedHoursWithdrawalDate;
 
                 $reservationData = [
                     'id' => $reservation->id,
@@ -245,6 +273,8 @@ class ReservationController extends CrudController
                     'name_user_finished' => $reservation->userFinished->name ?? null,
                     'product_name' => $reservation->productEquipament->name ?? null,
                     'category_name' => $reservation->productEquipament->category->name ?? null,
+                    'created_at' => $dateFinalCreatedAtDate,
+                    'updated_at' => $dateFinalUpdateAtDate,
                 ];
 
                 if ($reservationData == null) {
@@ -278,14 +308,22 @@ class ReservationController extends CrudController
             $formatedDateWithdrawalDate = explode(" ", $reservation->withdrawal_date);
             $formatedHoursWithdrawalDate = $formatedDateWithdrawalDate[1];
             $formatedDateWithdrawalDate = explode('-', $formatedDateWithdrawalDate[0]);
-
             $dateFinalWithdrawalDate = $formatedDateWithdrawalDate[2] . '/' . $formatedDateWithdrawalDate[1] . '/' . $formatedDateWithdrawalDate[0] . ' ' . $formatedHoursWithdrawalDate;
 
             $formatedDateReturn = explode(" ", $reservation->return_date);
             $formatedHours = $formatedDateReturn[1];
             $formatedDateReturn = explode('-', $formatedDateReturn[0]);
-
             $dateFinalReturn = $formatedDateReturn[2] . '/' . $formatedDateReturn[1] . '/' . $formatedDateReturn[0] . ' ' . $formatedHours;
+
+            $formatedDateWithdrawalDate = explode(" ", $reservation->updated_at);
+            $formatedHoursWithdrawalDate = $formatedDateWithdrawalDate[1];
+            $formatedDateWithdrawalDate = explode('-', $formatedDateWithdrawalDate[0]);
+            $dateFinalUpdateAtDate = $formatedDateWithdrawalDate[2] . '/' . $formatedDateWithdrawalDate[1] . '/' . $formatedDateWithdrawalDate[0] . ' ' . $formatedHoursWithdrawalDate;
+
+            $formatedDateWithdrawalDate = explode(" ", $reservation->created_at);
+            $formatedHoursWithdrawalDate = $formatedDateWithdrawalDate[1];
+            $formatedDateWithdrawalDate = explode('-', $formatedDateWithdrawalDate[0]);
+            $dateFinalCreatedAtDate = $formatedDateWithdrawalDate[2] . '/' . $formatedDateWithdrawalDate[1] . '/' . $formatedDateWithdrawalDate[0] . ' ' . $formatedHoursWithdrawalDate;
 
             $reservationDataAdmin = [
                 'id' => $reservation->id,
@@ -303,6 +341,8 @@ class ReservationController extends CrudController
                 'name_user_finished' => $reservation->userFinished->name ?? null,
                 'product_name' => $reservation->productEquipament->name ?? null,
                 'category_name' => $reservation->productEquipament->category->name ?? null,
+                'created_at' => $dateFinalCreatedAtDate,
+                'updated_at' => $dateFinalUpdateAtDate,
             ];
 
             if ($reservationDataAdmin == null) {

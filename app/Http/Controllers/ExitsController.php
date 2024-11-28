@@ -59,8 +59,17 @@ class ExitsController extends CrudController
                     $formatedDateWithdrawalDate = explode(" ", $exit->withdrawal_date);
                     $formatedHoursWithdrawalDate = $formatedDateWithdrawalDate[1];
                     $formatedDateWithdrawalDate = explode('-', $formatedDateWithdrawalDate[0]);
-
                     $dateFinalWithdrawalDate = $formatedDateWithdrawalDate[2] . '/' . $formatedDateWithdrawalDate[1] . '/' . $formatedDateWithdrawalDate[0] . ' ' . $formatedHoursWithdrawalDate;
+
+                    $formatedDateWithdrawalDate = explode(" ", $exit->updated_at);
+                    $formatedHoursWithdrawalDate = $formatedDateWithdrawalDate[1];
+                    $formatedDateWithdrawalDate = explode('-', $formatedDateWithdrawalDate[0]);
+                    $dateFinalUpdateAtDate = $formatedDateWithdrawalDate[2] . '/' . $formatedDateWithdrawalDate[1] . '/' . $formatedDateWithdrawalDate[0] . ' ' . $formatedHoursWithdrawalDate;
+
+                    $formatedDateWithdrawalDate = explode(" ", $exit->created_at);
+                    $formatedHoursWithdrawalDate = $formatedDateWithdrawalDate[1];
+                    $formatedDateWithdrawalDate = explode('-', $formatedDateWithdrawalDate[0]);
+                    $dateFinalCreatedAtDate = $formatedDateWithdrawalDate[2] . '/' . $formatedDateWithdrawalDate[1] . '/' . $formatedDateWithdrawalDate[0] . ' ' . $formatedHoursWithdrawalDate;
 
                     return [
                         'id' => $exit->id,
@@ -71,10 +80,10 @@ class ExitsController extends CrudController
                         'quantity' => $exit->quantity,
                         'withdrawal_date' => $dateFinalWithdrawalDate,
                         'delivery_to' => $exit->delivery_to,
-                        'created_at' => $exit->created_at,
-                        'updated_at' => $exit->updated_at,
                         'product_name' => $exit->productEquipament->name,
                         'category_name' => $exit->productEquipament->category->name,
+                        'created_at' => $dateFinalCreatedAtDate,
+                        'updated_at' => $dateFinalUpdateAtDate,
                     ];
                 });
 
@@ -97,8 +106,17 @@ class ExitsController extends CrudController
                 $formatedDateWithdrawalDate = explode(" ", $exit->withdrawal_date);
                 $formatedHoursWithdrawalDate = $formatedDateWithdrawalDate[1];
                 $formatedDateWithdrawalDate = explode('-', $formatedDateWithdrawalDate[0]);
-
                 $dateFinalWithdrawalDate = $formatedDateWithdrawalDate[2] . '/' . $formatedDateWithdrawalDate[1] . '/' . $formatedDateWithdrawalDate[0] . ' ' . $formatedHoursWithdrawalDate;
+
+                $formatedDateWithdrawalDate = explode(" ", $exit->updated_at);
+                $formatedHoursWithdrawalDate = $formatedDateWithdrawalDate[1];
+                $formatedDateWithdrawalDate = explode('-', $formatedDateWithdrawalDate[0]);
+                $dateFinalUpdateAtDate = $formatedDateWithdrawalDate[2] . '/' . $formatedDateWithdrawalDate[1] . '/' . $formatedDateWithdrawalDate[0] . ' ' . $formatedHoursWithdrawalDate;
+
+                $formatedDateWithdrawalDate = explode(" ", $exit->created_at);
+                $formatedHoursWithdrawalDate = $formatedDateWithdrawalDate[1];
+                $formatedDateWithdrawalDate = explode('-', $formatedDateWithdrawalDate[0]);
+                $dateFinalCreatedAtDate = $formatedDateWithdrawalDate[2] . '/' . $formatedDateWithdrawalDate[1] . '/' . $formatedDateWithdrawalDate[0] . ' ' . $formatedHoursWithdrawalDate;
 
                 return [
                     'id' => $exit->id,
@@ -109,10 +127,10 @@ class ExitsController extends CrudController
                     'quantity' => $exit->quantity,
                     'withdrawal_date' => $dateFinalWithdrawalDate,
                     'delivery_to' => $exit->delivery_to,
-                    'created_at' => $exit->created_at,
-                    'updated_at' => $exit->updated_at,
                     'product_name' => $exit->productEquipament->name,
                     'category_name' => $exit->productEquipament->category->name,
+                    'created_at' => $dateFinalCreatedAtDate,
+                    'updated_at' => $dateFinalUpdateAtDate,
                 ];
             });
 
@@ -184,8 +202,17 @@ class ExitsController extends CrudController
                 $formatedDateWithdrawalDate = explode(" ", $exit->withdrawal_date);
                 $formatedHoursWithdrawalDate = $formatedDateWithdrawalDate[1];
                 $formatedDateWithdrawalDate = explode('-', $formatedDateWithdrawalDate[0]);
-
                 $dateFinalWithdrawalDate = $formatedDateWithdrawalDate[2] . '/' . $formatedDateWithdrawalDate[1] . '/' . $formatedDateWithdrawalDate[0] . ' ' . $formatedHoursWithdrawalDate;
+
+                $formatedDateWithdrawalDate = explode(" ", $exit->updated_at);
+                $formatedHoursWithdrawalDate = $formatedDateWithdrawalDate[1];
+                $formatedDateWithdrawalDate = explode('-', $formatedDateWithdrawalDate[0]);
+                $dateFinalUpdateAtDate = $formatedDateWithdrawalDate[2] . '/' . $formatedDateWithdrawalDate[1] . '/' . $formatedDateWithdrawalDate[0] . ' ' . $formatedHoursWithdrawalDate;
+
+                $formatedDateWithdrawalDate = explode(" ", $exit->created_at);
+                $formatedHoursWithdrawalDate = $formatedDateWithdrawalDate[1];
+                $formatedDateWithdrawalDate = explode('-', $formatedDateWithdrawalDate[0]);
+                $dateFinalCreatedAtDate = $formatedDateWithdrawalDate[2] . '/' . $formatedDateWithdrawalDate[1] . '/' . $formatedDateWithdrawalDate[0] . ' ' . $formatedHoursWithdrawalDate;
 
                 $exitDataUser = [
                     'id' => $exit->id,
@@ -196,10 +223,10 @@ class ExitsController extends CrudController
                     'quantity' => $exit->quantity,
                     'withdrawal_date' => $dateFinalWithdrawalDate,
                     'delivery_to' => $exit->delivery_to,
-                    'created_at' => $exit->created_at,
-                    'updated_at' => $exit->updated_at,
                     'product_name' => $exit->productEquipament ? $exit->productEquipament->name : null,
                     'category_name' => $exit->productEquipament->category->name,
+                    'created_at' => $dateFinalCreatedAtDate,
+                    'updated_at' => $dateFinalUpdateAtDate,
                 ];
 
                 return response()->json([
@@ -224,8 +251,17 @@ class ExitsController extends CrudController
             $formatedDateWithdrawalDate = explode(" ", $exit->withdrawal_date);
             $formatedHoursWithdrawalDate = $formatedDateWithdrawalDate[1];
             $formatedDateWithdrawalDate = explode('-', $formatedDateWithdrawalDate[0]);
-
             $dateFinalWithdrawalDate = $formatedDateWithdrawalDate[2] . '/' . $formatedDateWithdrawalDate[1] . '/' . $formatedDateWithdrawalDate[0] . ' ' . $formatedHoursWithdrawalDate;
+
+            $formatedDateWithdrawalDate = explode(" ", $exit->updated_at);
+            $formatedHoursWithdrawalDate = $formatedDateWithdrawalDate[1];
+            $formatedDateWithdrawalDate = explode('-', $formatedDateWithdrawalDate[0]);
+            $dateFinalUpdateAtDate = $formatedDateWithdrawalDate[2] . '/' . $formatedDateWithdrawalDate[1] . '/' . $formatedDateWithdrawalDate[0] . ' ' . $formatedHoursWithdrawalDate;
+
+            $formatedDateWithdrawalDate = explode(" ", $exit->created_at);
+            $formatedHoursWithdrawalDate = $formatedDateWithdrawalDate[1];
+            $formatedDateWithdrawalDate = explode('-', $formatedDateWithdrawalDate[0]);
+            $dateFinalCreatedAtDate = $formatedDateWithdrawalDate[2] . '/' . $formatedDateWithdrawalDate[1] . '/' . $formatedDateWithdrawalDate[0] . ' ' . $formatedHoursWithdrawalDate;
 
             $exitDataAdmin = [
                 'id' => $exit->id,
@@ -236,10 +272,10 @@ class ExitsController extends CrudController
                 'quantity' => $exit->quantity,
                 'withdrawal_date' => $dateFinalWithdrawalDate,
                 'delivery_to' => $exit->delivery_to,
-                'created_at' => $exit->created_at,
-                'updated_at' => $exit->updated_at,
                 'product_name' => $exit->productEquipament ? $exit->productEquipament->name : null,
                 'category_name' => $exit->productEquipament->category->name,
+                'created_at' => $dateFinalCreatedAtDate,
+                'updated_at' => $dateFinalUpdateAtDate,
             ];
 
             return response()->json([
