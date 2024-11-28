@@ -95,7 +95,7 @@ class ProductEquipamentController extends CrudController
 
                 $productEquipamentUser = ProductEquipament::with('category')
                     ->whereIn('fk_category_id', $categoryUser)
-                    ->orderBy('created_at', 'desc')
+                    ->orderBy('name', 'asc')
                     ->paginate(10);
 
                 $productEquipamentUser->getCollection()->transform(function ($product) {
@@ -141,7 +141,7 @@ class ProductEquipamentController extends CrudController
                 $productAllAdminSearch = ProductEquipament::with('category')
                     // ->whereIn('fk_category_id', $categoryUser)
                     ->where('name', 'like', '%' . $request->input('name') . '%')
-                    ->orderBy('created_at', 'desc')
+                    ->orderBy('name', 'asc')
                     ->paginate(10);
 
                 if ($productAllAdminSearch->isEmpty()) {
