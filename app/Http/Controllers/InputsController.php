@@ -48,6 +48,7 @@ class InputsController extends CrudController
                     ->whereHas('productEquipament', function ($query) use ($categoryUser) {
                         $query->whereIn('fk_category_id', $categoryUser);
                     })
+                    ->orderBy('created_at', 'desc')
                     ->paginate(10);
 
                 $inputs->getCollection()->transform(function ($input) {
@@ -61,7 +62,7 @@ class InputsController extends CrudController
                     $formatedHoursWithdrawalDate = $formatedDateWithdrawalDate[1];
                     $formatedDateWithdrawalDate = explode('-', $formatedDateWithdrawalDate[0]);
                     $dateFinalUpdateAtDate = $formatedDateWithdrawalDate[2] . '/' . $formatedDateWithdrawalDate[1] . '/' . $formatedDateWithdrawalDate[0] . ' ' . $formatedHoursWithdrawalDate;
-                    
+
                     return [
                         'id' => $input->id,
                         'quantity' => $input->quantity,
@@ -85,6 +86,7 @@ class InputsController extends CrudController
                 ->whereHas('productEquipament', function ($query) use ($categoryUser) {
                     // $query->whereIn('fk_category_id', $categoryUser);
                 })
+                ->orderBy('created_at', 'desc')
                 ->paginate(10);
 
             $inputsAdmin->getCollection()->transform(function ($input) {
@@ -175,7 +177,7 @@ class InputsController extends CrudController
                         $formatedHoursWithdrawalDate = $formatedDateWithdrawalDate[1];
                         $formatedDateWithdrawalDate = explode('-', $formatedDateWithdrawalDate[0]);
                         $dateFinalUpdateAtDate = $formatedDateWithdrawalDate[2] . '/' . $formatedDateWithdrawalDate[1] . '/' . $formatedDateWithdrawalDate[0] . ' ' . $formatedHoursWithdrawalDate;
-                        
+
                         return [
                             'id' => $input->id,
                             'quantity' => $input->quantity,

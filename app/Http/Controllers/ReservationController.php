@@ -59,6 +59,7 @@ class ReservationController extends CrudController
                     ->whereHas('productEquipament', function ($query) use ($categoryUser) {
                         $query->whereIn('fk_category_id', $categoryUser);
                     })
+                    ->orderBy('created_at', 'desc')
                     ->paginate(10);
 
                 $reservations->getCollection()->transform(function ($reservation) {
@@ -124,6 +125,7 @@ class ReservationController extends CrudController
                 }
 
                 $reservationsAdmin = Reservation::with(['productEquipament.category', 'user', 'userFinished'])
+                    ->orderBy('created_at', 'desc')
                     ->paginate(10);
 
                 $reservationsAdmin->getCollection()->transform(function ($reservation) {

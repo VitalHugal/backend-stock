@@ -51,7 +51,8 @@ class ExitsController extends CrudController
                     ->whereHas('productEquipament', function ($query) use ($categoryUser) {
                         $query->whereIn('fk_category_id', $categoryUser);
                     })
-                    ->paginate(10); // Adicionando paginação com 10 itens por página
+                    ->orderBy('created_at', 'desc')
+                    ->paginate(10);
 
                 // Transformando os itens dentro da paginação
                 $exits->getCollection()->transform(function ($exit) {
@@ -98,6 +99,7 @@ class ExitsController extends CrudController
                 ->whereHas('productEquipament', function ($query) use ($categoryUser) {
                     // $query->whereIn('fk_category_id', $categoryUser);
                 })
+                ->orderBy('created_at', 'desc')
                 ->paginate(10);
 
             // Transformando os itens dentro da paginação
