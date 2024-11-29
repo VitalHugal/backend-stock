@@ -387,7 +387,6 @@ class InputsController extends CrudController
 
     public function delete(Request $request, $id)
     {
-        DB::beginTransaction();
         try {
 
             $user = $request->user();
@@ -422,8 +421,6 @@ class InputsController extends CrudController
                     'created_at' => now(),
                     'updated_at' => now(),
                 ]);
-
-                DB::commit();
                 
                 return response()->json([
                     'success' => true,

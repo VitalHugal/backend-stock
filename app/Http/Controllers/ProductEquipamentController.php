@@ -7,6 +7,7 @@ use App\Models\Exits;
 use App\Models\Inputs;
 use App\Models\ProductEquipament;
 use App\Models\Reservation;
+use App\Models\SystemLog;
 use Exception;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
@@ -365,6 +366,7 @@ class ProductEquipamentController extends CrudController
 
     public function store(Request $request)
     {
+        DB::beginTransaction();
         try {
             $user = $request->user();
             $idUser = $user->id;
@@ -396,6 +398,19 @@ class ProductEquipamentController extends CrudController
             ]);
 
             if ($createProductEquipaments) {
+
+                SystemLog::create([
+                    'fk_user_id' => $idUser,
+                    'action' => 'Adicionou',
+                    'table_name' => 'products_equipaments',
+                    'record_id' => $createProductEquipaments->id,
+                    'description' => 'Adicionou um produto.',
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+
+                DB::commit();
+
                 return response()->json([
                     'success' => true,
                     'message' => "Cadastrado com sucesso.",
@@ -403,11 +418,13 @@ class ProductEquipamentController extends CrudController
                 ]);
             }
         } catch (QueryException $qe) {
+            DB::rollBack();
             return response()->json([
                 'success' => false,
                 'message' => "Error DB: " . $qe->getMessage(),
             ]);
         } catch (Exception $e) {
+            DB::rollBack();
             return response()->json([
                 'success' => false,
                 'message' => "Error: " . $e->getMessage(),
@@ -417,6 +434,7 @@ class ProductEquipamentController extends CrudController
 
     public function update(Request $request, $id)
     {
+        DB::beginTransaction();
         try {
             $user = $request->user();
             $idUser = $user->id;
@@ -441,6 +459,8 @@ class ProductEquipamentController extends CrudController
                 ]);
             }
 
+            $originalData = $updateProductEquipaments->getOriginal();
+
             $validatedData = $request->validate(
                 $this->productEquipaments->rulesProductEquipamentos(),
                 $this->productEquipaments->feedbackProductEquipaments(),
@@ -448,6 +468,31 @@ class ProductEquipamentController extends CrudController
 
             $updateProductEquipaments->fill($validatedData);
             $updateProductEquipaments->save();
+
+            // Verificando as mudanças e criando a string de log
+            $changes = $updateProductEquipaments->getChanges(); // Retorna apenas os campos que foram alterados
+            $logDescription = '';
+
+            foreach ($changes as $key => $newValue) {
+                $oldValue = $originalData[$key] ?? 'N/A'; // Valor antigo
+                $logDescription .= "{$key}: {$oldValue} -> {$newValue} .";
+            }
+
+            if ($logDescription == null) {
+                $logDescription = 'Nenhum.';
+            }
+
+            SystemLog::create([
+                'fk_user_id' => $idUser,
+                'action' => 'Atualizou',
+                'table_name' => 'products_equipaments',
+                'record_id' => $id,
+                'description' => 'Atualizou um produto. Dados alterados: ' . $logDescription,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+            DB::commit();
 
             if ($updateProductEquipaments) {
                 return response()->json([
@@ -473,8 +518,10 @@ class ProductEquipamentController extends CrudController
     {
         try {
             $user = $request->user();
+            $level = $user->level;
+            $idUser = $user->id;
 
-            if (!$user->tokenCan('admin')) {
+            if ($level == 'user') {
                 return response()->json([
                     'success' => false,
                     'message' => 'Você não tem permissão de acesso para seguir adiante.',
@@ -490,12 +537,22 @@ class ProductEquipamentController extends CrudController
                 ]);
             }
 
-            $deleteProductEquipaments->delete();
+            $deleted = $deleteProductEquipaments->delete();
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Produto/Equipamento removido com sucesso.',
-            ]);
+            if ($deleted) {
+                SystemLog::create([
+                    'fk_user_id' => $idUser,
+                    'action' => 'Excluiu',
+                    'table_name' => 'product_equipaments',
+                    'record_id' => $id,
+                    'description' => 'Excluiu um produto.',
+                ]);
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Produto/Equipamento removido com sucesso.',
+                ]);
+            }
         } catch (QueryException $qe) {
             return response()->json([
                 'success' => false,

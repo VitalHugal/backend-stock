@@ -550,7 +550,6 @@ class ExitsController extends CrudController
 
     public function delete(Request $request, $id)
     {
-        DB::beginTransaction();
         try {
 
             $user = $request->user();
@@ -587,21 +586,17 @@ class ExitsController extends CrudController
                     'updated_at' => now(),
                 ]);
 
-                DB::commit();
-
                 return response()->json([
                     'success' => true,
                     'message' => 'Saída removida com sucesso.',
                 ]);
             }
         } catch (QueryException $qe) {
-            DB::rollBack();
             return response()->json([
                 'success' => false,
                 'message' => "Error DB: " . $qe->getMessage(),
             ]);
         } catch (Exception $e) {
-            DB::rollBack();
             return response()->json([
                 'success' => false,
                 'message' => "Error: " . $e->getMessage(),

@@ -7,6 +7,7 @@ use App\Models\Exits;
 use App\Models\Inputs;
 use App\Models\ProductEquipament;
 use App\Models\Reservation;
+use App\Models\SystemLog;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Database\QueryException;
@@ -314,6 +315,7 @@ class ReservationController extends CrudController
 
     public function reservation(Request $request, $id)
     {
+        DB::beginTransaction();
         try {
             $user = $request->user();
             $idUserRequest = $user->id;
@@ -406,26 +408,32 @@ class ReservationController extends CrudController
             }
 
             if ($reservation) {
+
+                SystemLog::create([
+                    'fk_user_id' => $idUserRequest,
+                    'action' => 'Adicionou',
+                    'table_name' => 'reservations',
+                    'record_id' => $reservation->id,
+                    'description' => 'Adicionou uma reserva.',
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+
+                DB::commit();
                 return response()->json([
                     'success' => true,
                     'message' => 'Reserva concluída com sucesso.',
                     'data' => $reservation,
                 ]);
             }
-
-            if ($reservation) {
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Retirada concluída com sucesso',
-                    'data' => $reservation,
-                ]);
-            }
         } catch (QueryException $qe) {
+            DB::rollBack();
             return response()->json([
                 'success' => false,
                 'message' => "Error DB: " . $qe->getMessage(),
             ]);
         } catch (Exception $e) {
+            DB::rollBack();
             return response()->json([
                 'success' => false,
                 'message' => "Error: " . $e->getMessage(),
@@ -435,6 +443,7 @@ class ReservationController extends CrudController
 
     public function updateReservation(Request $request, $id)
     {
+        DB::beginTransaction();
         try {
             $user = $request->user();
             $idUserRequest = $user->id;
@@ -459,6 +468,8 @@ class ReservationController extends CrudController
                     'message' => 'Nenhuma reserva encontrada.',
                 ]);
             }
+
+            $originalData = $updateReservation->getOriginal();
 
             $fk_product = $updateReservation->fk_product_equipament_id;
             $quantityOld = $updateReservation->quantity;
@@ -525,6 +536,31 @@ class ReservationController extends CrudController
             $updateReservation->fill($validateData);
             $updateReservation->save();
 
+            // Verificando as mudanças e criando a string de log
+            $changes = $updateReservation->getChanges(); // Retorna apenas os campos que foram alterados
+            $logDescription = '';
+
+            foreach ($changes as $key => $newValue) {
+                $oldValue = $originalData[$key] ?? 'N/A'; // Valor antigo
+                $logDescription .= "{$key}: {$oldValue} -> {$newValue} .";
+            }
+
+            if ($logDescription == null) {
+                $logDescription = 'Nenhum.';
+            }
+
+            SystemLog::create([
+                'fk_user_id' => $idUserRequest,
+                'action' => 'Atualizou',
+                'table_name' => 'reservations',
+                'record_id' => $id,
+                'description' => 'Atualizou uma reserva. Dados alterados: ' . $logDescription,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+            DB::commit();
+
 
             if ($updateReservation) {
                 return response()->json([
@@ -534,11 +570,13 @@ class ReservationController extends CrudController
                 ]);
             }
         } catch (QueryException $qe) {
+            DB::rollBack();
             return response()->json([
                 'success' => false,
                 'message' => "Error DB: " . $qe->getMessage(),
             ]);
         } catch (Exception $e) {
+            DB::rollBack();
             return response()->json([
                 'success' => false,
                 'message' => "Error: " . $e->getMessage(),
@@ -584,6 +622,7 @@ class ReservationController extends CrudController
             });
 
             if ($reservesData) {
+
                 return response()->json([
                     'success' => true,
                     'message' => 'Reservas em atraso recuperadas com sucesso.',
@@ -608,6 +647,7 @@ class ReservationController extends CrudController
         try {
             $user = $request->user();
             $level = $user->level;
+            $idUser = $user->id;
 
             if ($level == 'user') {
                 return response()->json([
@@ -627,10 +667,22 @@ class ReservationController extends CrudController
 
             $deleteReservation->delete();
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Reserva removida com sucesso.',
-            ]);
+            if ($deleteReservation) {
+                SystemLog::create([
+                    'fk_user_id' => $idUser,
+                    'action' => 'Excluiu',
+                    'table_name' => 'reservations',
+                    'record_id' => $id,
+                    'description' => 'Excluiu uma reserva.',
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Reserva removida com sucesso.',
+                ]);
+            }
         } catch (QueryException $qe) {
             return response()->json([
                 'success' => false,
@@ -646,6 +698,7 @@ class ReservationController extends CrudController
 
     public function pendingReservationCompleted(Request $request, $id)
     {
+        DB::beginTransaction();
         try {
             $user = $request->user();
             $idUserRequest = $user->id;
@@ -692,6 +745,16 @@ class ReservationController extends CrudController
 
             $reservation->save();
 
+            SystemLog::create([
+                'fk_user_id' => $idUserRequest,
+                'action' => 'Finalizou',
+                'table_name' => 'reservations',
+                'record_id' => $id,
+                'description' => 'Finalizou uma reserva.',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+            DB::commit();
             if ($reservation) {
 
                 return response()->json([
@@ -700,11 +763,13 @@ class ReservationController extends CrudController
                 ]);
             }
         } catch (QueryException $qe) {
+            DB::rollBack();
             return response()->json([
                 'success' => false,
                 'message' => "Error DB: " . $qe->getMessage(),
             ]);
         } catch (Exception $e) {
+            DB::rollBack();
             return response()->json([
                 'success' => false,
                 'message' => "Error: " . $e->getMessage(),
