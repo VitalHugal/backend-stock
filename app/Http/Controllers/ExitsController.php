@@ -374,7 +374,7 @@ class ExitsController extends CrudController
                     'fk_user_id' => $idUser,
                     'action' => 'Adicionando',
                     'table_name' => 'exits',
-                    'record_id' => $exits['id'],
+                    'record_id' => $exits->id,
                     'description' => 'Adicionando uma saída.',
                 ]);
 
