@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Inputs;
 use App\Http\Controllers\Controller;
 use App\Models\ProductEquipament;
+use App\Models\SystemLog;
 use Exception;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
@@ -101,7 +102,7 @@ class InputsController extends CrudController
                 $formatedHoursWithdrawalDate = $formatedDateWithdrawalDate[1];
                 $formatedDateWithdrawalDate = explode('-', $formatedDateWithdrawalDate[0]);
                 $dateFinalUpdateAtDate = $formatedDateWithdrawalDate[2] . '/' . $formatedDateWithdrawalDate[1] . '/' . $formatedDateWithdrawalDate[0] . ' ' . $formatedHoursWithdrawalDate;
-                
+
                 return [
                     'id' => $input->id,
                     'id_product' => $input->productEquipament->id,
@@ -249,8 +250,11 @@ class InputsController extends CrudController
 
     public function store(Request $request)
     {
+        DB::beginTransaction();
+
         try {
             $user = $request->user();
+            $idUser = $user->id;
 
             $validatedData = $request->validate(
                 $this->input->rulesInputs(),
@@ -266,6 +270,19 @@ class InputsController extends CrudController
             }
 
             if ($input) {
+
+                SystemLog::create([
+                    'fk_user_id' => $idUser,
+                    'action' => 'Adicionou',
+                    'table_name' => 'inputs',
+                    'record_id' => $input->id,
+                    'description' => 'Adicionou uma entrada.',
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+
+                DB::commit();
+
                 return response()->json([
                     'success' => true,
                     'message' => 'Entrada criada com sucesso.',
@@ -273,11 +290,13 @@ class InputsController extends CrudController
                 ]);
             }
         } catch (QueryException $qe) {
+            DB::rollBack();
             return response()->json([
                 'success' => false,
                 'message' => "Error DB: " . $qe->getMessage(),
             ]);
         } catch (Exception $e) {
+            DB::rollBack();
             return response()->json([
                 'success' => false,
                 'message' => "Error: " . $e->getMessage(),
@@ -287,13 +306,13 @@ class InputsController extends CrudController
 
     public function update(Request $request, $id)
     {
+        DB::beginTransaction();
         try {
-
-            $updateInput = $this->input->find($id);
             $user = $request->user();
             $idUser = $user->id;
-
             $date = now();
+            
+            $updateInput = $this->input->find($id);
 
             if (!$updateInput) {
                 return response()->json([
@@ -302,6 +321,8 @@ class InputsController extends CrudController
                 ]);
             }
 
+            $originalData = $updateInput->getOriginal();
+            
             $validatedData = [
                 'fk_product_equipament_id' => $request->fk_product_equipament_id,
                 'quantity' => $request->quantity,
@@ -315,6 +336,31 @@ class InputsController extends CrudController
             $updateInput->fill($validatedData);
             $updateInput->save();
 
+             // Verificando as mudanças e criando a string de log
+             $changes = $updateInput->getChanges(); // Retorna apenas os campos que foram alterados
+             $logDescription = '';
+ 
+             foreach ($changes as $key => $newValue) {
+                 $oldValue = $originalData[$key] ?? 'N/A'; // Valor antigo
+                 $logDescription .= "{$key}: {$oldValue} -> {$newValue} .";
+             }
+ 
+             if ($logDescription == null) {
+                 $logDescription = 'Nenhum.';
+             }
+
+             SystemLog::create([
+                'fk_user_id' => $idUser,
+                'action' => 'Atualizou',
+                'table_name' => 'inputs',
+                'record_id' => $id,
+                'description' => 'Atualizou uma entrada. Dados alterados: '.$logDescription,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+            DB::commit();
+
             if ($updateInput) {
                 Log::info("User nº:{$idUser} updated entry nº:{$id} on {$date}");
 
@@ -325,11 +371,13 @@ class InputsController extends CrudController
                 ]);
             }
         } catch (QueryException $qe) {
+            DB::rollBack();
             return response()->json([
                 'success' => false,
                 'message' => "Error DB: " . $qe->getMessage(),
             ]);
         } catch (Exception $e) {
+            DB::rollBack();
             return response()->json([
                 'success' => false,
                 'message' => "Error: " . $e->getMessage(),
@@ -339,10 +387,12 @@ class InputsController extends CrudController
 
     public function delete(Request $request, $id)
     {
+        DB::beginTransaction();
         try {
 
             $user = $request->user();
             $level = $user->level;
+            $idUser = $user->id;
 
             if ($level == 'user') {
                 return response()->json([
@@ -362,10 +412,25 @@ class InputsController extends CrudController
 
             $deleteInput->delete();
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Entrada removida com sucesso.',
-            ]);
+            if ($deleteInput) {
+                SystemLog::create([
+                    'fk_user_id' => $idUser,
+                    'action' => 'Excluiu',
+                    'table_name' => 'inputs',
+                    'record_id' => $id,
+                    'description' => 'Excluiu uma entrada.',
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+
+                DB::commit();
+                
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Entrada removida com sucesso.',
+                ]);
+            }
+
         } catch (QueryException $qe) {
             return response()->json([
                 'success' => false,

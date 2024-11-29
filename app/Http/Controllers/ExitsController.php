@@ -281,6 +281,7 @@ class ExitsController extends CrudController
 
     public function exits(Request $request)
     {
+        DB::beginTransaction();
         try {
 
             $user = $request->user();
@@ -372,11 +373,15 @@ class ExitsController extends CrudController
 
                 SystemLog::create([
                     'fk_user_id' => $idUser,
-                    'action' => 'Adicionando',
+                    'action' => 'Adicionou',
                     'table_name' => 'exits',
                     'record_id' => $exits->id,
-                    'description' => 'Adicionando uma saída.',
+                    'description' => 'Adicionou uma saída.',
+                    'created_at' => now(),
+                    'updated_at' => now(),
                 ]);
+
+                DB::commit();
 
                 return response()->json([
                     'success' => true,
@@ -385,11 +390,13 @@ class ExitsController extends CrudController
                 ]);
             }
         } catch (QueryException $qe) {
+            DB::rollBack();
             return response()->json([
                 'success' => false,
                 'message' => "Error DB: " . $qe->getMessage(),
             ]);
         } catch (Exception $e) {
+            DB::rollBack();
             return response()->json([
                 'success' => false,
                 'message' => "Error: " . $e->getMessage(),
@@ -399,6 +406,7 @@ class ExitsController extends CrudController
 
     public function updateExits(Request $request, $id)
     {
+        DB::beginTransaction();
         try {
             $user = $request->user();
             $idUser = $user->id;
@@ -423,6 +431,8 @@ class ExitsController extends CrudController
                     'message' => 'Nenhuma saída encontrada.',
                 ]);
             }
+
+            $originalData = $updateExits->getOriginal();
 
             $fk_product = $updateExits->fk_product_equipament_id;
             $quantityOld = $updateExits->quantity;
@@ -472,7 +482,8 @@ class ExitsController extends CrudController
                 $returnDB = $quantityOld - $quantityNew;
                 $updateExits->update(['quantity' => $updateExits->quantity + $returnDB]);
 
-                Log::info("User nº:{$idUser} updates quantity from product in exit nº:{$id}. Returned {$returnDB} unit for bank of data.");
+                // Log::info("User nº:{$idUser} updates quantity from product in exit nº:{$id}. Returned {$returnDB} unit for bank of data.");
+
             } elseif ((int)$quantityNew > (int)$quantityOld) {
                 $removeDB = $quantityNew - $quantityOld;
 
@@ -483,11 +494,36 @@ class ExitsController extends CrudController
                     ]);
                 }
                 $updateExits->update(['quantity' => $updateExits->quantity - $removeDB]);
-                Log::info("User nº:{$idUser} updates quantity from product in exit nº:{$id}. Removed {$removeDB} unit for bank of data.");
+                // Log::info("User nº:{$idUser} updates quantity from product in exit nº:{$id}. Removed {$removeDB} unit for bank of data.");
             }
 
             $updateExits->fill($validateData);
             $updateExits->save();
+
+            // Verificando as mudanças e criando a string de log
+            $changes = $updateExits->getChanges(); // Retorna apenas os campos que foram alterados
+            $logDescription = '';
+
+            foreach ($changes as $key => $newValue) {
+                $oldValue = $originalData[$key] ?? 'N/A'; // Valor antigo
+                $logDescription .= "{$key}: {$oldValue} -> {$newValue} .";
+            }
+
+            if ($logDescription == null) {
+                $logDescription = 'Nenhum.';
+            }
+
+            SystemLog::create([
+                'fk_user_id' => $idUser,
+                'action' => 'Atualizou',
+                'table_name' => 'exits',
+                'record_id' => $id,
+                'description' => 'Atualizou uma saída. Dados alterados: '.$logDescription,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+            DB::commit();
 
             if ($updateExits) {
                 return response()->json([
@@ -497,11 +533,13 @@ class ExitsController extends CrudController
                 ]);
             }
         } catch (QueryException $qe) {
+            DB::rollBack();
             return response()->json([
                 'success' => false,
                 'message' => "Error DB: " . $qe->getMessage(),
             ]);
         } catch (Exception $e) {
+            DB::rollBack();
             return response()->json([
                 'success' => false,
                 'message' => "Error: " . $e->getMessage(),
@@ -512,9 +550,11 @@ class ExitsController extends CrudController
 
     public function delete(Request $request, $id)
     {
+        DB::beginTransaction();
         try {
 
             $user = $request->user();
+            $idUser = $user->id;
             $level = $user->level;
 
             if ($level == 'user') {
@@ -535,16 +575,33 @@ class ExitsController extends CrudController
 
             $deleteExits->delete();
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Saída removida com sucesso.',
-            ]);
+            if ($deleteExits) {
+
+                SystemLog::create([
+                    'fk_user_id' => $idUser,
+                    'action' => 'Excluiu',
+                    'table_name' => 'exits',
+                    'record_id' => $id,
+                    'description' => 'Excluiu uma saída.',
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+
+                DB::commit();
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Saída removida com sucesso.',
+                ]);
+            }
         } catch (QueryException $qe) {
+            DB::rollBack();
             return response()->json([
                 'success' => false,
                 'message' => "Error DB: " . $qe->getMessage(),
             ]);
         } catch (Exception $e) {
+            DB::rollBack();
             return response()->json([
                 'success' => false,
                 'message' => "Error: " . $e->getMessage(),

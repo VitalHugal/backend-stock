@@ -13,6 +13,7 @@ class LogoutController extends Controller
 {
     public function logout(Request $request)
     {
+        DB::beginTransaction();
         try {
             $user = $request->user();
             $idUser = $user->id;
@@ -21,7 +22,7 @@ class LogoutController extends Controller
             if ($user) {
                 SystemLog::create([
                     'fk_user_id' => $idUser,
-                    'action' => 'logout',
+                    'action' => 'Saiu',
                     'created_at' => now(),
                     'updated_at' => now(),
                 ]);

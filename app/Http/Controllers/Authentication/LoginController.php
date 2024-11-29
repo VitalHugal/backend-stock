@@ -16,6 +16,8 @@ class LoginController extends Controller
 {
     public function login(Request $request)
     {
+        DB::beginTransaction();
+        
         try {
             $user = User::where('email', $request->email)->first();
 
@@ -41,7 +43,7 @@ class LoginController extends Controller
 
                 SystemLog::create([
                     'fk_user_id' => $user->id,
-                    'action' => 'login',
+                    'action' => 'Entrou',
                     'created_at' => now(),
                     'updated_at' => now(),
                 ]);
