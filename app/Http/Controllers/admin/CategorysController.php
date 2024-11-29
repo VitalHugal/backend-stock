@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\CrudController;
 use App\Models\Category;
+use App\Models\SystemLog;
 use Exception;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
@@ -18,7 +19,7 @@ class CategorysController extends CrudController
         parent::__construct($category);
         $this->category = $category;
     }
-    
+
     public function getAllCategorys(Request $request)
     {
         try {
@@ -96,9 +97,12 @@ class CategorysController extends CrudController
 
     public function store(Request $request)
     {
+        DB::beginTransaction();
+
         try {
             $user = $request->user();
             $level = $user->level;
+            $idUser = $user->id;
 
             if ($level == 'user') {
                 return response()->json([
@@ -124,6 +128,18 @@ class CategorysController extends CrudController
 
             if ($createCategory) {
 
+                SystemLog::create([
+                    'fk_user_id' => $idUser,
+                    'action' => 'Adicionou',
+                    'table_name' => 'category',
+                    'record_id' => $createCategory->id,
+                    'description' => 'Adicionou uma categoria.',
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+
+                DB::commit();
+
                 return response()->json([
                     'success' => true,
                     'message' => 'Categoria criada com sucesso.',
@@ -131,11 +147,13 @@ class CategorysController extends CrudController
                 ]);
             }
         } catch (QueryException $qe) {
+            DB::rollBack();
             return response()->json([
                 'success' => false,
                 'message' => "Error DB: " . $qe->getMessage(),
             ]);
         } catch (Exception $e) {
+            DB::rollBack();
             return response()->json([
                 'success' => false,
                 'message' => "Error: " . $e->getMessage(),
@@ -145,10 +163,13 @@ class CategorysController extends CrudController
 
     public function update(Request $request, $id)
     {
+        DB::beginTransaction();
+
         try {
 
             $user = $request->user();
             $level = $user->level;
+            $idUser = $user->id;
 
             if ($level == 'user') {
                 return response()->json([
@@ -166,6 +187,8 @@ class CategorysController extends CrudController
                 ]);
             }
 
+            $originalData = $category->getOriginal();
+
             $validatedData = $request->validate(
                 $this->category->rulesCategory(),
                 $this->category->feedbackCategory(),
@@ -173,6 +196,31 @@ class CategorysController extends CrudController
 
             $category->fill($validatedData);
             $category->save();
+
+            // Verificando as mudanças e criando a string de log
+            $changes = $category->getChanges(); // Retorna apenas os campos que foram alterados
+            $logDescription = '';
+
+            foreach ($changes as $key => $newValue) {
+                $oldValue = $originalData[$key] ?? 'N/A'; // Valor antigo
+                $logDescription .= "{$key}: {$oldValue} -> {$newValue} .";
+            }
+
+            if ($logDescription == null) {
+                $logDescription = 'Nenhum.';
+            }
+
+            SystemLog::create([
+                'fk_user_id' => $idUser,
+                'action' => 'Atualizou',
+                'table_name' => 'category',
+                'record_id' => $id,
+                'description' => 'Atualizou uma categoria. Dados alterados: ' . $logDescription,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+            DB::commit();
 
             if ($category) {
                 return response()->json([
@@ -182,11 +230,13 @@ class CategorysController extends CrudController
                 ]);
             }
         } catch (QueryException $qe) {
+            DB::rollBack();
             return response()->json([
                 'success' => false,
                 'message' => "Error DB: " . $qe->getMessage(),
             ]);
         } catch (Exception $e) {
+            DB::rollBack();
             return response()->json([
                 'success' => false,
                 'message' => "Error: " . $e->getMessage(),
@@ -199,6 +249,7 @@ class CategorysController extends CrudController
         try {
             $user = $request->user();
             $level = $user->level;
+            $idUser = $user->id;
 
             if ($level == 'user') {
                 return response()->json([
@@ -224,12 +275,22 @@ class CategorysController extends CrudController
                 if (!$data == null) {
                     DB::table('category_user')->where('fk_category_id', $id)->delete();
                 }
-            }
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Categoria removida com sucesso.',
-            ]);
+                SystemLog::create([
+                    'fk_user_id' => $idUser,
+                    'action' => 'Excluiu',
+                    'table_name' => 'category',
+                    'record_id' => $id,
+                    'description' => 'Excluiu uma categoria',
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Categoria removida com sucesso.',
+                ]);
+            }
         } catch (QueryException $qe) {
             return response()->json([
                 'success' => false,

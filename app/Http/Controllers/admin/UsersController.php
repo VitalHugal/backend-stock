@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\CrudController;
 use App\Models\CategoryUser;
+use App\Models\SystemLog;
 use App\Models\User;
 use Exception;
 use Illuminate\Database\QueryException;
@@ -98,11 +99,13 @@ class UsersController extends CrudController
 
     public function store(Request $request)
     {
+        DB::beginTransaction();
+
         try {
 
             $user = $request->user();
-
             $level = $user->level;
+            $idUser = $user->id;
 
 
             if ($level == 'user') {
@@ -134,6 +137,19 @@ class UsersController extends CrudController
             ]);
 
             if ($create) {
+
+                SystemLog::create([
+                    'fk_user_id' => $idUser,
+                    'action' => 'Adicionou',
+                    'table_name' => 'users',
+                    'record_id' => $create->id,
+                    'description' => 'Adicionou um usuário.',
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+
+                DB::commit();
+
                 return response()->json([
                     'success' => true,
                     'message' => "Usuário criado com sucesso.",
@@ -141,11 +157,13 @@ class UsersController extends CrudController
                 ]);
             }
         } catch (QueryException $qe) {
+            DB::rollBack();
             return response()->json([
                 'success' => false,
                 'message' => "Error DB: " . $qe->getMessage(),
             ]);
         } catch (Exception $e) {
+            DB::rollBack();
             return response()->json([
                 'success' => false,
                 'message' => "Error: " . $e->getMessage(),
@@ -155,11 +173,12 @@ class UsersController extends CrudController
 
     public function update(Request $request, $id)
     {
+        DB::beginTransaction();
         try {
 
             $user = $request->user();
-
             $level = $user->level;
+            $idUser = $user->id;
 
             if ($level == 'user') {
                 return response()->json([
@@ -176,6 +195,8 @@ class UsersController extends CrudController
                     'message' => "Nenhum resultado encontrado.",
                 ]);
             }
+
+            $originalData = $updateUser->getOriginal();
 
             $verifyEmail = User::where('email', $request->email)->first();
             if ($verifyEmail) {
@@ -195,17 +216,44 @@ class UsersController extends CrudController
             $updateUser->fill($validateModel);
             $updateUser->save();
 
+            // Verificando as mudanças e criando a string de log
+            $changes = $updateUser->getChanges(); // Retorna apenas os campos que foram alterados
+            $logDescription = '';
+
+            foreach ($changes as $key => $newValue) {
+                $oldValue = $originalData[$key] ?? 'N/A'; // Valor antigo
+                $logDescription .= "{$key}: {$oldValue} -> {$newValue} .";
+            }
+
+            if ($logDescription == null) {
+                $logDescription = 'Nenhum.';
+            }
+
+            SystemLog::create([
+                'fk_user_id' => $idUser,
+                'action' => 'Atualizou',
+                'table_name' => 'users',
+                'record_id' => $id,
+                'description' => 'Atualizou um usuário. Dados alterados: ' . $logDescription,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+            DB::commit();
+
             return response()->json([
                 'success' => true,
                 'message' => 'Usuário atualizado com sucesso.',
                 'data' => $updateUser,
             ]);
         } catch (QueryException $qe) {
+            DB::rollBack();
             return response()->json([
                 'success' => false,
                 'message' => "Error DB: " . $qe->getMessage(),
             ]);
         } catch (Exception $e) {
+            DB::rollBack();
             return response()->json([
                 'success' => false,
                 'message' => "Error: " . $e->getMessage(),
@@ -218,8 +266,8 @@ class UsersController extends CrudController
         try {
 
             $user = $request->user();
-
             $level = $user->level;
+            $idUser = $user->id;
 
             if ($level == 'user') {
                 return response()->json([
@@ -243,12 +291,22 @@ class UsersController extends CrudController
 
             if ($deleteUser) {
                 DB::table('category_user')->where('fk_user_id', $id)->update(['deleted_at' => $formatedDate]);
-            }
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Usuário removido com sucesso.',
-            ]);
+                SystemLog::create([
+                    'fk_user_id' => $idUser,
+                    'action' => 'Excluiu',
+                    'table_name' => 'users',
+                    'record_id' => $id,
+                    'description' => 'Excluiu um usuário',
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Usuário removido com sucesso.',
+                ]);
+            }
         } catch (QueryException $qe) {
             return response()->json([
                 'success' => false,
@@ -267,8 +325,8 @@ class UsersController extends CrudController
         try {
 
             $user = $request->user();
-
             $level = $user->level;
+            $idUser = $user->id;
 
             if ($level == 'user') {
                 return response()->json([
@@ -291,16 +349,46 @@ class UsersController extends CrudController
                 ]);
             }
 
+            $originalData = $user->getOriginal();
+
             $user->categories()->sync($validatedData['responsible_category']);
 
             // if ($user) {
             //     User::where('id', $id)->update(['responsible_category' => $request->input('responsible_category')]);
             // }
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Categorias atribuídas com sucesso.',
-            ]);
+            if ($user) {
+
+                // Verificando as mudanças e criando a string de log
+                $changes = $user->getChanges(); // Retorna apenas os campos que foram alterados
+                $logDescription = '';
+
+                foreach ($changes as $key => $newValue) {
+                    $oldValue = $originalData[$key] ?? 'N/A'; // Valor antigo
+                    $logDescription .= "{$key}: {$oldValue} -> {$newValue} .";
+                }
+
+                if ($logDescription == null) {
+                    $logDescription = 'Nenhum.';
+                }
+
+                SystemLog::create([
+                    'fk_user_id' => $idUser,
+                    'action' => 'Atualizou',
+                    'table_name' => 'category_user',
+                    'record_id' => $id,
+                    'description' => 'Atualizou a categoria do usuário. Dados alterados: ' . $logDescription,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+
+                DB::commit();
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Categorias atribuídas com sucesso.',
+                ]);
+            }
         } catch (QueryException $qe) {
             return response()->json([
                 'success' => false,
@@ -316,11 +404,13 @@ class UsersController extends CrudController
 
     public function updateLevel(Request $request, $id)
     {
+        DB::beginTransaction();
+        
         try {
 
             $user = $request->user();
-
             $level = $user->level;
+            $idUser = $user->id;
 
             if ($level == 'user') {
                 return response()->json([
@@ -338,6 +428,8 @@ class UsersController extends CrudController
                 ]);
             }
 
+            $originalData = $userUpdate->getOriginal();
+
             $validatedData = $request->validate(
                 $this->user->rulesUpdateLevelUser(),
                 $this->user->feedbackUpdateLevelUser()
@@ -347,17 +439,43 @@ class UsersController extends CrudController
             $userUpdate->fill($validatedData);
             $userUpdate->save();
 
+            $changes = $userUpdate->getChanges(); // Retorna apenas os campos que foram alterados
+            $logDescription = '';
+
+            foreach ($changes as $key => $newValue) {
+                $oldValue = $originalData[$key] ?? 'N/A'; // Valor antigo
+                $logDescription .= "{$key}: {$oldValue} -> {$newValue} .";
+            }
+
+            if ($logDescription == null) {
+                $logDescription = 'Nenhum.';
+            }
+
+            SystemLog::create([
+                'fk_user_id' => $idUser,
+                'action' => 'Atualizou',
+                'table_name' => 'users',
+                'record_id' => $id,
+                'description' => 'Atualizou o nivel de acesso do usuário. Dados alterados: ' . $logDescription,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+            DB::commit();
+
             return response()->json([
                 'success' => true,
                 'message' => 'Nível de permissão atualizado com sucesso.',
                 'data' => $userUpdate,
             ]);
         } catch (QueryException $qe) {
+            DB::rollBack();
             return response()->json([
                 'success' => false,
                 'message' => "Error DB: " . $qe->getMessage(),
             ]);
         } catch (Exception $e) {
+            DB::rollBack();
             return response()->json([
                 'success' => false,
                 'message' => "Error: " . $e->getMessage(),
@@ -415,6 +533,17 @@ class UsersController extends CrudController
                 ->update(['password' => Hash::make($request->password)]);
 
             if ($newPassword) {
+
+                SystemLog::create([
+                    'fk_user_id' => $userId,
+                    'action' => 'Atualizou',
+                    'table_name' => 'users',
+                    'record_id' => $userId,
+                    'description' => 'Atualizou a própria senha.',
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+                
                 return response()->json([
                     'success' => true,
                     'message' => 'Senha alterada com sucesso.',
@@ -438,8 +567,8 @@ class UsersController extends CrudController
         try {
 
             $user = $request->user();
-
             $level = $user->level;
+            $idUser = $user->id;
 
             if ($level == 'user') {
                 return response()->json([
@@ -468,6 +597,17 @@ class UsersController extends CrudController
             $userResetPassword->save();
 
             if ($userResetPassword) {
+
+                SystemLog::create([
+                    'fk_user_id' => $idUser,
+                    'action' => 'Atualizou',
+                    'table_name' => 'users',
+                    'record_id' => $id,
+                    'description' => 'Atualizou a senha do usuário.',
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+                
                 return response()->json([
                     'success' => true,
                     'message' => 'Senha alterada com sucesso',
