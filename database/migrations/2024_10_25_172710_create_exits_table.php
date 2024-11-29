@@ -18,7 +18,6 @@ return new class extends Migration
             $table->string('reason_project');
             $table->string('observation');
             $table->integer('quantity');
-            $table->string('withdrawal_date');
             $table->string('delivery_to');
             $table->timestamps();
             $table->softDeletes();
