@@ -3,6 +3,7 @@
 use App\Http\Controllers\Authentication\LoginController;
 use App\Http\Controllers\Admin\UsersController;
 use App\Http\Controllers\Admin\CategorysController;
+use App\Http\Controllers\Authentication\LogoutController;
 use App\Http\Controllers\ExitsController;
 use App\Http\Controllers\InputsController;
 use App\Http\Controllers\ProductAlertController;
@@ -51,6 +52,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     //ME
     Route::post('/update-password', [UsersController::class, 'updatePassword']);
     Route::get('/my-profile', [UsersController::class, 'myProfile']);
+    Route::post('/logout', [LogoutController::class, 'logout']);
 
     //-------------------------------------------
     // ROUTES FOR ADMINISTRATOR LEVEL USERS ONLY 

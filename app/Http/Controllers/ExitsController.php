@@ -6,6 +6,7 @@ use App\Models\Exits;
 use App\Models\Inputs;
 use App\Models\ProductEquipament;
 use App\Models\Reservation;
+use App\Models\SystemLog;
 use Exception;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
@@ -76,6 +77,7 @@ class ExitsController extends CrudController
                         'quantity' => $exit->quantity,
                         'delivery_to' => $exit->delivery_to,
                         'product_name' => $exit->productEquipament->name,
+                        'product_id' => $exit->productEquipament->id,
                         'category_name' => $exit->productEquipament->category->name,
                         'created_at' => $dateFinalCreatedAtDate,
                         'updated_at' => $dateFinalUpdateAtDate,
@@ -118,6 +120,7 @@ class ExitsController extends CrudController
                     'quantity' => $exit->quantity,
                     'delivery_to' => $exit->delivery_to,
                     'product_name' => $exit->productEquipament->name,
+                    'product_id' => $exit->productEquipament->id,
                     'category_name' => $exit->productEquipament->category->name,
                     'created_at' => $dateFinalCreatedAtDate,
                     'updated_at' => $dateFinalUpdateAtDate,
@@ -208,6 +211,7 @@ class ExitsController extends CrudController
                     'quantity' => $exit->quantity,
                     'delivery_to' => $exit->delivery_to,
                     'product_name' => $exit->productEquipament ? $exit->productEquipament->name : null,
+                    'product_id' => $exit->productEquipament->id,
                     'category_name' => $exit->productEquipament->category->name,
                     'created_at' => $dateFinalCreatedAtDate,
                     'updated_at' => $dateFinalUpdateAtDate,
@@ -251,6 +255,7 @@ class ExitsController extends CrudController
                 'quantity' => $exit->quantity,
                 'delivery_to' => $exit->delivery_to,
                 'product_name' => $exit->productEquipament ? $exit->productEquipament->name : null,
+                'product_id' => $exit->productEquipament->id,
                 'category_name' => $exit->productEquipament->category->name,
                 'created_at' => $dateFinalCreatedAtDate,
                 'updated_at' => $dateFinalUpdateAtDate,
@@ -364,6 +369,15 @@ class ExitsController extends CrudController
 
 
             if ($exits) {
+
+                SystemLog::create([
+                    'fk_user_id' => $idUser,
+                    'action' => 'Adicionando',
+                    'table_name' => 'exits',
+                    'record_id' => $exits['id'],
+                    'description' => 'Adicionando uma saída.',
+                ]);
+
                 return response()->json([
                     'success' => true,
                     'message' => 'Retirada concluída com sucesso',

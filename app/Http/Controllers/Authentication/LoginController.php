@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\Authentication;
 
 use App\Http\Controllers\Controller;
+use App\Models\SystemLog;
 use App\Models\User;
 use Exception;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
@@ -35,17 +37,31 @@ class LoginController extends Controller
             }
             $token = Str::of($token)->explode('|')[1];
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Login realizado com sucesso.',
-                'data' => $token,
-            ]);
+            if ($token) {
+
+                SystemLog::create([
+                    'fk_user_id' => $user->id,
+                    'action' => 'login',
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+
+                DB::commit();
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Login realizado com sucesso.',
+                    'data' => $token,
+                ]);
+            }
         } catch (QueryException $qe) {
+            DB::rollBack();
             return response()->json([
                 'success' => false,
                 'message' => "Error DB: " . $qe->getMessage(),
             ]);
         } catch (Exception $e) {
+            DB::rollBack();
             return response()->json([
                 'success' => false,
                 'message' => "Error: " . $e->getMessage(),
