@@ -57,11 +57,6 @@ class ExitsController extends CrudController
                 // Transformando os itens dentro da paginação
                 $exits->getCollection()->transform(function ($exit) {
 
-                    // $formatedDateWithdrawalDate = explode(" ", $exit->withdrawal_date);
-                    // $formatedHoursWithdrawalDate = $formatedDateWithdrawalDate[1];
-                    // $formatedDateWithdrawalDate = explode('-', $formatedDateWithdrawalDate[0]);
-                    // $dateFinalWithdrawalDate = $formatedDateWithdrawalDate[2] . '/' . $formatedDateWithdrawalDate[1] . '/' . $formatedDateWithdrawalDate[0] . ' ' . $formatedHoursWithdrawalDate;
-
                     $formatedDateWithdrawalDate = explode(" ", $exit->updated_at);
                     $formatedHoursWithdrawalDate = $formatedDateWithdrawalDate[1];
                     $formatedDateWithdrawalDate = explode('-', $formatedDateWithdrawalDate[0]);
@@ -79,7 +74,6 @@ class ExitsController extends CrudController
                         'reason_project' => $exit->reason_project,
                         'observation' => $exit->observation,
                         'quantity' => $exit->quantity,
-                        // 'withdrawal_date' => $dateFinalWithdrawalDate,
                         'delivery_to' => $exit->delivery_to,
                         'product_name' => $exit->productEquipament->name,
                         'category_name' => $exit->productEquipament->category->name,
@@ -105,11 +99,6 @@ class ExitsController extends CrudController
             // Transformando os itens dentro da paginação
             $exitsAdmin->getCollection()->transform(function ($exit) {
 
-                // $formatedDateWithdrawalDate = explode(" ", $exit->withdrawal_date);
-                // $formatedHoursWithdrawalDate = $formatedDateWithdrawalDate[1];
-                // $formatedDateWithdrawalDate = explode('-', $formatedDateWithdrawalDate[0]);
-                // $dateFinalWithdrawalDate = $formatedDateWithdrawalDate[2] . '/' . $formatedDateWithdrawalDate[1] . '/' . $formatedDateWithdrawalDate[0] . ' ' . $formatedHoursWithdrawalDate;
-
                 $formatedDateWithdrawalDate = explode(" ", $exit->updated_at);
                 $formatedHoursWithdrawalDate = $formatedDateWithdrawalDate[1];
                 $formatedDateWithdrawalDate = explode('-', $formatedDateWithdrawalDate[0]);
@@ -127,7 +116,6 @@ class ExitsController extends CrudController
                     'reason_project' => $exit->reason_project,
                     'observation' => $exit->observation,
                     'quantity' => $exit->quantity,
-                    // 'withdrawal_date' => $dateFinalWithdrawalDate,
                     'delivery_to' => $exit->delivery_to,
                     'product_name' => $exit->productEquipament->name,
                     'category_name' => $exit->productEquipament->category->name,
@@ -201,11 +189,6 @@ class ExitsController extends CrudController
                     ]);
                 }
 
-                // $formatedDateWithdrawalDate = explode(" ", $exit->withdrawal_date);
-                // $formatedHoursWithdrawalDate = $formatedDateWithdrawalDate[1];
-                // $formatedDateWithdrawalDate = explode('-', $formatedDateWithdrawalDate[0]);
-                // $dateFinalWithdrawalDate = $formatedDateWithdrawalDate[2] . '/' . $formatedDateWithdrawalDate[1] . '/' . $formatedDateWithdrawalDate[0] . ' ' . $formatedHoursWithdrawalDate;
-
                 $formatedDateWithdrawalDate = explode(" ", $exit->updated_at);
                 $formatedHoursWithdrawalDate = $formatedDateWithdrawalDate[1];
                 $formatedDateWithdrawalDate = explode('-', $formatedDateWithdrawalDate[0]);
@@ -223,7 +206,6 @@ class ExitsController extends CrudController
                     'reason_project' => $exit->reason_project,
                     'observation' => $exit->observation,
                     'quantity' => $exit->quantity,
-                    // 'withdrawal_date' => $dateFinalWithdrawalDate,
                     'delivery_to' => $exit->delivery_to,
                     'product_name' => $exit->productEquipament ? $exit->productEquipament->name : null,
                     'category_name' => $exit->productEquipament->category->name,
@@ -250,11 +232,6 @@ class ExitsController extends CrudController
                 ]);
             }
 
-            // $formatedDateWithdrawalDate = explode(" ", $exit->withdrawal_date);
-            // $formatedHoursWithdrawalDate = $formatedDateWithdrawalDate[1];
-            // $formatedDateWithdrawalDate = explode('-', $formatedDateWithdrawalDate[0]);
-            // $dateFinalWithdrawalDate = $formatedDateWithdrawalDate[2] . '/' . $formatedDateWithdrawalDate[1] . '/' . $formatedDateWithdrawalDate[0] . ' ' . $formatedHoursWithdrawalDate;
-
             $formatedDateWithdrawalDate = explode(" ", $exit->updated_at);
             $formatedHoursWithdrawalDate = $formatedDateWithdrawalDate[1];
             $formatedDateWithdrawalDate = explode('-', $formatedDateWithdrawalDate[0]);
@@ -272,7 +249,6 @@ class ExitsController extends CrudController
                 'reason_project' => $exit->reason_project,
                 'observation' => $exit->observation,
                 'quantity' => $exit->quantity,
-                // 'withdrawal_date' => $dateFinalWithdrawalDate,
                 'delivery_to' => $exit->delivery_to,
                 'product_name' => $exit->productEquipament ? $exit->productEquipament->name : null,
                 'category_name' => $exit->productEquipament->category->name,
