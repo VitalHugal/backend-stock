@@ -322,6 +322,7 @@ class UsersController extends CrudController
 
     public function assignCategoryUser(Request $request, $id)
     {
+        DB::beginTransaction();
         try {
 
             $user = $request->user();
@@ -390,11 +391,13 @@ class UsersController extends CrudController
                 ]);
             }
         } catch (QueryException $qe) {
+            DB::rollBack();
             return response()->json([
                 'success' => false,
                 'message' => "Error DB: " . $qe->getMessage(),
             ]);
         } catch (Exception $e) {
+            DB::rollBack();
             return response()->json([
                 'success' => false,
                 'message' => "Error: " . $e->getMessage(),
