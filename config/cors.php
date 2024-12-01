@@ -19,11 +19,17 @@ return [
 
     'allowed_methods' => ['*'],
 
-    // 'allowed_origins' => ['*'],
+    'allowed_origins' => ['*'],
 
-    'allowed_origins' => ['https://www.estoque.bizsys.com.br'],
+    'Access-Control-Allow-Origin' => ['*'],
 
     'allowed_origins_patterns' => [],
+
+    'Access-Control-Allow-Origin' => ['*'],
+
+    'Access-Control-Allow-Methods' => ['*'],
+
+    'Access-Control-Allow-Headers' => ['*'],
 
     'allowed_headers' => ['*'],
 
