@@ -59,7 +59,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     // ROUTES FOR ADMINISTRATOR LEVEL USERS ONLY 
     //-------------------------------------------
 
-
+    //ALL LOGS
     Route::get('/get-all-logs', [SystemLogsController::class, 'getAllLogs']);
 
     //ALL DELETE
