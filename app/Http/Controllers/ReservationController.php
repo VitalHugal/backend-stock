@@ -313,7 +313,7 @@ class ReservationController extends CrudController
         }
     }
 
-    public function reservation(Request $request, $id)
+    public function reservation(Request $request)
     {
         DB::beginTransaction();
         try {
@@ -334,10 +334,10 @@ class ReservationController extends CrudController
 
             if ($categoryUser) {
                 $productEquipamentUser = ProductEquipament::with('category')
-                    ->whereIn('fk_category_id', $categoryUser)->where('id', $id)->first();
+                    ->whereIn('fk_category_id', $categoryUser)->where('id', $request->fk_product_equipament_id)->first();
             }
 
-            $productEquipamentUser = ProductEquipament::where('id', $id)->first();
+            $productEquipamentUser = ProductEquipament::where('id', $request->fk_product_equipament_id)->first();
 
             (int)$productQuantityMin = $productEquipamentUser->quantity_min;
 
@@ -348,9 +348,9 @@ class ReservationController extends CrudController
                 ]);
             }
 
-            $quantityTotalInputs = Inputs::where('fk_product_equipament_id', $id)->sum('quantity');
-            $quantityTotalExits = Exits::where('fk_product_equipament_id', $id)->sum('quantity');
-            $quantityReserveNotFinished = Reservation::where('fk_product_equipament_id', $id)
+            $quantityTotalInputs = Inputs::where('fk_product_equipament_id', $request->fk_product_equipament_id)->sum('quantity');
+            $quantityTotalExits = Exits::where('fk_product_equipament_id', $request->fk_product_equipament_id)->sum('quantity');
+            $quantityReserveNotFinished = Reservation::where('fk_product_equipament_id', $request->fk_product_equipament_id)
                 ->where('reservation_finished', false)
                 ->whereNull('date_finished')
                 ->whereNull('fk_user_id_finished')
@@ -372,17 +372,10 @@ class ReservationController extends CrudController
                 ]);
             }
 
-            if ($request->quantity == '0' || $request->quantity == '0') {
+            if ($request->quantity == '0' || $request->quantity == 0) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Quantidade minima: 1.',
-                ]);
-            }
-
-            if ($request->fk_product_equipament_id != $id) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Divergência na identifição do produto/equipamento.',
                 ]);
             }
 
