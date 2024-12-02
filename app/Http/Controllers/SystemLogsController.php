@@ -49,6 +49,7 @@ class SystemLogsController extends CrudController
                 $logsSearchDate->getCollection()->transform(function ($logs) {
                     return [
                         'id' => $logs->id,
+                        'fk_user_id' => $logs->fk_user_id,
                         'name_user' => $logs->user->name,
                         'action' => $logs->action,
                         'table_name' => $logs->table_name,
