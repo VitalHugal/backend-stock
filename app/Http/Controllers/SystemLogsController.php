@@ -1,48 +1,45 @@
 <?php
 
-namespace App\Http\Controllers\Authentication;
+namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use App\Models\SystemLog;
 use Exception;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-class LogoutController extends Controller
+class SystemLogsController extends Controller
 {
-    public function logout(Request $request)
+    public function getAllLogs(Request $request)
     {
-        DB::beginTransaction();
         try {
             $user = $request->user();
-            $idUser = $user->id;
-            $user->tokens()->delete();
+            $level = $user->level;
 
-            if ($user) {
-                SystemLog::create([
-                    'fk_user_id' => $idUser,
-                    'action' => 'Saiu',
-                    'description' => 'Usuário saiu.',
-                    'created_at' => now(),
-                    'updated_at' => now(),
+            if ($level == 'user') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Você não tem permissão de acesso para seguir adiante.',
                 ]);
+            }
 
-                DB::commit();
-                
+            $getAllSystemLogs = DB::table('system_logs')->get();
+
+            dd();
+
+            if ($getAllSystemLogs) {
                 return response()->json([
                     'success' => true,
-                    'message' => 'Usuário desconectado com sucesso.'
+                    'message' => 'Logs recuperados com sucesso.',
+                    'data' => $getAllSystemLogs,
                 ]);
             }
         } catch (QueryException $qe) {
-            DB::rollBack();
             return response()->json([
                 'success' => false,
                 'message' => "Error DB: " . $qe->getMessage(),
             ]);
         } catch (Exception $e) {
-            DB::rollBack();
             return response()->json([
                 'success' => false,
                 'message' => "Error: " . $e->getMessage(),

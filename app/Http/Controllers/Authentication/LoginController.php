@@ -44,6 +44,7 @@ class LoginController extends Controller
                 SystemLog::create([
                     'fk_user_id' => $user->id,
                     'action' => 'Entrou',
+                    'description' => 'Usuário entrou.',
                     'created_at' => now(),
                     'updated_at' => now(),
                 ]);

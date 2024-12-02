@@ -9,6 +9,7 @@ use App\Http\Controllers\InputsController;
 use App\Http\Controllers\ProductAlertController;
 use App\Http\Controllers\ProductEquipamentController;
 use App\Http\Controllers\ReservationController;
+use App\Http\Controllers\SystemLogsController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -57,6 +58,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
     //-------------------------------------------
     // ROUTES FOR ADMINISTRATOR LEVEL USERS ONLY 
     //-------------------------------------------
+
+
+    Route::get('/get-all-logs', [SystemLogsController::class, 'getAllLogs']);
 
     //ALL DELETE
     Route::delete('/delete-exits/{id}', [ExitsController::class, 'delete']);
