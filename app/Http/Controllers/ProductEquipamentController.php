@@ -51,7 +51,7 @@ class ProductEquipamentController extends CrudController
                     $productEquipamentUserSearch = ProductEquipament::with('category')
                         ->whereIn('fk_category_id', $categoryUser)
                         ->where('name', 'like', '%' . $request->input('name') . '%')
-                        // ->orderBy('fk_category_id', 'asc')
+                        ->orderBy('fk_category_id', 'asc')
                         ->paginate(10)
                         ->appends(['name' => $request->input('name')]);
 
@@ -97,7 +97,7 @@ class ProductEquipamentController extends CrudController
 
                 $productEquipamentUser = ProductEquipament::with('category')
                     ->whereIn('fk_category_id', $categoryUser)
-                    // ->orderBy('fk_category_id', 'asc')
+                    ->orderBy('fk_category_id', 'asc')
                     ->paginate(10);
 
                 $productEquipamentUser->getCollection()->transform(function ($product) {
@@ -135,7 +135,7 @@ class ProductEquipamentController extends CrudController
 
             $productAllAdmin = ProductEquipament::with('category')
                 // ->get()
-                // ->orderBy('name', 'asc')
+                ->orderBy('fk_category_id', 'asc')
                 ->paginate(10);
 
             if ($request->has('name') && $request->input('name') != '') {
@@ -144,6 +144,7 @@ class ProductEquipamentController extends CrudController
                     // ->whereIn('fk_category_id', $categoryUser)
                     ->where('name', 'like', '%' . $request->input('name') . '%')
                     // ->orderBy('name', 'asc')
+                    ->orderBy('fk_category_id', 'asc')
                     ->paginate(10)
                     ->appends(['name' => $request->input('name')]);
 
