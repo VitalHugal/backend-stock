@@ -31,34 +31,45 @@ class Reservation extends Model
     {
         $query = self::with(['productEquipament.category', 'user', 'userFinished']);
 
-        // Aplica o filtro apenas se o parâmetro 'reservation_finished' estiver na requisição
-        if ($request->has('reservation_finished')) {
-
-            if ($request->input('reservation_finished') != '') {
-                $query->where('reservation_finished', $request->input('reservation_finished'));
+        // Filtro por 'reservation_finished'
+        if ($request->has('reservation_finished') && $request->input('reservation_finished') != '') {
+            if ($request->input('reservation_finished') == 'true') {
+                $query->where('reservation_finished', '1');
+            } elseif ($request->input('reservation_finished') == 'false') {
+                $query->where('reservation_finished', '0');
             }
         }
 
-        return $query->get()->map(function ($reservation) {
-            return [
-                'id' => $reservation->id,
-                'fk_user_id_create' => $reservation->fk_user_id,
-                'name_user_create' => $reservation->user->name ?? null,
-                'reason_project' => $reservation->reason_project,
-                'observation' => $reservation->observation,
-                'quantity' => $reservation->quantity,
-                'withdrawal_date' => $reservation->withdrawal_date,
-                'return_date' => $reservation->return_date,
-                'delivery_to' => $reservation->delivery_to,
-                'reservation_finished' => $reservation->reservation_finished,
-                'date_finished' => $reservation->date_finished,
-                'fk_user_id_finished' => $reservation->fk_user_id_finished,
-                'name_user_finished' => $reservation->userFinished->name ?? null,
-                'product_name' => $reservation->productEquipament->name ?? null,
-                'category_name' => $reservation->productEquipament->category->name ?? null,
-            ];
-        });
+        // Paginação
+        $resultSearch = $query->paginate(10);
+
+        // Mapeamento dos resultados mantendo a paginação
+        $resultSearch->setCollection(
+            $resultSearch->getCollection()->map(function ($reservation) {
+                return [
+                    'id' => $reservation->id,
+                    'fk_user_id_create' => $reservation->fk_user_id,
+                    'name_user_create' => $reservation->user->name ?? null,
+                    'reason_project' => $reservation->reason_project,
+                    'observation' => $reservation->observation,
+                    'quantity' => $reservation->quantity,
+                    'withdrawal_date' => $reservation->withdrawal_date,
+                    'return_date' => $reservation->return_date,
+                    'delivery_to' => $reservation->delivery_to,
+                    'reservation_finished' => $reservation->reservation_finished,
+                    'date_finished' => $reservation->date_finished,
+                    'fk_user_id_finished' => $reservation->fk_user_id_finished,
+                    'name_user_finished' => $reservation->userFinished->name ?? null,
+                    'product_name' => $reservation->productEquipament->name ?? null,
+                    'category_name' => $reservation->productEquipament->category->name ?? null,
+                ];
+            })
+        );
+
+        return $resultSearch;
     }
+
+
 
     public function rulesReservation()
     {

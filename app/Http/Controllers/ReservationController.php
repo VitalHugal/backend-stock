@@ -15,7 +15,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
-use function PHPUnit\Framework\isEmpty;
 
 class ReservationController extends CrudController
 {
@@ -46,10 +45,11 @@ class ReservationController extends CrudController
             }
 
             if (in_array(1, $categoryUser, true) || in_array(5, $categoryUser, true)) {
-
-                if ($request->has('reservation_finished')) {
-                    
+                
+                if ($request->has('reservation_finished') && $request->input('reservation_finished') != '') {
+                   
                     $reservationFilter = Reservation::filterReservations($request);
+                    
                     return response()->json([
                         'success' => true,
                         'message' => 'Reservas com filtro recuperadas com sucesso.',
@@ -101,9 +101,10 @@ class ReservationController extends CrudController
 
             if ($user->level == 'admin') {
 
-                if ($request->has('reservation_finished')) {
-                    $reservationFilter = Reservation::filterReservations($request);
+                if ($request->has('reservation_finished') && $request->input('reservation_finished') != '') {
 
+                    $reservationFilter = Reservation::filterReservations($request);
+                    
                     return response()->json([
                         'success' => true,
                         'message' => 'Reservas com filtro recuperadas com sucesso.',
