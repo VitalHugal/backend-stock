@@ -75,6 +75,7 @@ class SystemLogsController extends CrudController
             }
 
             $getAllLogs = SystemLog::with('user')
+                ->orderBy('id', 'desc')
                 ->paginate(10);
 
             $getAllLogs->getCollection()->transform(function ($logs) {
