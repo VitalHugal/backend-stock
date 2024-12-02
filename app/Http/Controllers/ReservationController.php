@@ -71,7 +71,7 @@ class ReservationController extends CrudController
                     $updated_at = 'updated_at';
                     $created_at = 'created_at';
 
-                    if ($reservation->return_date < now()) {
+                    if ($reservation->return_date < now()  && $reservation->reservation_finished == '0' || $reservation->reservation_finished == 0) {
                         $status = 'Delayed';
                         Reservation::where('id', $reservation->id)->update(['status' => $status]);
                     }
@@ -129,7 +129,7 @@ class ReservationController extends CrudController
                     $created_at_admin = 'created_at';
                     $updated_at_admin = 'updated_at';
 
-                    if ($reservation->return_date < now()) {
+                    if ($reservation->return_date < now()  && $reservation->reservation_finished == '0' || $reservation->reservation_finished == 0) {
                         $status = 'Delayed';
                         Reservation::where('id', $reservation->id)->update(['status' => $status]);
                     }
@@ -288,7 +288,7 @@ class ReservationController extends CrudController
             $created_at_admin = 'created_at';
             $updated_at_admin = 'updated_at';
 
-            if ($reservation->return_date < now()) {
+            if ($reservation->return_date < now()  && $reservation->reservation_finished == '0' || $reservation->reservation_finished == 0) {
                 $status = 'Delayed';
                 Reservation::where('id', $reservation->id)->update(['status' => $status]);
             }
