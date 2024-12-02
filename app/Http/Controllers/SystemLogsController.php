@@ -34,11 +34,55 @@ class SystemLogsController extends CrudController
                 ]);
             }
 
+            if ($request->has('date') && $request->input('date') != '') {
+
+                $search = $request->input('date');
+                $explodedSearch = explode("/", $search);
+                $searchFormatted = $explodedSearch[2] . '-' . $explodedSearch[1] . '-' . $explodedSearch[0];
+
+                $logsSearchDate = SystemLog::with('user')
+                    ->where('created_at', 'like', '%' . $searchFormatted . '%')
+                    ->paginate(10)
+                    ->appends(['created_at' => $searchFormatted]);
+
+                $logsSearchDate->getCollection()->transform(function ($logs) {
+
+                    $updated_at = 'updated_at';
+                    $created_at = 'created_at';
+
+                    return [
+                        'id' => $logs->id,
+                        'name-user' => $logs->user->name,
+                        'action' => $logs->action,
+                        'table_name' => $logs->table_name,
+                        'record_id' => $logs->record_id,
+                        'description' => $logs->description,
+                        'created_at' => $this->system_logs->getFormattedDate($logs, $created_at),
+                        'updated_at' => $this->system_logs->getFormattedDate($logs, $updated_at),
+                    ];
+                });
+
+
+                if ($logsSearchDate->isEmpty()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Nenhum produto encontrado com o nome informado.',
+                    ]);
+                }
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Logs recuperados com sucesso (pesquisa).',
+                    'data' => $logsSearchDate,
+                ]);
+            }
+
             if ($request->has('name') && $request->input('name') != '') {
 
                 $logsSearch = SystemLog::select('system_logs.*')
                     ->join('users', 'users.id', '=', 'system_logs.fk_user_id')
                     ->where('users.name', 'like', '%' . $request->input('name') . '%')
+                    // ->orderBy('id', 'desc')
                     ->paginate(10)
                     ->appends(['name' => $request->input('name')]);
 
