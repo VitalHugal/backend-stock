@@ -420,7 +420,7 @@ class ReservationController extends CrudController
                     'withdrawal_date' => now(),
                     'return_date' => $request->return_date,
                     'delivery_to' => $request->delivery_to,
-                    'status' => 'In progess',
+                    'status' => 'In progress',
                     'reservation_finished' => false,
                     'date_finished' => null,
                     'fk_user_id_finished' => null,
