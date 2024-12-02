@@ -45,11 +45,11 @@ class ReservationController extends CrudController
             }
 
             if (in_array(1, $categoryUser, true) || in_array(5, $categoryUser, true)) {
-                
+
                 if ($request->has('reservation_finished') && $request->input('reservation_finished') != '') {
-                   
+
                     $reservationFilter = Reservation::filterReservations($request);
-                    
+
                     return response()->json([
                         'success' => true,
                         'message' => 'Reservas com filtro recuperadas com sucesso.',
@@ -74,11 +74,14 @@ class ReservationController extends CrudController
                     if ($reservation->return_date < now() && (int)$reservation->reservation_finished === 0) {
                         $status = 'Delayed';
                         Reservation::where('id', $reservation->id)->update(['status' => $status]);
-                    }  
+                    }
 
-                    if ($reservation->return_date > now() && (int)$reservation->reservation_finished === 0) {
-                        $status = 'In progress';
-                        Reservation::where('id', $reservation->id)->update(['status' => $status]);
+                    if ($reservation->status === 'Delayed') {
+                        $result = $reservation->return_date < now();
+                        if (!$result) {
+                            $status = 'In progress';
+                            Reservation::where('id', $reservation->id)->update(['status' => $status]);
+                        }
                     }
 
                     return [
@@ -116,7 +119,7 @@ class ReservationController extends CrudController
                 if ($request->has('reservation_finished') && $request->input('reservation_finished') != '') {
 
                     $reservationFilter = Reservation::filterReservations($request);
-                    
+
                     return response()->json([
                         'success' => true,
                         'message' => 'Reservas com filtro recuperadas com sucesso.',
@@ -138,7 +141,7 @@ class ReservationController extends CrudController
                     if ($reservation->return_date < now() && (int)$reservation->reservation_finished === 0) {
                         $status = 'Delayed';
                         Reservation::where('id', $reservation->id)->update(['status' => $status]);
-                    }  
+                    }
 
                     return [
                         'id' => $reservation->id,
@@ -239,7 +242,7 @@ class ReservationController extends CrudController
                 if ($reservation->return_date < now() && (int)$reservation->reservation_finished === 0) {
                     $status = 'Delayed';
                     Reservation::where('id', $reservation->id)->update(['status' => $status]);
-                }  
+                }
 
                 $reservationData = [
                     'id' => $reservation->id,
@@ -299,7 +302,7 @@ class ReservationController extends CrudController
             if ($reservation->return_date < now() && (int)$reservation->reservation_finished === 0) {
                 $status = 'Delayed';
                 Reservation::where('id', $reservation->id)->update(['status' => $status]);
-            }            
+            }
 
             $reservationDataAdmin = [
                 'id' => $reservation->id,
