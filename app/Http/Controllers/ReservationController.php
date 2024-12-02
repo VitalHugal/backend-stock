@@ -76,7 +76,7 @@ class ReservationController extends CrudController
                         Reservation::where('id', $reservation->id)->update(['status' => $status]);
                     }
 
-                    if ($reservation->status === 'Delayed') {
+                    if ($reservation->status == 'Delayed') {
                         $result = $reservation->return_date < now();
                         if (!$result) {
                             $status = 'In progress';
