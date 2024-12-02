@@ -23,6 +23,7 @@ class LogoutController extends Controller
                 SystemLog::create([
                     'fk_user_id' => $idUser,
                     'action' => 'Saiu',
+                    'description' => 'Usuário saiu.',
                     'created_at' => now(),
                     'updated_at' => now(),
                 ]);

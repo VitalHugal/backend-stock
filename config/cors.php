@@ -23,6 +23,15 @@ return [
 
     'allowed_origins_patterns' => [],
 
+<<<<<<< HEAD
+=======
+    // 'Access-Control-Allow-Origin' => ['*'],
+
+    // 'Access-Control-Allow-Methods' => ['*'],
+
+    // 'Access-Control-Allow-Headers' => ['*'],
+
+>>>>>>> edfc35da3911ae5be7fcd724cae6d9cba138c34e
     'allowed_headers' => ['*'],
 
     'exposed_headers' => [],
