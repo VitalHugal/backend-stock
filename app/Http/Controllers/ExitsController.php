@@ -464,7 +464,7 @@ class ExitsController extends CrudController
                 $this->exits->feedbackExits()
             );
 
-            if ($quantityTotalProduct <= 0) {
+            if ($quantityTotalProduct <= 0 && $quantityNew > $quantityOld) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Produto indisponível.',
