@@ -71,6 +71,11 @@ class ReservationController extends CrudController
                     $updated_at = 'updated_at';
                     $created_at = 'created_at';
 
+                    if ($reservation->return_date < now()) {
+                        $status = 'Delayed';
+                        Reservation::where('id', $reservation->id)->update(['status' => $status]);
+                    }
+
                     return [
                         'id' => $reservation->id,
                         'fk_user_id_create' => $reservation->fk_user_id,
@@ -81,6 +86,7 @@ class ReservationController extends CrudController
                         'withdrawal_date' => $this->reservation->getFormattedDate($reservation, $withdrawal_date),
                         'return_date' => $this->reservation->getFormattedDate($reservation, $return_date),
                         'delivery_to' => $reservation->delivery_to,
+                        'status' => $reservation->status,
                         'reservation_finished' => $reservation->reservation_finished,
                         'date_finished' => $reservation->date_finished,
                         'fk_user_id_finished' => $reservation->fk_user_id_finished,
@@ -123,6 +129,11 @@ class ReservationController extends CrudController
                     $created_at_admin = 'created_at';
                     $updated_at_admin = 'updated_at';
 
+                    if ($reservation->return_date < now()) {
+                        $status = 'Delayed';
+                        Reservation::where('id', $reservation->id)->update(['status' => $status]);
+                    }
+
                     return [
                         'id' => $reservation->id,
                         'fk_user_id_create' => $reservation->fk_user_id,
@@ -133,6 +144,7 @@ class ReservationController extends CrudController
                         'withdrawal_date' => $this->reservation->getFormattedDate($reservation, $withdrawal_date_admin),
                         'return_date' => $this->reservation->getFormattedDate($reservation, $return_date_admin),
                         'delivery_to' => $reservation->delivery_to,
+                        'status' => $reservation->status,
                         'reservation_finished' => $reservation->reservation_finished,
                         'date_finished' => $reservation->date_finished,
                         'fk_user_id_finished' => $reservation->fk_user_id_finished,
@@ -217,6 +229,11 @@ class ReservationController extends CrudController
                 $updated_at = 'updated_at';
                 $created_at = 'created_at';
 
+                if ($reservation->return_date < now() && $reservation->reservation_finished == '0' || $reservation->reservation_finished == 0) {
+                    $status = 'Delayed';
+                    Reservation::where('id', $reservation->id)->update(['status' => $status]);
+                }
+
                 $reservationData = [
                     'id' => $reservation->id,
                     'fk_user_id_create' => $reservation->fk_user_id,
@@ -227,6 +244,7 @@ class ReservationController extends CrudController
                     'withdrawal_date' => $this->reservation->getFormattedDate($reservation, $withdrawal_date),
                     'return_date' => $this->reservation->getFormattedDate($reservation, $return_date),
                     'delivery_to' => $reservation->delivery_to,
+                    'status' => $reservation->status,
                     'reservation_finished' => $reservation->reservation_finished,
                     'date_finished' => $reservation->date_finished,
                     'fk_user_id_finished' => $reservation->fk_user_id_finished,
@@ -270,6 +288,11 @@ class ReservationController extends CrudController
             $created_at_admin = 'created_at';
             $updated_at_admin = 'updated_at';
 
+            if ($reservation->return_date < now()) {
+                $status = 'Delayed';
+                Reservation::where('id', $reservation->id)->update(['status' => $status]);
+            }
+
             $reservationDataAdmin = [
                 'id' => $reservation->id,
                 'fk_user_id_create' => $reservation->fk_user_id,
@@ -280,6 +303,7 @@ class ReservationController extends CrudController
                 'withdrawal_date' => $this->reservation->getFormattedDate($reservation, $withdrawal_date_admin),
                 'return_date' => $this->reservation->getFormattedDate($reservation, $return_date_admin),
                 'delivery_to' => $reservation->delivery_to,
+                'status' => $reservation->status,
                 'reservation_finished' => $reservation->reservation_finished,
                 'date_finished' => $reservation->date_finished,
                 'fk_user_id_finished' => $reservation->fk_user_id_finished,
@@ -396,6 +420,7 @@ class ReservationController extends CrudController
                     'withdrawal_date' => now(),
                     'return_date' => $request->return_date,
                     'delivery_to' => $request->delivery_to,
+                    'status' => 'In progess',
                     'reservation_finished' => false,
                     'date_finished' => null,
                     'fk_user_id_finished' => null,
@@ -737,6 +762,7 @@ class ReservationController extends CrudController
 
             $reservation->fk_user_id_finished = $idUserRequest;
             $reservation->date_finished = now();
+            $reservation->status = 'Finished';
 
             $reservation->save();
 

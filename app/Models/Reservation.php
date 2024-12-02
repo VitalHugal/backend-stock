@@ -21,6 +21,7 @@ class Reservation extends Model
         'delivery_to',
         'reservation_finished',
         'date_finished',
+        'status',
         'fk_user_id_finished',
     ];
     protected $table = 'reservations';
@@ -84,6 +85,7 @@ class Reservation extends Model
             'return_date' => 'required',
             'reservation_finished' => '',
             'date_finished' => '',
+            'status' => '',
             'fk_user_id_finished' => '',
         ];
     }
