@@ -341,7 +341,7 @@ class ReservationController extends CrudController
 
             (int)$productQuantityMin = $productEquipamentUser->quantity_min;
 
-            if ($productEquipamentUser == null) {
+            if ($productEquipamentUser === null) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Nenhum produto/equipamento encontrado.',
@@ -387,7 +387,7 @@ class ReservationController extends CrudController
             if ($validateData) {
                 $reservation = $this->reservation->create([
                     'fk_product_equipament_id' => $request->fk_product_equipament_id,
-                    'fk_user_id' => $request->fk_user_id,
+                    'fk_user_id' => $idUserRequest,
                     'reason_project' => $request->reason_project,
                     'observation' => $request->observation,
                     'quantity' => $request->quantity,

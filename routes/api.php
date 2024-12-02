@@ -31,7 +31,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/product-alert', [ProductAlertController::class, 'getAllProductAlert']);
 
     //RESERVATION
-    Route::post('/reservation/{id}', [ReservationController::class, 'reservation']);
+    Route::post('/reservation', [ReservationController::class, 'reservation']);
     Route::post('/finished-reservation/{id}', [ReservationController::class, 'pendingReservationCompleted']);
     Route::post('/update-reservation/{id}', [ReservationController::class, 'updateReservation']);
     Route::get('/get-all-reservation', [ReservationController::class, 'getAllReservation']);
