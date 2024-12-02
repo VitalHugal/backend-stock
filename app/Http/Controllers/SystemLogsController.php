@@ -42,31 +42,27 @@ class SystemLogsController extends CrudController
 
                 $logsSearchDate = SystemLog::with('user')
                     ->where('created_at', 'like', '%' . $searchFormatted . '%')
+                    // ->orderBy('id', 'desc')
                     ->paginate(10)
-                    ->appends(['created_at' => $searchFormatted]);
+                    ->appends(['date' => $search]);
 
                 $logsSearchDate->getCollection()->transform(function ($logs) {
-
-                    $updated_at = 'updated_at';
-                    $created_at = 'created_at';
-
                     return [
                         'id' => $logs->id,
-                        'name-user' => $logs->user->name,
+                        'name_user' => $logs->user->name,
                         'action' => $logs->action,
                         'table_name' => $logs->table_name,
                         'record_id' => $logs->record_id,
                         'description' => $logs->description,
-                        'created_at' => $this->system_logs->getFormattedDate($logs, $created_at),
-                        'updated_at' => $this->system_logs->getFormattedDate($logs, $updated_at),
+                        'created_at' => $this->system_logs->getFormattedDate($logs, 'created_at'),
+                        'updated_at' => $this->system_logs->getFormattedDate($logs, 'updated_at'),
                     ];
                 });
-
 
                 if ($logsSearchDate->isEmpty()) {
                     return response()->json([
                         'success' => false,
-                        'message' => 'Nenhum produto encontrado com o nome informado.',
+                        'message' => 'Nenhum produto encontrado com a data informada.',
                     ]);
                 }
 
@@ -76,6 +72,7 @@ class SystemLogsController extends CrudController
                     'data' => $logsSearchDate,
                 ]);
             }
+
 
             if ($request->has('name') && $request->input('name') != '') {
 
