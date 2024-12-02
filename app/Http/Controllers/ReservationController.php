@@ -92,6 +92,7 @@ class ReservationController extends CrudController
                         'fk_user_id_finished' => $reservation->fk_user_id_finished,
                         'name_user_finished' => $reservation->userFinished->name ?? null,
                         'product_name' => $reservation->productEquipament->name ?? null,
+                        'id_product' => $reservation->productEquipament->id ?? null,
                         'category_name' => $reservation->productEquipament->category->name ?? null,
                         'created_at' => $this->reservation->getFormattedDate($reservation, $created_at),
                         'updated_at' => $this->reservation->getFormattedDate($reservation, $updated_at),
@@ -150,6 +151,7 @@ class ReservationController extends CrudController
                         'fk_user_id_finished' => $reservation->fk_user_id_finished,
                         'name_user_finished' => $reservation->userFinished->name ?? null,
                         'product_name' => $reservation->productEquipament->name ?? null,
+                        'id_product' => $reservation->productEquipament->id ?? null,
                         'category_name' => $reservation->productEquipament->category->name ?? null,
                         'created_at' => $this->reservation->getFormattedDate($reservation, $created_at_admin),
                         'updated_at' => $this->reservation->getFormattedDate($reservation, $updated_at_admin),
@@ -250,6 +252,7 @@ class ReservationController extends CrudController
                     'fk_user_id_finished' => $reservation->fk_user_id_finished,
                     'name_user_finished' => $reservation->userFinished->name ?? null,
                     'product_name' => $reservation->productEquipament->name ?? null,
+                    'id_product' => $reservation->productEquipament->id ?? null,
                     'category_name' => $reservation->productEquipament->category->name ?? null,
                     'created_at' => $this->reservation->getFormattedDate($reservation, $created_at),
                     'updated_at' => $this->reservation->getFormattedDate($reservation, $updated_at),
@@ -288,7 +291,7 @@ class ReservationController extends CrudController
             $created_at_admin = 'created_at';
             $updated_at_admin = 'updated_at';
 
-            if ($reservation->return_date < now()  && $reservation->reservation_finished == '0' || $reservation->reservation_finished == 0) {
+            if ($reservation->return_date < now() && $reservation->reservation_finished == '0' || $reservation->reservation_finished == 0) {
                 $status = 'Delayed';
                 Reservation::where('id', $reservation->id)->update(['status' => $status]);
             }
@@ -309,6 +312,7 @@ class ReservationController extends CrudController
                 'fk_user_id_finished' => $reservation->fk_user_id_finished,
                 'name_user_finished' => $reservation->userFinished->name ?? null,
                 'product_name' => $reservation->productEquipament->name ?? null,
+                'id_product' => $reservation->productEquipament->id ?? null,
                 'category_name' => $reservation->productEquipament->category->name ?? null,
                 'created_at' => $this->reservation->getFormattedDate($reservation, $created_at_admin),
                 'updated_at' => $this->reservation->getFormattedDate($reservation, $updated_at_admin),
