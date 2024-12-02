@@ -21,7 +21,15 @@ return [
 
     'allowed_origins' => ['*'],
 
+    'Access-Control-Allow-Origin' => ['*'],
+
     'allowed_origins_patterns' => [],
+
+    // 'Access-Control-Allow-Origin' => ['*'],
+
+    // 'Access-Control-Allow-Methods' => ['*'],
+
+    // 'Access-Control-Allow-Headers' => ['*'],
 
     'allowed_headers' => ['*'],
 
