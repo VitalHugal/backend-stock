@@ -33,7 +33,10 @@ class Reservation extends Model
 
         // Aplica o filtro apenas se o parâmetro 'reservation_finished' estiver na requisição
         if ($request->has('reservation_finished')) {
-            $query->where('reservation_finished', $request->input('reservation_finished'));
+
+            if ($request->input('reservation_finished') != '') {
+                $query->where('reservation_finished', $request->input('reservation_finished'));
+            }
         }
 
         return $query->get()->map(function ($reservation) {
@@ -65,7 +68,7 @@ class Reservation extends Model
             'reason_project' => 'required|max:255',
             'observation' => 'required|max:255',
             'quantity' => 'required|integer',
-            'withdrawal_date' => 'required',
+            'withdrawal_date' => '',
             'delivery_to' => 'required',
             'return_date' => 'required',
             'reservation_finished' => '',

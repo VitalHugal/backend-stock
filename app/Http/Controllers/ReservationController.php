@@ -48,6 +48,7 @@ class ReservationController extends CrudController
             if (in_array(1, $categoryUser, true) || in_array(5, $categoryUser, true)) {
 
                 if ($request->has('reservation_finished')) {
+                    
                     $reservationFilter = Reservation::filterReservations($request);
                     return response()->json([
                         'success' => true,
@@ -391,7 +392,7 @@ class ReservationController extends CrudController
                     'reason_project' => $request->reason_project,
                     'observation' => $request->observation,
                     'quantity' => $request->quantity,
-                    'withdrawal_date' => $request->withdrawal_date,
+                    'withdrawal_date' => now(),
                     'return_date' => $request->return_date,
                     'delivery_to' => $request->delivery_to,
                     'reservation_finished' => false,
