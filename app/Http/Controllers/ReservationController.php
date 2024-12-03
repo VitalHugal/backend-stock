@@ -773,10 +773,10 @@ class ReservationController extends CrudController
                 )
             );
 
-            if ($request->reservation_finished === '0' || $request->reservation_finished === 0) {
+            if ($request->reservation_finished != '1' || $request->reservation_finished != 1) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Válido apenas 1 para conseguir finalizar.',
+                    'message' => 'Não foi possivel finalizar, valido apenas 1 para conseguir finalizar.',
                 ]);
             }
 
