@@ -65,7 +65,7 @@ class ProductAlertController extends CrudController
 
                     $created_at = 'created_at';
                     $updated_at = 'updated_at';
-
+                    
                     return [
                         'id' => $product->id,
                         'name' => $product->name,

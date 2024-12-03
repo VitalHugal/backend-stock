@@ -625,34 +625,43 @@ class ReservationController extends CrudController
                 ]);
             }
 
-            // dd(Carbon::now());
+            $reserveAll = Reservation::all();
+
+            foreach ($reserveAll as $reservation) {
+                if ($reservation->return_date < now() && (int)$reservation->reservation_finished === 0) {
+                    $status = 'Delayed'; 
+
+                    $reservation->update(['status' => $status]);
+                }
+            }
 
             $reservations = Reservation::with('productEquipament', 'category')
                 ->where('return_date', '<', Carbon::now())
                 ->where('reservation_finished', false)
                 ->whereNull('date_finished')
                 ->whereNull('fk_user_id_finished')
-                ->get();
+                ->paginate(10);
 
-            $reservesData = $reservations->map(function ($reserve) {
+
+            $reservations->getCollection()->transform(function ($reserve) {
+
+                $return_date = "return_date";
+
                 return [
                     'id' => $reserve->id,
                     'delivery_to' => $reserve->delivery_to,
-                    'return_date' => $reserve->return_date,
+                    'return_date' => $this->reservation->getFormattedDate($reserve, $return_date),
                     'category' => $reserve->productEquipament->category->name,
-                    'product' => $reserve->productEquipament->name,
+                    'product_name' => $reserve->productEquipament->name,
                     'quantity' => $reserve->quantity,
                 ];
             });
 
-            if ($reservesData) {
-
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Reservas em atraso recuperadas com sucesso.',
-                    'data' => $reservesData,
-                ]);
-            }
+            return response()->json([
+                'success' => true,
+                'message' => 'Reservas em atraso recuperadas com sucesso.',
+                'data' => $reservations,
+            ]);
         } catch (QueryException $qe) {
             return response()->json([
                 'success' => false,
