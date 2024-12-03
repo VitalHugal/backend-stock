@@ -11,6 +11,7 @@ use Exception;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use PHPUnit\TextUI\XmlConfiguration\RemoveListeners;
 
 class ProductAlertController extends CrudController
 {
@@ -45,6 +46,7 @@ class ProductAlertController extends CrudController
 
                 $productAlertUser = ProductEquipament::with('category', 'inputs')
                     ->whereIn('fk_category_id', $categoryUser)
+                    ->orderBy('fk_category_id', 'asc')
                     ->paginate(10);
 
                 $productAlertUser->getCollection()->transform(function ($product) {
@@ -61,21 +63,18 @@ class ProductAlertController extends CrudController
 
                     $quantityTotalProduct = $quantityTotalInputs - ($quantityTotalExits + $quantityReserveNotFinished);
 
-                    if ($quantityTotalProduct <= $product->quantity_min) {
+                    $created_at = 'created_at';
+                    $updated_at = 'updated_at';
 
-                        $created_at = 'created_at';
-                        $updated_at = 'updated_at';
-
-                        return [
-                            'id' => $product->id,
-                            'name' => $product->name,
-                            'quantity_stock' => $quantityTotalProduct,
-                            'quantity_min' => $product->quantity_min,
-                            'name-category' => $product->category->name ?? null,
-                            'created_at' => $this->product_alert->getFormattedDate($product, $created_at),
-                            'updated_at' => $this->product_alert->getFormattedDate($product, $updated_at),
-                        ];
-                    }
+                    return [
+                        'id' => $product->id,
+                        'name' => $product->name,
+                        'quantity_stock' => $quantityTotalProduct,
+                        'quantity_min' => $product->quantity_min,
+                        'name-category' => $product->category->name ?? null,
+                        'created_at' => $this->product_alert->getFormattedDate($product, $created_at),
+                        'updated_at' => $this->product_alert->getFormattedDate($product, $updated_at),
+                    ];
                 });
 
                 return response()->json([
@@ -86,8 +85,9 @@ class ProductAlertController extends CrudController
             }
 
             if ($user->level == 'admin') {
-                
+
                 $productAllAdmin = ProductEquipament::with(['category'])
+                    ->orderBy('fk_category_id', 'asc')
                     ->paginate(10);
 
                 $productAllAdmin->getCollection()->transform(function ($product) {
@@ -104,21 +104,18 @@ class ProductAlertController extends CrudController
 
                     $quantityTotalProduct = $quantityTotalInputs - ($quantityTotalExits + $quantityReserveNotFinished);
 
-                    if ($quantityTotalProduct <= $product->quantity_min) {
+                    $created_at = 'created_at';
+                    $updated_at = 'updated_at';
 
-                        $created_at = 'created_at';
-                        $updated_at = 'updated_at';
-
-                        return [
-                            'id' => $product->id,
-                            'name' => $product->name,
-                            'quantity_stock' => $quantityTotalProduct,
-                            'quantity_min' => $product->quantity_min,
-                            'name-category' => $product->category->name ?? null,
-                            'created_at' => $this->product_alert->getFormattedDate($product, $created_at),
-                            'updated_at' => $this->product_alert->getFormattedDate($product, $updated_at),
-                        ];
-                    }
+                    return [
+                        'id' => $product->id,
+                        'name' => $product->name,
+                        'quantity_stock' => $quantityTotalProduct,
+                        'quantity_min' => $product->quantity_min,
+                        'name-category' => $product->category->name ?? null,
+                        'created_at' => $this->product_alert->getFormattedDate($product, $created_at),
+                        'updated_at' => $this->product_alert->getFormattedDate($product, $updated_at),
+                    ];
                 });
 
                 return response()->json([
