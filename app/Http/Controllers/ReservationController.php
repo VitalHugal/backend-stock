@@ -525,7 +525,7 @@ class ReservationController extends CrudController
                 $this->reservation->feedbackReservation()
             );
 
-            if ($quantityTotalProduct <= 0) {
+            if ($quantityTotalProduct <= 0 && $quantityNew > $quantityOld) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Produto indisponível.',
