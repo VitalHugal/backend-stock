@@ -85,45 +85,48 @@ class ProductAlertController extends CrudController
                 ]);
             }
 
-            $productAllAdmin = ProductEquipament::with(['category'])
-                ->paginate(10);
+            if ($user->level == 'admin') {
+                
+                $productAllAdmin = ProductEquipament::with(['category'])
+                    ->paginate(10);
 
-            $productAllAdmin->getCollection()->transform(function ($product) {
-                $productEquipamentId = $product->id;
+                $productAllAdmin->getCollection()->transform(function ($product) {
+                    $productEquipamentId = $product->id;
 
-                // Calcula as quantidades totais
-                $quantityTotalInputs = Inputs::where('fk_product_equipament_id', $productEquipamentId)->sum('quantity');
-                $quantityTotalExits = Exits::where('fk_product_equipament_id', $productEquipamentId)->sum('quantity');
-                $quantityReserveNotFinished = Reservation::where('fk_product_equipament_id', $productEquipamentId)
-                    ->where('reservation_finished', false)
-                    ->whereNull('date_finished')
-                    ->whereNull('fk_user_id_finished')
-                    ->sum('quantity');
+                    // Calcula as quantidades totais
+                    $quantityTotalInputs = Inputs::where('fk_product_equipament_id', $productEquipamentId)->sum('quantity');
+                    $quantityTotalExits = Exits::where('fk_product_equipament_id', $productEquipamentId)->sum('quantity');
+                    $quantityReserveNotFinished = Reservation::where('fk_product_equipament_id', $productEquipamentId)
+                        ->where('reservation_finished', false)
+                        ->whereNull('date_finished')
+                        ->whereNull('fk_user_id_finished')
+                        ->sum('quantity');
 
-                $quantityTotalProduct = $quantityTotalInputs - ($quantityTotalExits + $quantityReserveNotFinished);
+                    $quantityTotalProduct = $quantityTotalInputs - ($quantityTotalExits + $quantityReserveNotFinished);
 
-                if ($quantityTotalProduct <= $product->quantity_min) {
+                    if ($quantityTotalProduct <= $product->quantity_min) {
 
-                    $created_at = 'created_at';
-                    $updated_at = 'updated_at';
+                        $created_at = 'created_at';
+                        $updated_at = 'updated_at';
 
-                    return [
-                        'id' => $product->id,
-                        'name' => $product->name,
-                        'quantity_stock' => $quantityTotalProduct,
-                        'quantity_min' => $product->quantity_min,
-                        'name-category' => $product->category->name ?? null,
-                        'created_at' => $this->product_alert->getFormattedDate($product, $created_at),
-                        'updated_at' => $this->product_alert->getFormattedDate($product, $updated_at),
-                    ];
-                }
-            });
+                        return [
+                            'id' => $product->id,
+                            'name' => $product->name,
+                            'quantity_stock' => $quantityTotalProduct,
+                            'quantity_min' => $product->quantity_min,
+                            'name-category' => $product->category->name ?? null,
+                            'created_at' => $this->product_alert->getFormattedDate($product, $created_at),
+                            'updated_at' => $this->product_alert->getFormattedDate($product, $updated_at),
+                        ];
+                    }
+                });
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Produto(s)/Equipamento(s) em alerta recuperado com sucesso.',
-                'data' => $productAllAdmin,
-            ]);
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Produto(s)/Equipamento(s) em alerta recuperado com sucesso.',
+                    'data' => $productAllAdmin,
+                ]);
+            }
         } catch (QueryException $qe) {
             return response()->json([
                 'success' => false,
