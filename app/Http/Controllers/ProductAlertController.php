@@ -45,47 +45,38 @@ class ProductAlertController extends CrudController
 
                 $productAlertUser = ProductEquipament::with('category', 'inputs')
                     ->whereIn('fk_category_id', $categoryUser)
-                    ->get()
-                    ->filter(function ($product) {
-                        $productEquipamentId = $product->id;
+                    ->paginate(10);
 
-                        $quantityTotalInputs = Inputs::where('fk_product_equipament_id', $productEquipamentId)->sum('quantity');
-                        $quantityTotalExits = Exits::where('fk_product_equipament_id', $productEquipamentId)->sum('quantity');
+                $productAlertUser->getCollection()->transform(function ($product) {
 
-                        $quantityReserveNotFinished = Reservation::where('fk_product_equipament_id', $productEquipamentId)
-                            ->where('reservation_finished', false)
-                            ->whereNull('date_finished')
-                            ->whereNull('fk_user_id_finished')
-                            ->sum('quantity');
+                    $productEquipamentId = $product->id;
 
-                        $quantityTotalProduct = $quantityTotalInputs - ($quantityTotalExits + $quantityReserveNotFinished);
+                    $quantityTotalInputs = Inputs::where('fk_product_equipament_id', $productEquipamentId)->sum('quantity');
+                    $quantityTotalExits = Exits::where('fk_product_equipament_id', $productEquipamentId)->sum('quantity');
+                    $quantityReserveNotFinished = Reservation::where('fk_product_equipament_id', $productEquipamentId)
+                        ->where('reservation_finished', false)
+                        ->whereNull('date_finished')
+                        ->whereNull('fk_user_id_finished')
+                        ->sum('quantity');
 
-                        return $quantityTotalProduct <= $product->quantity_min;
-                    })
-                    ->map(function ($product) {
-                        $productEquipamentId = $product->id;
+                    $quantityTotalProduct = $quantityTotalInputs - ($quantityTotalExits + $quantityReserveNotFinished);
 
-                        $quantityTotalInputs = Inputs::where('fk_product_equipament_id', $productEquipamentId)->sum('quantity');
-                        $quantityTotalExits = Exits::where('fk_product_equipament_id', $productEquipamentId)->sum('quantity');
-                        $quantityReserveNotFinished = Reservation::where('fk_product_equipament_id', $productEquipamentId)
-                            ->where('reservation_finished', false)
-                            ->whereNull('date_finished')
-                            ->whereNull('fk_user_id_finished')
-                            ->sum('quantity');
+                    if ($quantityTotalProduct <= $product->quantity_min) {
 
-                        $quantityTotalProduct = $quantityTotalInputs - ($quantityTotalExits + $quantityReserveNotFinished);
+                        $created_at = 'created_at';
+                        $updated_at = 'updated_at';
 
                         return [
                             'id' => $product->id,
                             'name' => $product->name,
                             'quantity_stock' => $quantityTotalProduct,
                             'quantity_min' => $product->quantity_min,
-                            'name-category' => $product->category ? $product->category->name : null,
-                            'created_at' => $product->created_at,
-                            'updated_at' => $product->updated_at,
-                            'deleted_at' => $product->deleted_at,
+                            'name-category' => $product->category->name ?? null,
+                            'created_at' => $this->product_alert->getFormattedDate($product, $created_at),
+                            'updated_at' => $this->product_alert->getFormattedDate($product, $updated_at),
                         ];
-                    })->values();
+                    }
+                });
 
                 return response()->json([
                     'success' => true,
@@ -94,51 +85,44 @@ class ProductAlertController extends CrudController
                 ]);
             }
 
-            $productAlertAll = ProductEquipament::with('category', 'inputs')->get()
-                ->filter(function ($product) {
-                    $productEquipamentId = $product->id;
+            $productAllAdmin = ProductEquipament::with(['category'])
+                ->paginate(10);
 
-                    $quantityTotalInputs = Inputs::where('fk_product_equipament_id', $productEquipamentId)->sum('quantity');
-                    $quantityTotalExits = Exits::where('fk_product_equipament_id', $productEquipamentId)->sum('quantity');
-                    $quantityReserveNotFinished = Reservation::where('fk_product_equipament_id', $productEquipamentId)
-                        ->where('reservation_finished', false)
-                        ->whereNull('date_finished')
-                        ->whereNull('fk_user_id_finished')
-                        ->sum('quantity');
+            $productAllAdmin->getCollection()->transform(function ($product) {
+                $productEquipamentId = $product->id;
 
-                    $quantityTotalProduct = $quantityTotalInputs - ($quantityTotalExits + $quantityReserveNotFinished);
+                // Calcula as quantidades totais
+                $quantityTotalInputs = Inputs::where('fk_product_equipament_id', $productEquipamentId)->sum('quantity');
+                $quantityTotalExits = Exits::where('fk_product_equipament_id', $productEquipamentId)->sum('quantity');
+                $quantityReserveNotFinished = Reservation::where('fk_product_equipament_id', $productEquipamentId)
+                    ->where('reservation_finished', false)
+                    ->whereNull('date_finished')
+                    ->whereNull('fk_user_id_finished')
+                    ->sum('quantity');
 
-                    return $quantityTotalProduct <= $product->quantity_min;
-                })
-                ->map(function ($product) {
-                    $productEquipamentId = $product->id;
+                $quantityTotalProduct = $quantityTotalInputs - ($quantityTotalExits + $quantityReserveNotFinished);
 
-                    $quantityTotalInputs = Inputs::where('fk_product_equipament_id', $productEquipamentId)->sum('quantity');
-                    $quantityTotalExits = Exits::where('fk_product_equipament_id', $productEquipamentId)->sum('quantity');
-                    $quantityReserveNotFinished = Reservation::where('fk_product_equipament_id', $productEquipamentId)
-                        ->where('reservation_finished', false)
-                        ->whereNull('date_finished')
-                        ->whereNull('fk_user_id_finished')
-                        ->sum('quantity');
-                        
-                    $quantityTotalProduct = $quantityTotalInputs - ($quantityTotalExits + $quantityReserveNotFinished);
+                if ($quantityTotalProduct <= $product->quantity_min) {
+
+                    $created_at = 'created_at';
+                    $updated_at = 'updated_at';
 
                     return [
                         'id' => $product->id,
                         'name' => $product->name,
                         'quantity_stock' => $quantityTotalProduct,
                         'quantity_min' => $product->quantity_min,
-                        'name-category' => $product->category ? $product->category->name : null,
-                        'created_at' => $product->created_at,
-                        'updated_at' => $product->updated_at,
-                        'deleted_at' => $product->deleted_at,
+                        'name-category' => $product->category->name ?? null,
+                        'created_at' => $this->product_alert->getFormattedDate($product, $created_at),
+                        'updated_at' => $this->product_alert->getFormattedDate($product, $updated_at),
                     ];
-                })->values();
+                }
+            });
 
             return response()->json([
                 'success' => true,
                 'message' => 'Produto(s)/Equipamento(s) em alerta recuperado com sucesso.',
-                'data' => $productAlertAll,
+                'data' => $productAllAdmin,
             ]);
         } catch (QueryException $qe) {
             return response()->json([
