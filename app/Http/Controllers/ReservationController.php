@@ -629,7 +629,7 @@ class ReservationController extends CrudController
 
             foreach ($reserveAll as $reservation) {
                 if ($reservation->return_date < now() && (int)$reservation->reservation_finished === 0) {
-                    $status = 'Delayed'; 
+                    $status = 'Delayed';
 
                     $reservation->update(['status' => $status]);
                 }
@@ -772,6 +772,13 @@ class ReservationController extends CrudController
                     $this->reservation->feedbackFinishedReservation()
                 )
             );
+
+            if ($request->reservation_finished === '0' || $request->reservation_finished === 0) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Válido apenas 1 para conseguir finalizar.',
+                ]);
+            }
 
             $reservation->fk_user_id_finished = $idUserRequest;
             $reservation->date_finished = now();
