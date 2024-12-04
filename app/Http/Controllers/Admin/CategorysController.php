@@ -44,9 +44,9 @@ class CategorysController extends CrudController
 
                 $categoryAccessUser = Category::whereIn('id', $categoryUser)
                     ->orderBy('id', 'asc')
-                    ->paginate(10);
+                    ->get();
 
-                $categoryAccessUser->getCollection()->transform(function ($category) {
+                $categoryAccessUser->transform(function ($category) {
 
                     $created_at = 'created_at';
                     $updated_at = 'updated_at';
