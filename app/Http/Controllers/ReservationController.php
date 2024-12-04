@@ -187,15 +187,6 @@ class ReservationController extends CrudController
                 ->pluck('fk_category_id')
                 ->toArray();
 
-
-            // if ($user->level !== 'admin' && !in_array(1, $categoryUser) && !in_array(5, $categoryUser)) {
-            //     return response()->json([
-            //         'success' => false,
-            //         'message' => 'Você não tem permissão de acesso para seguir adiante.',
-            //     ]);
-            // }
-
-            // if ($user->level == 'user') {
             if ($user->level == 'user') {
 
                 if ($user->reservation_enabled === 0) {

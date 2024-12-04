@@ -10,8 +10,11 @@ use App\Models\Reservation;
 use Exception;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 use PHPUnit\TextUI\XmlConfiguration\RemoveListeners;
+
+use function PHPUnit\Framework\isNull;
 
 class ProductAlertController extends CrudController
 {
@@ -44,12 +47,12 @@ class ProductAlertController extends CrudController
 
             if ($user->level == 'user') {
 
-                $productAlertUser = ProductEquipament::with('category', 'inputs')
+                $productAlertUser = ProductEquipament::with(['category', 'inputs'])
                     ->whereIn('fk_category_id', $categoryUser)
                     ->orderBy('fk_category_id', 'asc')
                     ->paginate(10);
 
-                $productAlertUser->getCollection()->transform(function ($product) {
+                $filteredCollection = $productAlertUser->getCollection()->transform(function ($product) {
 
                     $productEquipamentId = $product->id;
 
@@ -63,24 +66,33 @@ class ProductAlertController extends CrudController
 
                     $quantityTotalProduct = $quantityTotalInputs - ($quantityTotalExits + $quantityReserveNotFinished);
 
-                    $created_at = 'created_at';
-                    $updated_at = 'updated_at';
-                    
-                    return [
-                        'id' => $product->id,
-                        'name' => $product->name,
-                        'quantity_stock' => $quantityTotalProduct,
-                        'quantity_min' => $product->quantity_min,
-                        'name-category' => $product->category->name ?? null,
-                        'created_at' => $this->product_alert->getFormattedDate($product, $created_at),
-                        'updated_at' => $this->product_alert->getFormattedDate($product, $updated_at),
-                    ];
-                });
+                    if ($quantityTotalProduct <= $product->quantity_min) {
+                        return [
+                            'id' => $product->id,
+                            'name' => $product->name,
+                            'quantity_stock' => $quantityTotalProduct,
+                            'quantity_min' => $product->quantity_min,
+                            'name-category' => $product->category->name ?? null,
+                            'created_at' => $this->product_alert->getFormattedDate($product, 'created_at'),
+                            'updated_at' => $this->product_alert->getFormattedDate($product, 'updated_at'),
+                        ];
+                    }
+                    return null;
+                })->filter()->values();
+
+                // Recria a paginação
+                $paginated = new LengthAwarePaginator(
+                    $filteredCollection, // Coleção filtrada
+                    $productAlertUser->total(), // Total de itens antes do filtro (para manter a paginação correta)
+                    $productAlertUser->perPage(), // Itens por página
+                    $productAlertUser->currentPage(), // Página atual
+                    ['path' => request()->url(), 'query' => request()->query()] // Mantém a URL e query string
+                );
 
                 return response()->json([
                     'success' => true,
                     'message' => 'Produto(s)/Equipamento(s) em alerta recuperado com sucesso.',
-                    'data' => $productAlertUser,
+                    'data' => $paginated,
                 ]);
             }
 
@@ -90,7 +102,7 @@ class ProductAlertController extends CrudController
                     ->orderBy('fk_category_id', 'asc')
                     ->paginate(10);
 
-                $productAllAdmin->getCollection()->transform(function ($product) {
+                $filteredCollectionAdmin = $productAllAdmin->getCollection()->transform(function ($product) {
                     $productEquipamentId = $product->id;
 
                     // Calcula as quantidades totais
@@ -104,24 +116,33 @@ class ProductAlertController extends CrudController
 
                     $quantityTotalProduct = $quantityTotalInputs - ($quantityTotalExits + $quantityReserveNotFinished);
 
-                    $created_at = 'created_at';
-                    $updated_at = 'updated_at';
+                    if ($quantityTotalProduct <= $product->quantity_min) {
+                        return [
+                            'id' => $product->id,
+                            'name' => $product->name,
+                            'quantity_stock' => $quantityTotalProduct,
+                            'quantity_min' => $product->quantity_min,
+                            'name-category' => $product->category->name ?? null,
+                            'created_at' => $this->product_alert->getFormattedDate($product, 'created_at'),
+                            'updated_at' => $this->product_alert->getFormattedDate($product, 'updated_at'),
+                        ];
+                    }
+                    return null;
+                })->filter()->values();
 
-                    return [
-                        'id' => $product->id,
-                        'name' => $product->name,
-                        'quantity_stock' => $quantityTotalProduct,
-                        'quantity_min' => $product->quantity_min,
-                        'name-category' => $product->category->name ?? null,
-                        'created_at' => $this->product_alert->getFormattedDate($product, $created_at),
-                        'updated_at' => $this->product_alert->getFormattedDate($product, $updated_at),
-                    ];
-                });
+                // Recria a paginação
+                $paginatedAdmin = new LengthAwarePaginator(
+                    $filteredCollectionAdmin, // Coleção filtrada
+                    $productAllAdmin->total(), // Total de itens antes do filtro (para manter a paginação correta)
+                    $productAllAdmin->perPage(), // Itens por página
+                    $productAllAdmin->currentPage(), // Página atual
+                    ['path' => request()->url(), 'query' => request()->query()] // Mantém a URL e query string
+                );
 
                 return response()->json([
                     'success' => true,
                     'message' => 'Produto(s)/Equipamento(s) em alerta recuperado com sucesso.',
-                    'data' => $productAllAdmin,
+                    'data' => $paginatedAdmin,
                 ]);
             }
         } catch (QueryException $qe) {
