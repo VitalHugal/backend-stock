@@ -62,7 +62,7 @@ class CategorysController extends CrudController
 
                 return response()->json([
                     'success' => true,
-                    'message' => 'Todas as reservas recuperadas com sucesso.',
+                    'message' => 'Categorias de usuário recuperadas com sucesso.',
                     'data' => $categoryAccessUser,
                 ]);
 
