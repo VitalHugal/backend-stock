@@ -12,9 +12,6 @@ use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
-use PHPUnit\TextUI\XmlConfiguration\RemoveListeners;
-
-use function PHPUnit\Framework\isNull;
 
 class ProductAlertController extends CrudController
 {
