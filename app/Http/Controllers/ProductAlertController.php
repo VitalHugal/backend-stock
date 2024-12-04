@@ -38,16 +38,10 @@ class ProductAlertController extends CrudController
                 ->pluck('fk_category_id')
                 ->toArray();
 
-            if ($user->level !== 'admin' && empty($categoryUser)) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Você não tem permissão de acesso para seguir adiante.',
-                ]);
-            }
 
             if ($user->level == 'user') {
 
-                $productAlertUser = ProductEquipament::with(['category', 'inputs'])
+                $productAlertUser = ProductEquipament::with(['category'])
                     ->whereIn('fk_category_id', $categoryUser)
                     ->orderBy('fk_category_id', 'asc')
                     ->paginate(10);
