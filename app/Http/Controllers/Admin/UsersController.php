@@ -539,7 +539,7 @@ class UsersController extends CrudController
                 'action' => 'Atualizou',
                 'table_name' => 'users',
                 'record_id' => $id,
-                'description' => 'Atualizou usuário permitindo acesso á reservas. Dados alterados: ' . $logDescription,
+                'description' => 'Atualizou usuário, permitindo acesso a reservas. Dados alterados: ' . $logDescription,
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
