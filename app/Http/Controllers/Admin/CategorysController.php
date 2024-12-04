@@ -10,6 +10,8 @@ use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
+use function PHPUnit\Framework\isEmpty;
+
 class CategorysController extends CrudController
 {
     protected $category;
@@ -27,20 +29,60 @@ class CategorysController extends CrudController
             $level = $user->level;
 
             if ($level == 'user') {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Você não tem permissão de acesso para seguir adiante.',
-                ]);
-            }
 
-            $getAllCategorys = Category::all();
+                $categoryUser = DB::table('category_user')
+                    ->where('fk_user_id', $user->id)
+                    ->pluck('fk_category_id')
+                    ->toArray();
 
-            if ($getAllCategorys) {
+                if ($categoryUser == null) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Você não tem permissão de acesso para seguir adiante.',
+                    ]);
+                }
+
+                $categoryAccessUser = Category::whereIn('id', $categoryUser)
+                    ->orderBy('id', 'asc')
+                    ->paginate(10);
+
+                $categoryAccessUser->getCollection()->transform(function ($category) {
+
+                    $created_at = 'created_at';
+                    $updated_at = 'updated_at';
+
+                    return [
+                        'id' => $category->id,
+                        'name' => $category->name,
+                        'description' => $category->description,
+                        'created_at' => $this->category->getFormattedDate($category, $created_at),
+                        'updated_at' => $this->category->getFormattedDate($category, $updated_at),
+                    ];
+                });
+
                 return response()->json([
                     'success' => true,
-                    'message' => 'Categorias recuperadas com sucesso.',
-                    'data' => $getAllCategorys,
+                    'message' => 'Todas as reservas recuperadas com sucesso.',
+                    'data' => $categoryAccessUser,
                 ]);
+
+                // return response()->json([
+                //     'success' => false,
+                //     'message' => 'Você não tem permissão de acesso para seguir adiante.',
+                // ]);
+            }
+
+            if ($user->level == 'admin') {
+
+                $getAllCategorys = Category::all();
+
+                if ($getAllCategorys) {
+                    return response()->json([
+                        'success' => true,
+                        'message' => 'Categorias recuperadas com sucesso.',
+                        'data' => $getAllCategorys,
+                    ]);
+                }
             }
         } catch (QueryException $qe) {
             return response()->json([

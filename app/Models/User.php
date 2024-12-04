@@ -28,6 +28,7 @@ class User extends Authenticatable
         'email',
         'password',
         'level',
+        'reservation_enabled',
         // 'responsible_category'
     ];
     protected $table = 'users';
@@ -162,6 +163,21 @@ class User extends Authenticatable
         return [
             'password.required' => 'Campo obrigatório.',
             'password.min' => 'A senha deve ter no minímo 8 caracteres',
+        ];
+    }
+    ///////////////////////////////////////////////////////////////////////////////
+
+    public function rulesReservationEnable()
+    {
+        return [
+            'reservation_enabled' => 'required|boolean',
+        ];
+    }
+    public function feedbackReservationEnable()
+    {
+        return [
+            'required' => 'Campo obrigatório.',
+            'boolean' => 'Válido apenas 0 ou 1 nesse campo.',
         ];
     }
 

@@ -74,6 +74,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/register-user', [UsersController::class, 'store']);
     Route::post('/update-user/{id}', [UsersController::class, 'update']);
     Route::post('/update-level/{id}', [UsersController::class, 'updateLevel']);
+    Route::post('/update-access/{id}', [UsersController::class, 'updateReservationEnable']);
     Route::post('/assign-category-user/{id}', [UsersController::class, 'assignCategoryUser']);
     Route::post('/reset-password/{id}', [UsersController::class, 'updatePasswordAdmin']);
     Route::get('/get-all-user', [UsersController::class, 'getAll']);

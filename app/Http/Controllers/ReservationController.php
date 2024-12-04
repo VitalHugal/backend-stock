@@ -37,14 +37,24 @@ class ReservationController extends CrudController
                 ->pluck('fk_category_id')
                 ->toArray();
 
-            if ($user->level !== 'admin' && !in_array(1, $categoryUser) && !in_array(5, $categoryUser)) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Você não tem permissão de acesso para seguir adiante.',
-                ]);
-            }
+            if ($user->level == 'user') {
 
-            if (in_array(1, $categoryUser, true) || in_array(5, $categoryUser, true)) {
+                if ($user->reservation_enabled === 0) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Você não tem permissão de acesso para seguir adiante (teste).',
+                    ]);
+                }
+
+
+                // if ($user->level !== 'admin' && !in_array(1, $categoryUser) && !in_array(5, $categoryUser)) {
+                //     return response()->json([
+                //         'success' => false,
+                //         'message' => 'Você não tem permissão de acesso para seguir adiante.',
+                //     ]);
+                // }
+
+                // if (in_array(1, $categoryUser, true) || in_array(5, $categoryUser, true)) {
 
                 if ($request->has('reservation_finished') && $request->input('reservation_finished') != '') {
 
@@ -56,7 +66,6 @@ class ReservationController extends CrudController
                         'data' => $reservationFilter,
                     ]);
                 }
-
                 $reservations = Reservation::with(['productEquipament.category', 'user', 'userFinished'])
                     ->whereHas('productEquipament', function ($query) use ($categoryUser) {
                         $query->whereIn('fk_category_id', $categoryUser);
@@ -104,6 +113,7 @@ class ReservationController extends CrudController
                     'message' => 'Todas as reservas recuperadas com sucesso.',
                     'data' => $reservations,
                 ]);
+                // }
             }
 
             if ($user->level == 'admin') {

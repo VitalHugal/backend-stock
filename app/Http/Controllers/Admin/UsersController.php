@@ -486,6 +486,86 @@ class UsersController extends CrudController
         }
     }
 
+    public function updateReservationEnable(Request $request, $id)
+    {
+        DB::beginTransaction();
+        
+        try {
+
+            $user = $request->user();
+            $level = $user->level;
+            $idUser = $user->id;
+
+            if ($level == 'user') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Você não tem permissão de acesso para seguir adiante.',
+                ]);
+            }
+
+            $userUpdate = User::where('id', $id)->first();
+
+            if (!$userUpdate) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Nenhum resultado encontrado.',
+                ]);
+            }
+
+            $originalData = $userUpdate->getOriginal();
+
+            $validatedData = $request->validate(
+                $this->user->rulesReservationEnable(),
+                $this->user->feedbackReservationEnable()
+            );
+
+            $userUpdate->fill($validatedData);
+            $userUpdate->save();
+
+            $changes = $userUpdate->getChanges(); // Retorna apenas os campos que foram alterados
+            $logDescription = '';
+
+            foreach ($changes as $key => $newValue) {
+                $oldValue = $originalData[$key] ?? 'N/A'; // Valor antigo
+                $logDescription .= "{$key}: {$oldValue} -> {$newValue} .";
+            }
+
+            if ($logDescription == null) {
+                $logDescription = 'Nenhum.';
+            }
+
+            SystemLog::create([
+                'fk_user_id' => $idUser,
+                'action' => 'Atualizou',
+                'table_name' => 'users',
+                'record_id' => $id,
+                'description' => 'Atualizou usuário permitindo acesso á reservas. Dados alterados: ' . $logDescription,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Nível de acesso atualizado com sucesso.',
+                'data' => $userUpdate,
+            ]);
+        } catch (QueryException $qe) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => "Error DB: " . $qe->getMessage(),
+            ]);
+        } catch (Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => "Error: " . $e->getMessage(),
+            ]);
+        }
+    }
+
     public function myProfile(Request $request)
     {
         try {
