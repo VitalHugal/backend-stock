@@ -188,14 +188,23 @@ class ReservationController extends CrudController
                 ->toArray();
 
 
-            if ($user->level !== 'admin' && !in_array(1, $categoryUser) && !in_array(5, $categoryUser)) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Você não tem permissão de acesso para seguir adiante.',
-                ]);
-            }
+            // if ($user->level !== 'admin' && !in_array(1, $categoryUser) && !in_array(5, $categoryUser)) {
+            //     return response()->json([
+            //         'success' => false,
+            //         'message' => 'Você não tem permissão de acesso para seguir adiante.',
+            //     ]);
+            // }
 
+            // if ($user->level == 'user') {
             if ($user->level == 'user') {
+
+                if ($user->reservation_enabled === 0) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Você não tem permissão de acesso para seguir adiante.',
+                    ]);
+                }
+
                 $idProduct = Reservation::where('id', $id)->get('fk_product_equipament_id');
 
                 $product = ProductEquipament::where('id', $idProduct)->first();
@@ -271,64 +280,67 @@ class ReservationController extends CrudController
                 ]);
             }
 
-            $reservation = Reservation::with(['productEquipament.category', 'user'])
-                ->where('id', $id)
-                ->whereHas('productEquipament', function ($query) use ($categoryUser) {
-                    // $query->whereIn('fk_category_id', $categoryUser);
-                })
-                ->first();
+            if ($user->level == 'admin') {
 
-            if (!$reservation) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Reserva não encontrada.',
-                ]);
-            }
+                $reservation = Reservation::with(['productEquipament.category', 'user'])
+                    ->where('id', $id)
+                    ->whereHas('productEquipament', function ($query) use ($categoryUser) {
+                        // $query->whereIn('fk_category_id', $categoryUser);
+                    })
+                    ->first();
 
-            $withdrawal_date_admin = 'withdrawal_date';
-            $return_date_admin = 'return_date';
-            $created_at_admin = 'created_at';
-            $updated_at_admin = 'updated_at';
+                if (!$reservation) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Reserva não encontrada.',
+                    ]);
+                }
 
-            if ($reservation->return_date < now() && (int)$reservation->reservation_finished === 0) {
-                $status = 'Delayed';
-                Reservation::where('id', $reservation->id)->update(['status' => $status]);
-            }
+                $withdrawal_date_admin = 'withdrawal_date';
+                $return_date_admin = 'return_date';
+                $created_at_admin = 'created_at';
+                $updated_at_admin = 'updated_at';
 
-            $reservationDataAdmin = [
-                'id' => $reservation->id,
-                'fk_user_id_create' => $reservation->fk_user_id,
-                'name_user_create' => $reservation->user->name ?? null,
-                'reason_project' => $reservation->reason_project,
-                'observation' => $reservation->observation,
-                'quantity' => $reservation->quantity,
-                'withdrawal_date' => $this->reservation->getFormattedDate($reservation, $withdrawal_date_admin),
-                'return_date' => $this->reservation->getFormattedDate($reservation, $return_date_admin),
-                'delivery_to' => $reservation->delivery_to,
-                'status' => $reservation->status,
-                'reservation_finished' => $reservation->reservation_finished,
-                'date_finished' => $reservation->date_finished,
-                'fk_user_id_finished' => $reservation->fk_user_id_finished,
-                'name_user_finished' => $reservation->userFinished->name ?? null,
-                'product_name' => $reservation->productEquipament->name ?? null,
-                'id_product' => $reservation->productEquipament->id ?? null,
-                'category_name' => $reservation->productEquipament->category->name ?? null,
-                'created_at' => $this->reservation->getFormattedDate($reservation, $created_at_admin),
-                'updated_at' => $this->reservation->getFormattedDate($reservation, $updated_at_admin),
-            ];
+                if ($reservation->return_date < now() && (int)$reservation->reservation_finished === 0) {
+                    $status = 'Delayed';
+                    Reservation::where('id', $reservation->id)->update(['status' => $status]);
+                }
 
-            if ($reservationDataAdmin == null) {
+                $reservationDataAdmin = [
+                    'id' => $reservation->id,
+                    'fk_user_id_create' => $reservation->fk_user_id,
+                    'name_user_create' => $reservation->user->name ?? null,
+                    'reason_project' => $reservation->reason_project,
+                    'observation' => $reservation->observation,
+                    'quantity' => $reservation->quantity,
+                    'withdrawal_date' => $this->reservation->getFormattedDate($reservation, $withdrawal_date_admin),
+                    'return_date' => $this->reservation->getFormattedDate($reservation, $return_date_admin),
+                    'delivery_to' => $reservation->delivery_to,
+                    'status' => $reservation->status,
+                    'reservation_finished' => $reservation->reservation_finished,
+                    'date_finished' => $reservation->date_finished,
+                    'fk_user_id_finished' => $reservation->fk_user_id_finished,
+                    'name_user_finished' => $reservation->userFinished->name ?? null,
+                    'product_name' => $reservation->productEquipament->name ?? null,
+                    'id_product' => $reservation->productEquipament->id ?? null,
+                    'category_name' => $reservation->productEquipament->category->name ?? null,
+                    'created_at' => $this->reservation->getFormattedDate($reservation, $created_at_admin),
+                    'updated_at' => $this->reservation->getFormattedDate($reservation, $updated_at_admin),
+                ];
+
+                if ($reservationDataAdmin == null) {
+                    return response()->json([
+                        'success' => true,
+                        'message' => 'Nenhuma reserva encontrada.',
+                    ]);
+                }
+
                 return response()->json([
                     'success' => true,
-                    'message' => 'Nenhuma reserva encontrada.',
+                    'message' => 'Reserva recuperada com sucesso.',
+                    'data' => $reservationDataAdmin,
                 ]);
             }
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Reserva recuperada com sucesso.',
-                'data' => $reservationDataAdmin,
-            ]);
         } catch (QueryException $qe) {
             return response()->json([
                 'success' => false,
@@ -354,100 +366,188 @@ class ReservationController extends CrudController
                 ->pluck('fk_category_id')
                 ->toArray();
 
-            if ($user->level !== 'admin' && !in_array(1, $categoryUser) && !in_array(5, $categoryUser)) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Você não tem permissão de acesso para seguir adiante.',
-                ]);
+            if ($user->level == 'user') {
+
+                if ($user->reservation_enabled === 0) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Você não tem permissão de acesso para seguir adiante.',
+                    ]);
+                }
+                
+                if ($categoryUser) {
+                    $productEquipamentUser = ProductEquipament::with('category')
+                        ->whereIn('fk_category_id', $categoryUser)->where('id', $request->fk_product_equipament_id)->first();
+                }
+
+                if ($productEquipamentUser === null) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Nenhum produto/equipamento encontrado.',
+                    ]);
+                }
+
+                // (int)$productQuantityMin = $productEquipamentUser->quantity_min;
+
+                $quantityTotalInputs = Inputs::where('fk_product_equipament_id', $request->fk_product_equipament_id)->sum('quantity');
+                $quantityTotalExits = Exits::where('fk_product_equipament_id', $request->fk_product_equipament_id)->sum('quantity');
+                $quantityReserveNotFinished = Reservation::where('fk_product_equipament_id', $request->fk_product_equipament_id)
+                    ->where('reservation_finished', false)
+                    ->whereNull('date_finished')
+                    ->whereNull('fk_user_id_finished')
+                    ->sum('quantity');
+
+                $quantityTotalProduct = $quantityTotalInputs - ($quantityTotalExits + $quantityReserveNotFinished);
+
+                if ($quantityTotalProduct <= 0) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Produto indisponível.',
+                    ]);
+                }
+
+                if ($request->quantity > $quantityTotalProduct) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Quantidade solicita indisponível no estoque. Temos apenas ' . $quantityTotalProduct . ' unidade(s).',
+                    ]);
+                }
+
+                if ($request->quantity == '0' || $request->quantity == 0) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Quantidade minima: 1.',
+                    ]);
+                }
+
+                $validateData = $request->validate(
+                    $this->reservation->rulesReservation(),
+                    $this->reservation->feedbackReservation()
+                );
+
+                if ($validateData) {
+                    $reservation = $this->reservation->create([
+                        'fk_product_equipament_id' => $request->fk_product_equipament_id,
+                        'fk_user_id' => $idUserRequest,
+                        'reason_project' => $request->reason_project,
+                        'observation' => $request->observation,
+                        'quantity' => $request->quantity,
+                        'withdrawal_date' => now(),
+                        'return_date' => $request->return_date,
+                        'delivery_to' => $request->delivery_to,
+                        'status' => 'In progress',
+                        'reservation_finished' => false,
+                        'date_finished' => null,
+                        'fk_user_id_finished' => null,
+                    ]);
+                }
+
+                if ($reservation) {
+
+                    SystemLog::create([
+                        'fk_user_id' => $idUserRequest,
+                        'action' => 'Adicionou',
+                        'table_name' => 'reservations',
+                        'record_id' => $reservation->id,
+                        'description' => 'Adicionou uma reserva.',
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+
+                    DB::commit();
+                    return response()->json([
+                        'success' => true,
+                        'message' => 'Reserva criada com sucesso.',
+                        'data' => $reservation,
+                    ]);
+                }
             }
 
-            if ($categoryUser) {
-                $productEquipamentUser = ProductEquipament::with('category')
-                    ->whereIn('fk_category_id', $categoryUser)->where('id', $request->fk_product_equipament_id)->first();
-            }
+            if ($user->level == 'admin') {
 
-            $productEquipamentUser = ProductEquipament::where('id', $request->fk_product_equipament_id)->first();
+                $productEquipamentAdmin = ProductEquipament::where('id', $request->fk_product_equipament_id)->first();
 
-            (int)$productQuantityMin = $productEquipamentUser->quantity_min;
+                if ($productEquipamentAdmin === null) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Nenhum produto/equipamento encontrado.',
+                    ]);
+                }
 
-            if ($productEquipamentUser === null) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Nenhum produto/equipamento encontrado.',
-                ]);
-            }
+                (int)$productQuantityMin = $productEquipamentAdmin->quantity_min;
 
-            $quantityTotalInputs = Inputs::where('fk_product_equipament_id', $request->fk_product_equipament_id)->sum('quantity');
-            $quantityTotalExits = Exits::where('fk_product_equipament_id', $request->fk_product_equipament_id)->sum('quantity');
-            $quantityReserveNotFinished = Reservation::where('fk_product_equipament_id', $request->fk_product_equipament_id)
-                ->where('reservation_finished', false)
-                ->whereNull('date_finished')
-                ->whereNull('fk_user_id_finished')
-                ->sum('quantity');
+                $quantityTotalInputs = Inputs::where('fk_product_equipament_id', $request->fk_product_equipament_id)->sum('quantity');
+                $quantityTotalExits = Exits::where('fk_product_equipament_id', $request->fk_product_equipament_id)->sum('quantity');
+                $quantityReserveNotFinished = Reservation::where('fk_product_equipament_id', $request->fk_product_equipament_id)
+                    ->where('reservation_finished', false)
+                    ->whereNull('date_finished')
+                    ->whereNull('fk_user_id_finished')
+                    ->sum('quantity');
 
-            $quantityTotalProduct = $quantityTotalInputs - ($quantityTotalExits + $quantityReserveNotFinished);
+                $quantityTotalProduct = $quantityTotalInputs - ($quantityTotalExits + $quantityReserveNotFinished);
 
-            if ($quantityTotalProduct <= 0) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Produto indisponível.',
-                ]);
-            }
+                if ($quantityTotalProduct <= 0) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Produto indisponível.',
+                    ]);
+                }
 
-            if ($request->quantity > $quantityTotalProduct) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Quantidade solicita indisponível no estoque. Temos apenas ' . $quantityTotalProduct . ' unidade(s).',
-                ]);
-            }
+                if ($request->quantity > $quantityTotalProduct) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Quantidade solicita indisponível no estoque. Temos apenas ' . $quantityTotalProduct . ' unidade(s).',
+                    ]);
+                }
 
-            if ($request->quantity == '0' || $request->quantity == 0) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Quantidade minima: 1.',
-                ]);
-            }
+                if ($request->quantity == '0' || $request->quantity == 0) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Quantidade minima: 1.',
+                    ]);
+                }
 
-            $validateData = $request->validate(
-                $this->reservation->rulesReservation(),
-                $this->reservation->feedbackReservation()
-            );
+                $validateDataAdmin = $request->validate(
+                    $this->reservation->rulesReservation(),
+                    $this->reservation->feedbackReservation()
+                );
 
-            if ($validateData) {
-                $reservation = $this->reservation->create([
-                    'fk_product_equipament_id' => $request->fk_product_equipament_id,
-                    'fk_user_id' => $idUserRequest,
-                    'reason_project' => $request->reason_project,
-                    'observation' => $request->observation,
-                    'quantity' => $request->quantity,
-                    'withdrawal_date' => now(),
-                    'return_date' => $request->return_date,
-                    'delivery_to' => $request->delivery_to,
-                    'status' => 'In progress',
-                    'reservation_finished' => false,
-                    'date_finished' => null,
-                    'fk_user_id_finished' => null,
-                ]);
-            }
+                if ($validateDataAdmin) {
+                    $reservationAdmin = $this->reservation->create([
+                        'fk_product_equipament_id' => $request->fk_product_equipament_id,
+                        'fk_user_id' => $idUserRequest,
+                        'reason_project' => $request->reason_project,
+                        'observation' => $request->observation,
+                        'quantity' => $request->quantity,
+                        'withdrawal_date' => now(),
+                        'return_date' => $request->return_date,
+                        'delivery_to' => $request->delivery_to,
+                        'status' => 'In progress',
+                        'reservation_finished' => false,
+                        'date_finished' => null,
+                        'fk_user_id_finished' => null,
+                    ]);
+                }
 
-            if ($reservation) {
+                if ($reservationAdmin) {
 
-                SystemLog::create([
-                    'fk_user_id' => $idUserRequest,
-                    'action' => 'Adicionou',
-                    'table_name' => 'reservations',
-                    'record_id' => $reservation->id,
-                    'description' => 'Adicionou uma reserva.',
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]);
+                    SystemLog::create([
+                        'fk_user_id' => $idUserRequest,
+                        'action' => 'Adicionou',
+                        'table_name' => 'reservations',
+                        'record_id' => $reservationAdmin->id,
+                        'description' => 'Adicionou uma reserva.',
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
 
-                DB::commit();
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Reserva concluída com sucesso.',
-                    'data' => $reservation,
-                ]);
+                    DB::commit();
+                    return response()->json([
+                        'success' => true,
+                        'message' => 'Reserva criada com sucesso.',
+                        'data' => $reservationAdmin,
+                    ]);
+                }
             }
         } catch (QueryException $qe) {
             DB::rollBack();
@@ -476,120 +576,120 @@ class ReservationController extends CrudController
                 ->pluck('fk_category_id')
                 ->toArray();
 
-            if ($user->level !== 'admin' && !in_array(1, $categoryUser) && !in_array(5, $categoryUser)) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Você não tem permissão de acesso para seguir adiante.',
-                ]);
-            }
+            if ($user->level == 'admin' || ($user->level == 'user' && $user->reservation_enabled === 1)) {
+                $updateReservation = $this->reservation->find($id);
 
-            $updateReservation = $this->reservation->find($id);
-
-            if (!$updateReservation) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Nenhuma reserva encontrada.',
-                ]);
-            }
-
-            $originalData = $updateReservation->getOriginal();
-
-            $fk_product = $updateReservation->fk_product_equipament_id;
-            $quantityOld = $updateReservation->quantity;
-            $quantityNew = $request->quantity;
-
-            $product = ProductEquipament::find($fk_product);
-
-            if (!$product) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Nenhum produto encontrado.',
-                ]);
-            }
-
-            $productQuantityMin = $product->quantity_min;
-
-            $quantityTotalInputs = Inputs::where('fk_product_equipament_id', $fk_product)->sum('quantity');
-            $quantityTotalExits = Exits::where('fk_product_equipament_id', $fk_product)->sum('quantity');
-            $quantityReserveNotFinished = Reservation::where('fk_product_equipament_id',  $fk_product)
-                ->where('reservation_finished', false)
-                ->whereNull('date_finished')
-                ->whereNull('fk_user_id_finished')
-                ->sum('quantity');
-
-            $quantityTotalProduct = ($quantityTotalInputs) - ($quantityTotalExits + $quantityReserveNotFinished);
-
-            $validateData = $request->validate(
-                $this->reservation->rulesReservation(),
-                $this->reservation->feedbackReservation()
-            );
-
-            if ($quantityTotalProduct <= 0 && $quantityNew > $quantityOld) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Produto indisponível.',
-                ]);
-            }
-
-            if ($request->quantity == '0' || $request->quantity == '0') {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Quantidade minima: 1.',
-                ]);
-            }
-
-            if ((int)$quantityOld > (int)$quantityNew) {
-                $returnDB = $quantityOld - $quantityNew;
-                $updateReservation->update(['quantity' => $updateReservation->quantity + $returnDB]);
-                Log::info("User nº:{$idUserRequest} updates quantity from product in reserve nº:{$id}. Returned {$returnDB} unit for bank of data.");
-            } elseif ((int)$quantityNew > (int)$quantityOld) {
-                $removeDB = $quantityNew - $quantityOld;
-
-                if ($quantityTotalProduct < $removeDB) {
+                if (!$updateReservation) {
                     return response()->json([
                         'success' => false,
-                        'message' => 'Quantidade insuficiente em estoque. Temos apenas ' . $quantityTotalProduct . ' unidades disponíveis.',
+                        'message' => 'Nenhuma reserva encontrada.',
                     ]);
                 }
 
-                $updateReservation->update(['quantity' => $updateReservation->quantity - $removeDB]);
-                Log::info("User nº:{$idUserRequest} updates quantity from product in reserve nº:{$id}. Returned {$removeDB} unit for bank of data.");
-            }
+                $originalData = $updateReservation->getOriginal();
 
-            $updateReservation->fill($validateData);
-            $updateReservation->save();
+                $fk_product = $updateReservation->fk_product_equipament_id;
+                $quantityOld = $updateReservation->quantity;
+                $quantityNew = $request->quantity;
 
-            // Verificando as mudanças e criando a string de log
-            $changes = $updateReservation->getChanges(); // Retorna apenas os campos que foram alterados
-            $logDescription = '';
+                $product = ProductEquipament::find($fk_product);
 
-            foreach ($changes as $key => $newValue) {
-                $oldValue = $originalData[$key] ?? 'N/A'; // Valor antigo
-                $logDescription .= "{$key}: {$oldValue} -> {$newValue} .";
-            }
+                if (!$product) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Nenhum produto encontrado.',
+                    ]);
+                }
 
-            if ($logDescription == null) {
-                $logDescription = 'Nenhum.';
-            }
+                $productQuantityMin = $product->quantity_min;
 
-            SystemLog::create([
-                'fk_user_id' => $idUserRequest,
-                'action' => 'Atualizou',
-                'table_name' => 'reservations',
-                'record_id' => $id,
-                'description' => 'Atualizou uma reserva. Dados alterados: ' . $logDescription,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
+                $quantityTotalInputs = Inputs::where('fk_product_equipament_id', $fk_product)->sum('quantity');
+                $quantityTotalExits = Exits::where('fk_product_equipament_id', $fk_product)->sum('quantity');
+                $quantityReserveNotFinished = Reservation::where('fk_product_equipament_id',  $fk_product)
+                    ->where('reservation_finished', false)
+                    ->whereNull('date_finished')
+                    ->whereNull('fk_user_id_finished')
+                    ->sum('quantity');
 
-            DB::commit();
+                $quantityTotalProduct = ($quantityTotalInputs) - ($quantityTotalExits + $quantityReserveNotFinished);
+
+                $validateData = $request->validate(
+                    $this->reservation->rulesReservation(),
+                    $this->reservation->feedbackReservation()
+                );
+
+                if ($quantityTotalProduct <= 0 && $quantityNew > $quantityOld) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Produto indisponível.',
+                    ]);
+                }
+
+                if ($request->quantity == '0' || $request->quantity == '0') {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Quantidade minima: 1.',
+                    ]);
+                }
+
+                if ((int)$quantityOld > (int)$quantityNew) {
+                    $returnDB = $quantityOld - $quantityNew;
+                    $updateReservation->update(['quantity' => $updateReservation->quantity + $returnDB]);
+                    Log::info("User nº:{$idUserRequest} updates quantity from product in reserve nº:{$id}. Returned {$returnDB} unit for bank of data.");
+                } elseif ((int)$quantityNew > (int)$quantityOld) {
+                    $removeDB = $quantityNew - $quantityOld;
+
+                    if ($quantityTotalProduct < $removeDB) {
+                        return response()->json([
+                            'success' => false,
+                            'message' => 'Quantidade insuficiente em estoque. Temos apenas ' . $quantityTotalProduct . ' unidades disponíveis.',
+                        ]);
+                    }
+
+                    $updateReservation->update(['quantity' => $updateReservation->quantity - $removeDB]);
+                    Log::info("User nº:{$idUserRequest} updates quantity from product in reserve nº:{$id}. Returned {$removeDB} unit for bank of data.");
+                }
+
+                $updateReservation->fill($validateData);
+                $updateReservation->save();
+
+                // Verificando as mudanças e criando a string de log
+                $changes = $updateReservation->getChanges(); // Retorna apenas os campos que foram alterados
+                $logDescription = '';
+
+                foreach ($changes as $key => $newValue) {
+                    $oldValue = $originalData[$key] ?? 'N/A';
+                    $logDescription .= "{$key}: {$oldValue} -> {$newValue} .";
+                }
+
+                if ($logDescription == null) {
+                    $logDescription = 'Nenhum.';
+                }
+
+                SystemLog::create([
+                    'fk_user_id' => $idUserRequest,
+                    'action' => 'Atualizou',
+                    'table_name' => 'reservations',
+                    'record_id' => $id,
+                    'description' => 'Atualizou uma reserva. Dados alterados: ' . $logDescription,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+
+                DB::commit();
 
 
-            if ($updateReservation) {
+                if ($updateReservation) {
+                    return response()->json([
+                        'success' => true,
+                        'message' => 'Retirada atualizada com sucesso',
+                        'data' => $updateReservation,
+                    ]);
+                }
+            } else {
                 return response()->json([
-                    'success' => true,
-                    'message' => 'Retirada atualizada com sucesso',
-                    'data' => $updateReservation,
+                    'success' => false,
+                    'message' => 'Você não tem permissão de acesso para seguir adiante.',
                 ]);
             }
         } catch (QueryException $qe) {
@@ -612,55 +712,51 @@ class ReservationController extends CrudController
             $user = $request->user();
             $idUserRequest = $user->id;
 
-            $categoryUser = DB::table('category_user')
-                ->where('fk_user_id', $idUserRequest)
-                ->pluck('fk_category_id')
-                ->toArray();
+            // $categoryUser = DB::table('category_user')
+            //     ->where('fk_user_id', $idUserRequest)
+            //     ->pluck('fk_category_id')
+            //     ->toArray();
 
-            if ($user->level !== 'admin' && !in_array(1, $categoryUser) && !in_array(5, $categoryUser)) {
+            if ($user->level == 'admin' || ($user->level == 'user' && $user->reservation_enabled === 1)) {
+
+                $reserveAll = Reservation::where('return_date', '<', now())
+                    ->where('reservation_finished', false)
+                    ->get();
+
+                foreach ($reserveAll as $reservation) {
+                    $status = 'Delayed';
+                    $reservation->update(['status' => $status]);
+                }
+
+                $reservations = Reservation::with('productEquipament', 'category')
+                    ->where('return_date', '<', Carbon::now())
+                    ->where('reservation_finished', false)
+                    ->whereNull('date_finished')
+                    ->whereNull('fk_user_id_finished')
+                    ->paginate(10);
+
+                $reservations->setCollection($reservations->getCollection()->transform(function ($reserve) {
+                    return [
+                        'id' => $reserve->id,
+                        'delivery_to' => $reserve->delivery_to,
+                        'return_date' => $this->reservation->getFormattedDate($reserve, 'return_date'),
+                        'category' => $reserve->productEquipament->category->name ?? null,
+                        'product_name' => $reserve->productEquipament->name ?? null,
+                        'quantity' => $reserve->quantity,
+                    ];
+                }));
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Reservas em atraso recuperadas com sucesso.',
+                    'data' => $reservations,
+                ]);
+            } else {
                 return response()->json([
                     'success' => false,
                     'message' => 'Você não tem permissão de acesso para seguir adiante.',
                 ]);
             }
-
-            $reserveAll = Reservation::all();
-
-            foreach ($reserveAll as $reservation) {
-                if ($reservation->return_date < now() && (int)$reservation->reservation_finished === 0) {
-                    $status = 'Delayed';
-
-                    $reservation->update(['status' => $status]);
-                }
-            }
-
-            $reservations = Reservation::with('productEquipament', 'category')
-                ->where('return_date', '<', Carbon::now())
-                ->where('reservation_finished', false)
-                ->whereNull('date_finished')
-                ->whereNull('fk_user_id_finished')
-                ->paginate(10);
-
-
-            $reservations->getCollection()->transform(function ($reserve) {
-
-                $return_date = "return_date";
-
-                return [
-                    'id' => $reserve->id,
-                    'delivery_to' => $reserve->delivery_to,
-                    'return_date' => $this->reservation->getFormattedDate($reserve, $return_date),
-                    'category' => $reserve->productEquipament->category->name,
-                    'product_name' => $reserve->productEquipament->name,
-                    'quantity' => $reserve->quantity,
-                ];
-            });
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Reservas em atraso recuperadas com sucesso.',
-                'data' => $reservations,
-            ]);
         } catch (QueryException $qe) {
             return response()->json([
                 'success' => false,
@@ -735,73 +831,72 @@ class ReservationController extends CrudController
             $user = $request->user();
             $idUserRequest = $user->id;
 
-            // dd($idUserRequest);
-
             $categoryUser = DB::table('category_user')
                 ->where('fk_user_id', $idUserRequest)
                 ->pluck('fk_category_id')
                 ->toArray();
 
-            if ($user->level !== 'admin' && !in_array(1, $categoryUser) && !in_array(5, $categoryUser)) {
+            if ($user->level == 'admin' || ($user->level == 'user' && $user->reservation_enabled === 1)) {
+                $reservation = $this->reservation->find($id);
+
+                if (!$reservation) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => "Nenhum reserva encontrada com o id informado.",
+                    ]);
+                }
+
+                if ($reservation->reservation_finished == true && $reservation->date_finished !== null) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Esta reserva já foi finalizada.',
+                    ]);
+                }
+
+                $reservation->fill(
+                    $request->validate(
+                        $this->reservation->rulesFinishedReservation(),
+                        $this->reservation->feedbackFinishedReservation()
+                    )
+                );
+
+                if ($request->reservation_finished != '1' || $request->reservation_finished != 1) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Não foi possivel finalizar, valido apenas 1 para conseguir finalizar.',
+                    ]);
+                }
+
+                $reservation->fk_user_id_finished = $idUserRequest;
+                $reservation->date_finished = now();
+                $reservation->status = 'Finished';
+
+                $reservation->save();
+
+                SystemLog::create([
+                    'fk_user_id' => $idUserRequest,
+                    'action' => 'Finalizou',
+                    'table_name' => 'reservations',
+                    'record_id' => $id,
+                    'description' => 'Finalizou uma reserva.',
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+                DB::commit();
+                if ($reservation) {
+
+                    return response()->json([
+                        'success' => true,
+                        'message' => 'Reserva finalizada com sucesso.',
+                    ]);
+                }
+            } else {
                 return response()->json([
                     'success' => false,
                     'message' => 'Você não tem permissão de acesso para seguir adiante.',
                 ]);
             }
-
-            $reservation = $this->reservation->find($id);
-
-            if (!$reservation) {
-                return response()->json([
-                    'success' => false,
-                    'message' => "Nenhum reserva encontrada com o id informado.",
-                ]);
-            }
-
-            if ($reservation->reservation_finished == true && $reservation->date_finished !== null) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Esta reserva já foi finalizada.',
-                ]);
-            }
-
-            $reservation->fill(
-                $request->validate(
-                    $this->reservation->rulesFinishedReservation(),
-                    $this->reservation->feedbackFinishedReservation()
-                )
-            );
-
-            if ($request->reservation_finished != '1' || $request->reservation_finished != 1) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Não foi possivel finalizar, valido apenas 1 para conseguir finalizar.',
-                ]);
-            }
-
-            $reservation->fk_user_id_finished = $idUserRequest;
-            $reservation->date_finished = now();
-            $reservation->status = 'Finished';
-
-            $reservation->save();
-
-            SystemLog::create([
-                'fk_user_id' => $idUserRequest,
-                'action' => 'Finalizou',
-                'table_name' => 'reservations',
-                'record_id' => $id,
-                'description' => 'Finalizou uma reserva.',
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
-            DB::commit();
-            if ($reservation) {
-
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Reserva finalizada com sucesso.',
-                ]);
-            }
+            
         } catch (QueryException $qe) {
             DB::rollBack();
             return response()->json([
