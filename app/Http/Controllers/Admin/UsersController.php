@@ -466,10 +466,16 @@ class UsersController extends CrudController
 
             DB::commit();
 
+            if ($userUpdate->level == 'admin') {
+                User::where('id', $id)->update(['reservation_enabled' => 1]);
+            }else {
+                User::where('id', $id)->update(['reservation_enabled' => 0]);
+            }
+
             return response()->json([
                 'success' => true,
                 'message' => 'Nível de permissão atualizado com sucesso.',
-                'data' => $userUpdate,
+                'data' => User::find($id),
             ]);
         } catch (QueryException $qe) {
             DB::rollBack();

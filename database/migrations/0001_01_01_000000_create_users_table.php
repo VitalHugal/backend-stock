@@ -46,6 +46,7 @@ return new class extends Migration
             'email' => 'logdevteam@bizsys.com.br',
             'password' => Hash::make('r4bhvp2h372020'),
             'level' => 'admin',
+            'reservation_enabled' => 1,
         ]);
         
         DB::table('users')->insert([
@@ -53,6 +54,7 @@ return new class extends Migration
             'email' => 'v@v.com',
             'password' => Hash::make('123456789'),
             'level' => 'admin',
+            'reservation_enabled' => 1,
         ]);
     }
 
