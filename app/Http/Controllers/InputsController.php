@@ -61,7 +61,7 @@ class InputsController extends CrudController
                         'product_name' => $input->productEquipament->name,
                         'category_name' => $input->productEquipament->category->name,
                         'fk_user_id' => $input->fk_user_id,
-                        'name_user_exits' => $input->user->name,
+                        'name_user_input' => $input->user->name,
                         'created_at' => $this->input->getFormattedDate($input, 'created_at'),
                         'updated_at' => $this->input->getFormattedDate($input, 'updated_at'),
                     ];
@@ -90,7 +90,7 @@ class InputsController extends CrudController
                     'product_name' => $input->productEquipament->name,
                     'category_name' => $input->productEquipament->category->name,
                     'fk_user_id' => $input->fk_user_id,
-                    'name_user_exits' => $input->user->name,
+                    'name_user_input' => $input->user->name,
                     'created_at' => $this->input->getFormattedDate($input, 'created_at'),
                     'updated_at' => $this->input->getFormattedDate($input, 'updated_at'),
                 ];
@@ -157,7 +157,7 @@ class InputsController extends CrudController
                             'product_name' => $input->productEquipament->name,
                             'category_name' => $input->productEquipament->category->name,
                             'fk_user_id' => $input->fk_user_id,
-                            'name_user_exits' => $input->user->name,
+                            'name_user_input' => $input->user->name,
                             'created_at' => $this->input->getFormattedDate($input, 'created_at'),
                             'updated_at' => $this->input->getFormattedDate($input, 'updated_at'),
 
@@ -184,7 +184,7 @@ class InputsController extends CrudController
                         'product_name' => $input->productEquipament->name,
                         'category_name' => $input->productEquipament->category->name,
                         'fk_user_id' => $input->fk_user_id,
-                        'name_user_exits' => $input->user->name,
+                        'name_user_input' => $input->user->name,
                         'created_at' => $this->input->getFormattedDate($input, 'created_at'),
                         'updated_at' => $this->input->getFormattedDate($input, 'updated_at'),
                     ];
