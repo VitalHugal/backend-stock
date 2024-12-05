@@ -29,7 +29,7 @@ class LogoutController extends Controller
                 ]);
 
                 DB::commit();
-                
+
                 return response()->json([
                     'success' => true,
                     'message' => 'Usuário desconectado com sucesso.'

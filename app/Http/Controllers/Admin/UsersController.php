@@ -593,8 +593,8 @@ class UsersController extends CrudController
                 "email_verified_at" =>  $myProfile->email_verified_at,
                 "level" =>  $myProfile->level,
                 "reservation_enabled" =>  $myProfile->reservation_enabled,
-                "created_at" =>  $myProfile->created_at,
-                "updated_at" =>  $myProfile->created_at,
+                "created_at" =>  $this->user->getFormattedDate($myProfile, 'created_at'),
+                "updated_at" =>  $this->user->getFormattedDate($myProfile, 'updated_at'),
                 'categories' => $categories
             ];
 
