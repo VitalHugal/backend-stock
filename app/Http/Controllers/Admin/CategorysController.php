@@ -48,16 +48,12 @@ class CategorysController extends CrudController
 
                 $categoryAccessUser->transform(function ($category) {
 
-                    $created_at = 'created_at';
-                    $updated_at = 'updated_at';
-
                     return [
                         'id' => $category->id,
                         'name' => $category->name,
                         'description' => $category->description,
-                        'created_at' => $this->category->getFormattedDate($category, $created_at),
-                        'updated_at' => $this->category->getFormattedDate($category, $updated_at),
-                        'deleted_at' => $category->deleted_at,
+                        'created_at' => $this->category->getFormattedDate($category, 'created_at'),
+                        'updated_at' => $this->category->getFormattedDate($category, 'updated_at'),
                     ];
                 });
 
@@ -66,11 +62,6 @@ class CategorysController extends CrudController
                     'message' => 'Categorias de usuário recuperadas com sucesso.',
                     'data' => $categoryAccessUser,
                 ]);
-
-                // return response()->json([
-                //     'success' => false,
-                //     'message' => 'Você não tem permissão de acesso para seguir adiante.',
-                // ]);
             }
 
             if ($user->level == 'admin') {
@@ -240,7 +231,7 @@ class CategorysController extends CrudController
             $category->fill($validatedData);
             $category->save();
 
-            // Verificando as mudanças e criando a string de log
+            // Verificando a mudanças e criando a string de log
             $changes = $category->getChanges(); // Retorna apenas os campos que foram alterados
             $logDescription = '';
 
