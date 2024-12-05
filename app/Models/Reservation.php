@@ -70,8 +70,7 @@ class Reservation extends Model
         return $resultSearch;
     }
 
-
-
+    ///////////////////////////////////////////////////
     public function rulesReservation()
     {
         return [
@@ -101,6 +100,7 @@ class Reservation extends Model
         ];
     }
 
+    ///////////////////////////////////////////////////
     public function rulesFinishedReservation()
     {
         return [
@@ -114,6 +114,24 @@ class Reservation extends Model
         return [
             'required' => 'Campo obrigatório.',
             'boolean' => 'Válido apenas "1" para esse campo.',
+            'exists:users,id' => 'Usuário não encontrado, tente novamente.',
+        ];
+    }
+
+    ///////////////////////////////////////////////////
+    public function rulesReverseFinishedReservation()
+    {
+        return [
+            'reservation_finished' => 'required|boolean|',
+            'date_finished' => '',
+            'fk_user_id_finished' => 'exists:users,id'
+        ];
+    }
+    public function feedbackReverseFinishedReservation()
+    {
+        return [
+            'required' => 'Campo obrigatório.',
+            'boolean' => 'Válido apenas "0" para esse campo.',
             'exists:users,id' => 'Usuário não encontrado, tente novamente.',
         ];
     }

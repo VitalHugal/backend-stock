@@ -365,7 +365,7 @@ class ReservationController extends CrudController
                         'message' => 'Você não tem permissão de acesso para seguir adiante.',
                     ]);
                 }
-                
+
                 if ($categoryUser) {
                     $productEquipamentUser = ProductEquipament::with('category')
                         ->whereIn('fk_category_id', $categoryUser)->where('id', $request->fk_product_equipament_id)->first();
@@ -887,7 +887,95 @@ class ReservationController extends CrudController
                     'message' => 'Você não tem permissão de acesso para seguir adiante.',
                 ]);
             }
-            
+        } catch (QueryException $qe) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => "Error DB: " . $qe->getMessage(),
+            ]);
+        } catch (Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => "Error: " . $e->getMessage(),
+            ]);
+        }
+    }
+
+    public function reverseReservationCompleted(Request $request, $id)
+    {
+        try {
+            $user = $request->user();
+            $idUserRequest = $user->id;
+
+            if ($user->level == 'admin') {
+
+                $reservation = $this->reservation->find($id);
+
+                if (!$reservation) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => "Nenhuma reserva encontrada com o id informado.",
+                    ]);
+                }
+
+                $reservation->fill(
+                    $request->validate(
+                        $this->reservation->rulesReverseFinishedReservation(),
+                        $this->reservation->feedbackReverseFinishedReservation()
+                    )
+                );
+
+                if ($reservation->reservation_finished == 0 && $reservation->date_finished == null) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'A finalização desta reserva já foi desfeita.',
+                    ]);
+                }
+
+                if ($request->reservation_finished != '0' || $request->reservation_finished != 0) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Não foi possivel desfazer a finalização, valido apenas 0 para conseguir execultar a ação.',
+                    ]);
+                }
+
+                $reservation->fk_user_id_finished = null;
+                $reservation->date_finished = null;
+                
+                if ($reservation->return_date < now()) {
+                    $status = 'Delayed';
+                    Reservation::where('id', $reservation->id)->update(['status' => $status]);
+                }else {
+                    $status = 'In progress';
+                    Reservation::where('id', $reservation->id)->update(['status' => $status]);
+                }
+
+                $reservation->save();
+
+                SystemLog::create([
+                    'fk_user_id' => $idUserRequest,
+                    'action' => 'Desfez a finalização',
+                    'table_name' => 'reservations',
+                    'record_id' => $id,
+                    'description' => 'Desfez a finalização de uma reserva.',
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+                DB::commit();
+                if ($reservation) {
+
+                    return response()->json([
+                        'success' => true,
+                        'message' => 'Desfeita a finalização da reserva com sucesso.',
+                    ]);
+                }
+            } else {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Você não tem permissão de acesso para seguir adiante.',
+                ]);
+            }
         } catch (QueryException $qe) {
             DB::rollBack();
             return response()->json([

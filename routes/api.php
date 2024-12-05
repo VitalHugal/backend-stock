@@ -61,6 +61,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     //ALL LOGS
     Route::get('/get-all-logs', [SystemLogsController::class, 'getAllLogs']);
+    
+    //REVERSE FINISHED RESERVATION
+    Route::post('/reverse-finalized-reservention/{id}', [ReservationController::class, 'reverseReservationCompleted']);
 
     //ALL DELETE
     Route::delete('/delete-exits/{id}', [ExitsController::class, 'delete']);
