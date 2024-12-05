@@ -3,8 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Inputs;
-use App\Http\Controllers\Controller;
-use App\Models\ProductEquipament;
 use App\Models\SystemLog;
 use Exception;
 use Illuminate\Database\QueryException;
