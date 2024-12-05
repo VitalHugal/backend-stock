@@ -42,7 +42,7 @@ class SystemLogsController extends CrudController
 
                 $logsSearchDate = SystemLog::with('user')
                     ->where('created_at', 'like', '%' . $searchFormatted . '%')
-                    // ->orderBy('id', 'desc')
+                    ->orderBy('id', 'desc')
                     ->paginate(10)
                     ->appends(['date' => $search]);
 
@@ -69,18 +69,17 @@ class SystemLogsController extends CrudController
 
                 return response()->json([
                     'success' => true,
-                    'message' => 'Logs recuperados com sucesso (pesquisa).',
+                    'message' => 'Logs recuperados com sucesso.',
                     'data' => $logsSearchDate,
                 ]);
             }
-
 
             if ($request->has('name') && $request->input('name') != '') {
 
                 $logsSearch = SystemLog::select('system_logs.*')
                     ->join('users', 'users.id', '=', 'system_logs.fk_user_id')
                     ->where('users.name', 'like', '%' . $request->input('name') . '%')
-                    // ->orderBy('id', 'desc')
+                    ->orderBy('id', 'desc')
                     ->paginate(10)
                     ->appends(['name' => $request->input('name')]);
 
@@ -112,7 +111,7 @@ class SystemLogsController extends CrudController
 
                 return response()->json([
                     'success' => true,
-                    'message' => 'Logs recuperados com sucesso (pesquisa).',
+                    'message' => 'Logs recuperados com sucesso.',
                     'data' => $logsSearch,
                 ]);
             }

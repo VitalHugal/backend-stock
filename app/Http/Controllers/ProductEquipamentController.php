@@ -82,9 +82,8 @@ class ProductEquipamentController extends CrudController
                             'quantity_stock' => $quantityTotalProduct,
                             'quantity_min' => $product->quantity_min,
                             'fk_category_id' => $product->fk_category_id,
-                            'created_at' => $product->created_at,
-                            'updated_at' => $product->updated_at,
-                            'deleted_at' => $product->deleted_at,
+                            'created_at' => $this->productEquipaments->getFormattedDate($product, 'created_at'),
+                            'updated_at' => $this->productEquipaments->getFormattedDate($product, 'updated_at'),
                         ];
                     });
 
@@ -120,9 +119,8 @@ class ProductEquipamentController extends CrudController
                         'quantity_stock' => $quantityTotalProduct,
                         'quantity_min' => $product->quantity_min,
                         'fk_category_id' => $product->fk_category_id,
-                        'created_at' => $product->created_at,
-                        'updated_at' => $product->updated_at,
-                        'deleted_at' => $product->deleted_at,
+                        'created_at' => $this->productEquipaments->getFormattedDate($product, 'created_at'),
+                        'updated_at' => $this->productEquipaments->getFormattedDate($product, 'updated_at'),
                     ];
                 });
 

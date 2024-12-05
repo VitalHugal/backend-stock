@@ -54,16 +54,6 @@ class InputsController extends CrudController
 
                 $inputs->getCollection()->transform(function ($input) {
 
-                    $formatedDateWithdrawalDate = explode(" ", $input->created_at);
-                    $formatedHoursWithdrawalDate = $formatedDateWithdrawalDate[1];
-                    $formatedDateWithdrawalDate = explode('-', $formatedDateWithdrawalDate[0]);
-                    $dateFinalCreatedAtDate = $formatedDateWithdrawalDate[2] . '/' . $formatedDateWithdrawalDate[1] . '/' . $formatedDateWithdrawalDate[0] . ' ' . $formatedHoursWithdrawalDate;
-
-                    $formatedDateWithdrawalDate = explode(" ", $input->updated_at);
-                    $formatedHoursWithdrawalDate = $formatedDateWithdrawalDate[1];
-                    $formatedDateWithdrawalDate = explode('-', $formatedDateWithdrawalDate[0]);
-                    $dateFinalUpdateAtDate = $formatedDateWithdrawalDate[2] . '/' . $formatedDateWithdrawalDate[1] . '/' . $formatedDateWithdrawalDate[0] . ' ' . $formatedHoursWithdrawalDate;
-
                     return [
                         'id' => $input->id,
                         'quantity' => $input->quantity,
@@ -72,8 +62,8 @@ class InputsController extends CrudController
                         'category_name' => $input->productEquipament->category->name,
                         'fk_user_id' => $input->fk_user_id,
                         'name_user_exits' => $input->user->name,
-                        'created_at' => $dateFinalCreatedAtDate,
-                        'updated_at' => $dateFinalUpdateAtDate,
+                        'created_at' => $this->input->getFormattedDate($input, 'created_at'),
+                        'updated_at' => $this->input->getFormattedDate($input, 'updated_at'),
                     ];
                 });
 
@@ -93,16 +83,6 @@ class InputsController extends CrudController
 
             $inputsAdmin->getCollection()->transform(function ($input) {
 
-                $formatedDateWithdrawalDate = explode(" ", $input->created_at);
-                $formatedHoursWithdrawalDate = $formatedDateWithdrawalDate[1];
-                $formatedDateWithdrawalDate = explode('-', $formatedDateWithdrawalDate[0]);
-                $dateFinalCreatedAtDate = $formatedDateWithdrawalDate[2] . '/' . $formatedDateWithdrawalDate[1] . '/' . $formatedDateWithdrawalDate[0] . ' ' . $formatedHoursWithdrawalDate;
-
-                $formatedDateWithdrawalDate = explode(" ", $input->updated_at);
-                $formatedHoursWithdrawalDate = $formatedDateWithdrawalDate[1];
-                $formatedDateWithdrawalDate = explode('-', $formatedDateWithdrawalDate[0]);
-                $dateFinalUpdateAtDate = $formatedDateWithdrawalDate[2] . '/' . $formatedDateWithdrawalDate[1] . '/' . $formatedDateWithdrawalDate[0] . ' ' . $formatedHoursWithdrawalDate;
-
                 return [
                     'id' => $input->id,
                     'id_product' => $input->productEquipament->id,
@@ -111,8 +91,8 @@ class InputsController extends CrudController
                     'category_name' => $input->productEquipament->category->name,
                     'fk_user_id' => $input->fk_user_id,
                     'name_user_exits' => $input->user->name,
-                    'created_at' => $dateFinalCreatedAtDate,
-                    'updated_at' => $dateFinalUpdateAtDate,
+                    'created_at' => $this->input->getFormattedDate($input, 'created_at'),
+                    'updated_at' => $this->input->getFormattedDate($input, 'updated_at'),
                 ];
             });
 
@@ -171,16 +151,6 @@ class InputsController extends CrudController
                     ->get()
                     ->map(function ($input) {
 
-                        $formatedDateWithdrawalDate = explode(" ", $input->created_at);
-                        $formatedHoursWithdrawalDate = $formatedDateWithdrawalDate[1];
-                        $formatedDateWithdrawalDate = explode('-', $formatedDateWithdrawalDate[0]);
-                        $dateFinalCreatedAtDate = $formatedDateWithdrawalDate[2] . '/' . $formatedDateWithdrawalDate[1] . '/' . $formatedDateWithdrawalDate[0] . ' ' . $formatedHoursWithdrawalDate;
-
-                        $formatedDateWithdrawalDate = explode(" ", $input->updated_at);
-                        $formatedHoursWithdrawalDate = $formatedDateWithdrawalDate[1];
-                        $formatedDateWithdrawalDate = explode('-', $formatedDateWithdrawalDate[0]);
-                        $dateFinalUpdateAtDate = $formatedDateWithdrawalDate[2] . '/' . $formatedDateWithdrawalDate[1] . '/' . $formatedDateWithdrawalDate[0] . ' ' . $formatedHoursWithdrawalDate;
-
                         return [
                             'id' => $input->id,
                             'quantity' => $input->quantity,
@@ -188,8 +158,8 @@ class InputsController extends CrudController
                             'category_name' => $input->productEquipament->category->name,
                             'fk_user_id' => $input->fk_user_id,
                             'name_user_exits' => $input->user->name,
-                            'created_at' => $dateFinalCreatedAtDate,
-                            'updated_at' => $dateFinalUpdateAtDate,
+                            'created_at' => $this->input->getFormattedDate($input, 'created_at'),
+                            'updated_at' => $this->input->getFormattedDate($input, 'updated_at'),
 
                         ];
                     });
@@ -207,17 +177,7 @@ class InputsController extends CrudController
                 })
                 ->get()
                 ->map(function ($input) {
-
-                    $formatedDateWithdrawalDate = explode(" ", $input->created_at);
-                    $formatedHoursWithdrawalDate = $formatedDateWithdrawalDate[1];
-                    $formatedDateWithdrawalDate = explode('-', $formatedDateWithdrawalDate[0]);
-                    $dateFinalCreatedAtDate = $formatedDateWithdrawalDate[2] . '/' . $formatedDateWithdrawalDate[1] . '/' . $formatedDateWithdrawalDate[0] . ' ' . $formatedHoursWithdrawalDate;
-
-                    $formatedDateWithdrawalDate = explode(" ", $input->updated_at);
-                    $formatedHoursWithdrawalDate = $formatedDateWithdrawalDate[1];
-                    $formatedDateWithdrawalDate = explode('-', $formatedDateWithdrawalDate[0]);
-                    $dateFinalUpdateAtDate = $formatedDateWithdrawalDate[2] . '/' . $formatedDateWithdrawalDate[1] . '/' . $formatedDateWithdrawalDate[0] . ' ' . $formatedHoursWithdrawalDate;
-
+                    
                     return [
                         'id' => $input->id,
                         'quantity' => $input->quantity,
@@ -225,8 +185,8 @@ class InputsController extends CrudController
                         'category_name' => $input->productEquipament->category->name,
                         'fk_user_id' => $input->fk_user_id,
                         'name_user_exits' => $input->user->name,
-                        'created_at' => $dateFinalCreatedAtDate,
-                        'updated_at' => $dateFinalUpdateAtDate,
+                        'created_at' => $this->input->getFormattedDate($input, 'created_at'),
+                        'updated_at' => $this->input->getFormattedDate($input, 'updated_at'),
                     ];
                 });
 
@@ -311,7 +271,7 @@ class InputsController extends CrudController
             $user = $request->user();
             $idUser = $user->id;
             $date = now();
-            
+
             $updateInput = $this->input->find($id);
 
             if (!$updateInput) {
@@ -322,7 +282,7 @@ class InputsController extends CrudController
             }
 
             $originalData = $updateInput->getOriginal();
-            
+
             $validatedData = [
                 'fk_product_equipament_id' => $request->fk_product_equipament_id,
                 'quantity' => $request->quantity,
@@ -336,25 +296,25 @@ class InputsController extends CrudController
             $updateInput->fill($validatedData);
             $updateInput->save();
 
-             // Verificando as mudanças e criando a string de log
-             $changes = $updateInput->getChanges(); // Retorna apenas os campos que foram alterados
-             $logDescription = '';
- 
-             foreach ($changes as $key => $newValue) {
-                 $oldValue = $originalData[$key] ?? 'N/A'; // Valor antigo
-                 $logDescription .= "{$key}: {$oldValue} -> {$newValue} .";
-             }
- 
-             if ($logDescription == null) {
-                 $logDescription = 'Nenhum.';
-             }
+            // Verificando as mudanças e criando a string de log
+            $changes = $updateInput->getChanges(); // Retorna apenas os campos que foram alterados
+            $logDescription = '';
 
-             SystemLog::create([
+            foreach ($changes as $key => $newValue) {
+                $oldValue = $originalData[$key] ?? 'N/A'; // Valor antigo
+                $logDescription .= "{$key}: {$oldValue} -> {$newValue} .";
+            }
+
+            if ($logDescription == null) {
+                $logDescription = 'Nenhum.';
+            }
+
+            SystemLog::create([
                 'fk_user_id' => $idUser,
                 'action' => 'Atualizou',
                 'table_name' => 'inputs',
                 'record_id' => $id,
-                'description' => 'Atualizou uma entrada. Dados alterados: '.$logDescription,
+                'description' => 'Atualizou uma entrada. Dados alterados: ' . $logDescription,
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
@@ -421,13 +381,12 @@ class InputsController extends CrudController
                     'created_at' => now(),
                     'updated_at' => now(),
                 ]);
-                
+
                 return response()->json([
                     'success' => true,
                     'message' => 'Entrada removida com sucesso.',
                 ]);
             }
-
         } catch (QueryException $qe) {
             return response()->json([
                 'success' => false,
