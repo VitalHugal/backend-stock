@@ -9,7 +9,7 @@ use Laravel\Sanctum\HasApiTokens;
 class ProductEquipament extends Model
 {
     use SoftDeletes, HasApiTokens;
-    
+
     protected $fillable = [
         'name',
         // 'quantity',
@@ -18,6 +18,14 @@ class ProductEquipament extends Model
     ];
     protected $table = 'products_equipaments';
     protected $dates = ['deleted_at'];
+
+    function getFormattedDate($model, $params)
+    {
+        $formatedDateWithdrawalDate = explode(" ", $model->$params);
+        $formatedHoursWithdrawalDate = $formatedDateWithdrawalDate[1];
+        $formatedDateWithdrawalDate = explode('-', $formatedDateWithdrawalDate[0]);
+        return $formatedDateWithdrawalDate[2] . '/' . $formatedDateWithdrawalDate[1] . '/' . $formatedDateWithdrawalDate[0] . ' ' . $formatedHoursWithdrawalDate;
+    }
 
     public function rulesProductEquipamentos()
     {

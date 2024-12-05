@@ -47,6 +47,8 @@ return new class extends Migration
             'password' => Hash::make('r4bhvp2h372020'),
             'level' => 'admin',
             'reservation_enabled' => 1,
+            'created_at' => now(),
+            'updated_at' => now(),
         ]);
         
         DB::table('users')->insert([
@@ -55,6 +57,8 @@ return new class extends Migration
             'password' => Hash::make('123456789'),
             'level' => 'admin',
             'reservation_enabled' => 1,
+            'created_at' => now(),
+            'updated_at' => now(),
         ]);
     }
 

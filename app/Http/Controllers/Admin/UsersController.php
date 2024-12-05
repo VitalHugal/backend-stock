@@ -408,7 +408,7 @@ class UsersController extends CrudController
     public function updateLevel(Request $request, $id)
     {
         DB::beginTransaction();
-        
+
         try {
 
             $user = $request->user();
@@ -468,7 +468,7 @@ class UsersController extends CrudController
 
             if ($userUpdate->level == 'admin') {
                 User::where('id', $id)->update(['reservation_enabled' => 1]);
-            }else {
+            } else {
                 User::where('id', $id)->update(['reservation_enabled' => 0]);
             }
 
@@ -495,7 +495,7 @@ class UsersController extends CrudController
     public function updateReservationEnable(Request $request, $id)
     {
         DB::beginTransaction();
-        
+
         try {
 
             $user = $request->user();
@@ -577,10 +577,31 @@ class UsersController extends CrudController
         try {
             $myProfile = $request->user();
 
+            $categoryUser = DB::table('category_user')
+                ->where('fk_user_id', $myProfile->id)
+                ->pluck('fk_category_id')
+                ->toArray();
+
+            $categories = DB::table('category')
+                ->whereIn('id', $categoryUser)
+                ->pluck('name');
+
+            $result = [
+                "id" =>  $myProfile->id,
+                "name" =>  $myProfile->name,
+                "email" =>  $myProfile->email,
+                "email_verified_at" =>  $myProfile->email_verified_at,
+                "level" =>  $myProfile->level,
+                "reservation_enabled" =>  $myProfile->reservation_enabled,
+                "created_at" =>  $myProfile->created_at,
+                "updated_at" =>  $myProfile->created_at,
+                'categories' => $categories
+            ];
+
             return response()->json([
                 'success' => true,
                 'message' => 'Dados recuperados com sucesso.',
-                'data' => $myProfile,
+                'data' => $result
             ]);
         } catch (QueryException $qe) {
             return response()->json([
@@ -632,7 +653,7 @@ class UsersController extends CrudController
                     'created_at' => now(),
                     'updated_at' => now(),
                 ]);
-                
+
                 return response()->json([
                     'success' => true,
                     'message' => 'Senha alterada com sucesso.',
@@ -696,7 +717,7 @@ class UsersController extends CrudController
                     'created_at' => now(),
                     'updated_at' => now(),
                 ]);
-                
+
                 return response()->json([
                     'success' => true,
                     'message' => 'Senha alterada com sucesso',
