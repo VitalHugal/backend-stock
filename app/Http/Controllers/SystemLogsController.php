@@ -62,7 +62,7 @@ class SystemLogsController extends CrudController
                 if ($logsSearchDate->isEmpty()) {
                     return response()->json([
                         'success' => false,
-                        'message' => 'Nenhum resultado encontrado para buscar solicitada.',
+                        'message' => 'Nenhum resultado encontrado para a busca solicitada.',
                     ]);
                 }
 
@@ -104,7 +104,7 @@ class SystemLogsController extends CrudController
                 if ($logsSearch->isEmpty()) {
                     return response()->json([
                         'success' => false,
-                        'message' => 'Nenhum resultado encontrado para buscar solicitada.',
+                        'message' => 'Nenhum resultado encontrado para a busca solicitada.',
                     ]);
                 }
 
