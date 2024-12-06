@@ -41,9 +41,9 @@ class ProductEquipament extends Model
     {
         return [
             'required' => 'Campo obrigatório.',
-            'max:255' => 'O campo deve ter no máximo 255 caracteres.',
-            'integer' => 'Válido apenas números inteiros.',
-            'exists' => 'Categoria não encontrada verifique.',
+            'name.max' => 'O campo deve ter no máximo 255 caracteres.',
+            'quantity_min.integer' => 'Válido apenas números inteiros.',
+            'fk_category_id.exists' => 'Categoria não encontrada verifique.',
         ];
     }
 

@@ -39,9 +39,9 @@ class ProductAlert extends Model
     {
         return [
             'required' => 'Campo obrigatório.',
-            'exists:products_equipaments,id' => 'Produto informado não encontrado, verifique.',
-            'integer' => 'Válido apenas valores números inteiro.',
-            'required|exists:category,id' => 'Categoria não encontrada, verifique.',
+            'fk_product_equipament_id.exists' => 'Produto informado não encontrado, verifique.',
+            'integer' => 'Válido apenas números inteiros.',
+            'fk_category_id.exists' => 'Categoria não encontrada, verifique.',
         ];
     }
 

@@ -78,7 +78,7 @@ class Reservation extends Model
             'fk_user_id' => '|exists:users,id',
             'reason_project' => 'required|max:255',
             'observation' => 'required|max:255',
-            'quantity' => 'required|integer',
+            'quantity' => 'required|integer|max:1000',
             'withdrawal_date' => '',
             'delivery_to' => 'required',
             'return_date' => 'required',
@@ -93,10 +93,12 @@ class Reservation extends Model
     {
         return [
             'required' => 'Campo obrigatório.',
-            'exists:product_equipament,id' => 'Produto não encontrado, tente novamente.',
-            'exists:users,id' => 'Usuário não encontrado, tente novamente.',
-            'max:255' => 'O campo deve conter até 255 caracteres.',
-            'integer' => 'Válido apenas números inteiros.',
+            'fk_product_equipament_id.exists:' => 'Produto não encontrado, tente novamente.',
+            'fk_user_id.exists' => 'Usuário não encontrado, tente novamente.',
+            'reason_project.max' => 'O campo deve conter até 255 caracteres.',
+            'observation.max' => 'O campo deve conter até 255 caracteres.',
+            'quantity.integer' => 'Válido apenas números inteiros.',
+            'quantity.max' => 'O campo deve ter no máximo 1000',
         ];
     }
 

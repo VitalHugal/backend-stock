@@ -30,7 +30,7 @@ class Inputs extends Model
     {
         return [
             'fk_product_equipament_id' => 'required|exists:products_equipaments,id',
-            'quantity' => 'required|integer',
+            'quantity' => 'required|integer|max:10000',
             'fk_user_id' => 'exists:users,id',
         ];
     }
@@ -40,8 +40,9 @@ class Inputs extends Model
         return [
             'required' => 'Campo obrigatório.',
             'integer' => 'Válido apenas números inteiros.',
-            'exists:products_equipaments,id' => 'Producto informado não existe, verifique.',
-            'exists:users,id' => 'Usuario informado não existe, verifique.',
+            'fk_product_equipament_id.exists' => 'Producto informado não existe, verifique.',
+            'fk_user_id.exists' => 'Usuario informado não existe, verifique.',
+            'quantity.max' => 'O campo deve ter no máximo 10.000'
         ];
     }
 

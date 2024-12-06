@@ -81,9 +81,9 @@ class User extends Authenticatable
     {
         return [
             'required' => 'Campo obrigatório.',
-            'max:255' => 'O campo deve ter no máximo 255 caracteres.',
+            'max' => 'O campo deve ter no máximo 255 caracteres.',
             'email' => 'E-mail inválido.',
-            'min:8' => 'O campo deve ter no mínimo 8 carcateres.',
+            'min' => 'O campo deve ter no mínimo 8 carcateres.',
         ];
     }
 
@@ -101,7 +101,7 @@ class User extends Authenticatable
     {
         return [
             'required' => 'Campo obrigatório.',
-            'max:255' => 'O campo deve ter no máximo 255 caracteres.',
+            'max' => 'O campo deve ter no máximo 255 caracteres.',
             'email' => 'E-mail inválido.',
         ];
     }
