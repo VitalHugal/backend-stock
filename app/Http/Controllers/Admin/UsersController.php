@@ -156,7 +156,14 @@ class UsersController extends CrudController
                     'data' => $create,
                 ]);
             }
-        } catch (QueryException $qe) {
+        }
+        // catch (\Illuminate\Validation\ValidationException $e) {
+        //     return response()->json([
+        //         'success' => false,
+        //         'message' => 'Error: ' . $e->validator->errors()->all(),
+        //     ]);
+        // } 
+        catch (QueryException $qe) {
             DB::rollBack();
             return response()->json([
                 'success' => false,
