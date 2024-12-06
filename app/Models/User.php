@@ -72,7 +72,7 @@ class User extends Authenticatable
         return [
             'name' => 'required|max:255',
             'email' => 'email|required|max:255|',
-            'password' => 'required|min:8',
+            'password' => 'required|min:8|max:40',
             // 'responsible_category' => '',
         ];
     }
@@ -87,6 +87,7 @@ class User extends Authenticatable
             'email.max' => 'O campo e-mail deve ter no máximo 255 caracteres.',
             'email' => 'E-mail inválido.',
             'min' => 'O campo senha deve ter no mínimo 8 carcateres.',
+            'max' => 'O campo senha deve ter no máximo 40 carcateres.',
         ];
     }
 
@@ -150,7 +151,7 @@ class User extends Authenticatable
     public function rulesUpdatePassword()
     {
         return [
-            'password' => 'required|min:8|confirmed',
+            'password' => 'required|min:8|confirmed|max:40',
         ];
     }
 
@@ -160,6 +161,7 @@ class User extends Authenticatable
             'password.required' => 'Campo senha é obrigatório.',
             'password.confirmed' => 'Senhas divergentes!',
             'password.min' => 'A senha deve ter no minímo 8 caracteres',
+            'password.max' => 'A senha deve ter no máximo 40 caracteres',
         ];
     }
 
@@ -168,7 +170,7 @@ class User extends Authenticatable
     public function rulesUpdatePasswordAdmin()
     {
         return [
-            'password' => 'required|min:8',
+            'password' => 'required|min:8|max:40',
         ];
     }
     public function feedbackUpdatePasswordAdmin()
@@ -176,6 +178,7 @@ class User extends Authenticatable
         return [
             'password.required' => 'Campo senha é obrigatório.',
             'password.min' => 'A senha deve ter no minímo 8 caracteres',
+            'password.max' => 'A senha deve ter no máximo 40 caracteres',
         ];
     }
     ///////////////////////////////////////////////////////////////////////////////
