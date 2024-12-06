@@ -155,6 +155,15 @@ class CategorysController extends CrudController
 
             $createCategory = $validatedData;
 
+            $categoryExists = Category::where('name', $name)->first();
+
+            if ($categoryExists) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Já existe um setor cadastrado com o nome informado, tente novamente com outro nome.',
+                ]);
+            }
+
             $createCategory = $this->category->create([
                 'name' => $name,
                 'description' => $description,
