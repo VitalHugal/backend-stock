@@ -31,17 +31,20 @@ class Inputs extends Model
         return [
             'fk_product_equipament_id' => 'required|exists:products_equipaments,id',
             'fk_user_id' => 'exists:users,id',
-            'quantity' => 'required|integer|max:10000',
+            'quantity' => 'required|integer|max:10000|min:1',
         ];
     }
 
     public function feedbackInputs()
     {
         return [
-            'quantity.required' => 'Campo obrigatório.',
+            'quantity.required' => 'O campo quantidade é obrigatório.',
             'quantity.integer' => 'Válido apenas números inteiros.',
-            'quantity.max' => 'O campo deve ter no máximo 10.000',
+            'quantity.max' => 'O campo quantidade deve ter no máximo 10.000.',
+            'quantity.min' => 'O campo quantidade deve ter no mínimo 1.',
+
             'fk_product_equipament_id.exists' => 'Producto informado não existe, verifique.',
+            
             'fk_user_id.exists' => 'Usuario informado não existe, verifique.',
         ];
     }

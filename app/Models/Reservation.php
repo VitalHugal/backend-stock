@@ -77,7 +77,7 @@ class Reservation extends Model
             'fk_product_equipament_id' => 'required|exists:products_equipaments,id',
             'fk_user_id' => '|exists:users,id',
             'reason_project' => 'required|max:255|min:5',
-            'observation' => 'required|max:255',
+            'observation' => 'required|max:255|min:2',
             'quantity' => 'required|integer|max:1000',
             'withdrawal_date' => '',
             'delivery_to' => 'required',
@@ -92,22 +92,25 @@ class Reservation extends Model
     public function feedbackReservation()
     {
         return [
-            'reason_project.required' => 'Campo razão é obrigatório.',
             'observation.required' => 'Campo observação é obrigatório.',
+            'observation.max' => 'O campo deve conter até 255 caracteres.',
+            'observation.min' => 'O campo observação deve conter no mínimo 2 caracteres.',
+            
+            'reason_project.required' => 'Campo razão é obrigatório.',
+            'reason_project.max' => 'O campo deve conter até 255 caracteres.',
+            'reason_project.min' => 'O campo deve conter no mínimo 5 caracteres.',
+            
             'quantity.required' => 'Campo quantidate é obrigatório.',
+            'quantity.max' => 'O campo deve ter no máximo 1000',
+            'quantity.integer' => 'Válido apenas números inteiros.',
+            
             'delivery_to.required' => 'Campo entregue para é obrigatório.',
+            
             'return_date.required' => 'Campo data de retorno para é obrigatório.',
             
             'fk_product_equipament_id.exists:' => 'Produto não encontrado, tente novamente.',
             'fk_user_id.exists' => 'Usuário não encontrado, tente novamente.',
             
-            'reason_project.max' => 'O campo deve conter até 255 caracteres.',
-            'observation.max' => 'O campo deve conter até 255 caracteres.',
-            'quantity.max' => 'O campo deve ter no máximo 1000',
-            
-            'reason_project.min' => 'O campo deve conter no mínimo 5 caracteres.',
-            
-            'quantity.integer' => 'Válido apenas números inteiros.',
         ];
     }
 

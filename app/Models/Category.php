@@ -29,10 +29,11 @@ class Category extends Model
     {
         return [
             'name.required' => 'Campo nome é obrigatório.',
-            'description.required' => 'Campo descrição é obrigatório.',
             'name.max' => 'O campo nome deve conter até 40 caracteres.',
-            'description.max' => 'O campo deve conter até 100 caracteres.',
             'name.min' => 'O campo nome deve conter no mínimo 2 caracteres.',
+            
+            'description.required' => 'Campo descrição é obrigatório.',
+            'description.max' => 'O campo deve conter até 100 caracteres.',
             'description.min' => 'O campo nome deve conter no mínimo 20 caracteres.',
         ];
     }
