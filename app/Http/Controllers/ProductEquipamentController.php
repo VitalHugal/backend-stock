@@ -180,7 +180,7 @@ class ProductEquipamentController extends CrudController
 
                     return [
                         'id' => $product->id,
-                        'name-category' => $product->category ? $product->category->name : null,
+                        'name-category' => $product->category->name ?? null,
                         'name' => $product->name,
                         'quantity_stock' => $quantityTotalProduct,
                         'quantity_min' => $product->quantity_min,
