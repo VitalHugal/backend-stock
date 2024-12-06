@@ -80,10 +80,13 @@ class User extends Authenticatable
     public function feedbackCreateUser()
     {
         return [
-            'required' => 'Campo obrigatório.',
-            'max' => 'O campo deve ter no máximo 255 caracteres.',
+            'name.required' => 'Campo nome é obrigatório.',
+            'email.required' => 'Campo e-mail é obrigatório.',
+            'password.required' => 'Campo senha é obrigatório.',
+            'name.max' => 'O campo nome deve ter no máximo 255 caracteres.',
+            'email.max' => 'O campo e-mail deve ter no máximo 255 caracteres.',
             'email' => 'E-mail inválido.',
-            'min' => 'O campo deve ter no mínimo 8 carcateres.',
+            'min' => 'O campo senha deve ter no mínimo 8 carcateres.',
         ];
     }
 
@@ -100,8 +103,10 @@ class User extends Authenticatable
     public function feedbackUpdateUser()
     {
         return [
-            'required' => 'Campo obrigatório.',
-            'max' => 'O campo deve ter no máximo 255 caracteres.',
+            'name.required' => 'Campo nome é obrigatório.',
+            'email.required' => 'Campo e-mail é obrigatório.',
+            'name.max' => 'O campo nome deve ter no máximo 255 caracteres.',
+            'email.max' => 'O campo e-mail deve ter no máximo 255 caracteres.',
             'email' => 'E-mail inválido.',
         ];
     }
@@ -119,7 +124,7 @@ class User extends Authenticatable
     {
         return [
             'array' => 'Formato inválido (necessário array).',
-            'exists' => 'Categoria não encontrada verifique.',
+            'responsible_category.exists' => 'Categoria não encontrada verifique.',
         ];
     }
 
@@ -135,8 +140,8 @@ class User extends Authenticatable
     public function feedbackUpdateLevelUser()
     {
         return [
-            'required' => 'Campo obrigatório.',
-            'in' => 'Valido apenas admin ou user para esse campo.',
+            'level.required' => 'Campo obrigatório.',
+            'level.in' => 'Valido apenas admin ou user para esse campo.',
         ];
     }
 
@@ -152,7 +157,7 @@ class User extends Authenticatable
     public function feedbackUpdatePassword()
     {
         return [
-            'password.required' => 'Campo obrigatório.',
+            'password.required' => 'Campo senha é obrigatório.',
             'password.confirmed' => 'Senhas divergentes!',
             'password.min' => 'A senha deve ter no minímo 8 caracteres',
         ];
@@ -169,7 +174,7 @@ class User extends Authenticatable
     public function feedbackUpdatePasswordAdmin()
     {
         return [
-            'password.required' => 'Campo obrigatório.',
+            'password.required' => 'Campo senha é obrigatório.',
             'password.min' => 'A senha deve ter no minímo 8 caracteres',
         ];
     }
