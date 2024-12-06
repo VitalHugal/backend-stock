@@ -306,7 +306,7 @@ class ExitsController extends CrudController
             if ($request->quantity > $quantityTotalProduct) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Quantidade solicita indisponível no estoque. Temos apenas ' . $quantityTotalProduct . ' unidade(s).',
+                    'message' => 'Quantidade solicitada indisponível no estoque. Temos apenas ' . $quantityTotalProduct . ' unidade(s).',
                 ]);
             }
 
