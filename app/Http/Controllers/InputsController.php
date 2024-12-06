@@ -53,15 +53,15 @@ class InputsController extends CrudController
                 $inputs->getCollection()->transform(function ($input) {
 
                     return [
-                        'id' => $input->id,
-                        'quantity' => $input->quantity,
-                        'id_product' => $input->productEquipament->id,
-                        'product_name' => $input->productEquipament->name,
-                        'category_name' => $input->productEquipament->category->name,
-                        'fk_user_id' => $input->fk_user_id,
-                        'name_user_input' => $input->user->name,
-                        'created_at' => $this->input->getFormattedDate($input, 'created_at'),
-                        'updated_at' => $this->input->getFormattedDate($input, 'updated_at'),
+                        'id' => $input->id ?? null,
+                        'quantity' => $input->quantity ?? null,
+                        'id_product' => $input->productEquipament->id ?? null,
+                        'product_name' => $input->productEquipament->name ?? null,
+                        'category_name' => $input->productEquipament->category->name ?? null,
+                        'fk_user_id' => $input->fk_user_id ?? null,
+                        'name_user_input' => $input->user->name ?? null,
+                        'created_at' => $this->input->getFormattedDate($input, 'created_at') ?? null,
+                        'updated_at' => $this->input->getFormattedDate($input, 'updated_at') ?? null,
                     ];
                 });
 
@@ -82,15 +82,15 @@ class InputsController extends CrudController
             $inputsAdmin->getCollection()->transform(function ($input) {
 
                 return [
-                    'id' => $input->id,
-                    'id_product' => $input->productEquipament->id,
-                    'quantity' => $input->quantity,
-                    'product_name' => $input->productEquipament->name,
-                    'category_name' => $input->productEquipament->category->name,
-                    'fk_user_id' => $input->fk_user_id,
-                    'name_user_input' => $input->user->name,
-                    'created_at' => $this->input->getFormattedDate($input, 'created_at'),
-                    'updated_at' => $this->input->getFormattedDate($input, 'updated_at'),
+                    'id' => $input->id ?? null,
+                    'quantity' => $input->quantity ?? null,
+                    'id_product' => $input->productEquipament->id ?? null,
+                    'product_name' => $input->productEquipament->name ?? null,
+                    'category_name' => $input->productEquipament->category->name ?? null,
+                    'fk_user_id' => $input->fk_user_id ?? null,
+                    'name_user_input' => $input->user->name ?? null,
+                    'created_at' => $this->input->getFormattedDate($input, 'created_at') ?? null,
+                    'updated_at' => $this->input->getFormattedDate($input, 'updated_at') ?? null,
                 ];
             });
 
@@ -150,14 +150,15 @@ class InputsController extends CrudController
                     ->map(function ($input) {
 
                         return [
-                            'id' => $input->id,
-                            'quantity' => $input->quantity,
-                            'product_name' => $input->productEquipament->name,
-                            'category_name' => $input->productEquipament->category->name,
-                            'fk_user_id' => $input->fk_user_id,
-                            'name_user_input' => $input->user->name,
-                            'created_at' => $this->input->getFormattedDate($input, 'created_at'),
-                            'updated_at' => $this->input->getFormattedDate($input, 'updated_at'),
+                            'id' => $input->id ?? null,
+                            'quantity' => $input->quantity ?? null,
+                            'id_product' => $input->productEquipament->id ?? null,
+                            'product_name' => $input->productEquipament->name ?? null,
+                            'category_name' => $input->productEquipament->category->name ?? null,
+                            'fk_user_id' => $input->fk_user_id ?? null,
+                            'name_user_input' => $input->user->name ?? null,
+                            'created_at' => $this->input->getFormattedDate($input, 'created_at') ?? null,
+                            'updated_at' => $this->input->getFormattedDate($input, 'updated_at') ?? null,
 
                         ];
                     });
@@ -175,16 +176,16 @@ class InputsController extends CrudController
                 })
                 ->get()
                 ->map(function ($input) {
-                    
+
                     return [
-                        'id' => $input->id,
-                        'quantity' => $input->quantity,
-                        'product_name' => $input->productEquipament->name,
-                        'category_name' => $input->productEquipament->category->name,
-                        'fk_user_id' => $input->fk_user_id,
-                        'name_user_input' => $input->user->name,
-                        'created_at' => $this->input->getFormattedDate($input, 'created_at'),
-                        'updated_at' => $this->input->getFormattedDate($input, 'updated_at'),
+                        'id' => $input->id ?? null,
+                        'quantity' => $input->quantity ?? null,
+                        'product_name' => $input->productEquipament->name ?? null,
+                        'category_name' => $input->productEquipament->category->name ?? null,
+                        'fk_user_id' => $input->fk_user_id ?? null,
+                        'name_user_input' => $input->user->name ?? null,
+                        'created_at' => $this->input->getFormattedDate($input, 'created_at') ?? null,
+                        'updated_at' => $this->input->getFormattedDate($input, 'updated_at') ?? null,
                     ];
                 });
 

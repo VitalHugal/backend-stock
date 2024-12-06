@@ -59,18 +59,18 @@ class ExitsController extends CrudController
                 $exits->getCollection()->transform(function ($exit) {
 
                     return [
-                        'id' => $exit->id,
-                        'fk_user_id' => $exit->fk_user_id,
+                        'id' => $exit->id ?? null,
+                        'fk_user_id' => $exit->fk_user_id ?? null,
                         'name_user_exits' => $exit->user->name ?? null,
-                        'reason_project' => $exit->reason_project,
-                        'observation' => $exit->observation,
-                        'quantity' => $exit->quantity,
-                        'delivery_to' => $exit->delivery_to,
+                        'reason_project' => $exit->reason_project ?? null,
+                        'observation' => $exit->observation ?? null,
+                        'quantity' => $exit->quantity ?? null,
+                        'delivery_to' => $exit->delivery_to ?? null,
                         'product_name' => $exit->productEquipament->name ?? null,
                         'id_product' => $exit->productEquipament->id ?? null,
                         'category_name' => $exit->productEquipament->category->name ?? null,
-                        'created_at' => $this->exits->getFormattedDate($exit, 'created_at'),
-                        'updated_at' => $this->exits->getFormattedDate($exit, 'updated_at'),
+                        'created_at' => $this->exits->getFormattedDate($exit, 'created_at') ?? null,
+                        'updated_at' => $this->exits->getFormattedDate($exit, 'updated_at') ?? null,
                     ];
                 });
 
@@ -92,18 +92,18 @@ class ExitsController extends CrudController
             $exitsAdmin->getCollection()->transform(function ($exit) {
 
                 return [
-                    'id' => $exit->id,
-                    'fk_user_id' => $exit->fk_user_id,
+                    'id' => $exit->id ?? null,
+                    'fk_user_id' => $exit->fk_user_id ?? null,
                     'name_user_exits' => $exit->user->name ?? null,
-                    'reason_project' => $exit->reason_project,
-                    'observation' => $exit->observation,
-                    'quantity' => $exit->quantity,
-                    'delivery_to' => $exit->delivery_to,
+                    'reason_project' => $exit->reason_project ?? null,
+                    'observation' => $exit->observation ?? null,
+                    'quantity' => $exit->quantity ?? null,
+                    'delivery_to' => $exit->delivery_to ?? null,
                     'product_name' => $exit->productEquipament->name ?? null,
                     'id_product' => $exit->productEquipament->id ?? null,
                     'category_name' => $exit->productEquipament->category->name ?? null,
-                    'created_at' => $this->exits->getFormattedDate($exit, 'created_at'),
-                    'updated_at' => $this->exits->getFormattedDate($exit, 'updated_at'),
+                    'created_at' => $this->exits->getFormattedDate($exit, 'created_at') ?? null,
+                    'updated_at' => $this->exits->getFormattedDate($exit, 'updated_at') ?? null,
                 ];
             });
 
@@ -173,18 +173,18 @@ class ExitsController extends CrudController
                 }
 
                 $exitDataUser = [
-                    'id' => $exit->id,
-                    'fk_user_id' => $exit->fk_user_id,
+                    'id' => $exit->id ?? null,
+                    'fk_user_id' => $exit->fk_user_id ?? null,
                     'name_user_exits' => $exit->user->name ?? null,
-                    'reason_project' => $exit->reason_project,
-                    'observation' => $exit->observation,
-                    'quantity' => $exit->quantity,
-                    'delivery_to' => $exit->delivery_to,
-                    'product_name' => $exit->productEquipament ? $exit->productEquipament->name : null,
+                    'reason_project' => $exit->reason_project ?? null,
+                    'observation' => $exit->observation ?? null,
+                    'quantity' => $exit->quantity ?? null,
+                    'delivery_to' => $exit->delivery_to ?? null,
+                    'product_name' => $exit->productEquipament->name ?? null,
                     'id_product' => $exit->productEquipament->id ?? null,
                     'category_name' => $exit->productEquipament->category->name ?? null,
-                    'created_at' => $this->exits->getFormattedDate($exit, 'created_at'),
-                    'updated_at' => $this->exits->getFormattedDate($exit, 'updated_at'),
+                    'created_at' => $this->exits->getFormattedDate($exit, 'created_at') ?? null,
+                    'updated_at' => $this->exits->getFormattedDate($exit, 'updated_at') ?? null,
                 ];
 
                 return response()->json([
@@ -207,18 +207,18 @@ class ExitsController extends CrudController
             }
 
             $exitDataAdmin = [
-                'id' => $exit->id,
-                'fk_user_id' => $exit->fk_user_id,
+                'id' => $exit->id ?? null,
+                'fk_user_id' => $exit->fk_user_id ?? null,
                 'name_user_exits' => $exit->user->name ?? null,
-                'reason_project' => $exit->reason_project,
-                'observation' => $exit->observation,
-                'quantity' => $exit->quantity,
-                'delivery_to' => $exit->delivery_to,
-                'product_name' => $exit->productEquipament ? $exit->productEquipament->name : null,
-                'id_product' => $exit->productEquipament->id ?? null, 
+                'reason_project' => $exit->reason_project ?? null,
+                'observation' => $exit->observation ?? null,
+                'quantity' => $exit->quantity ?? null,
+                'delivery_to' => $exit->delivery_to ?? null,
+                'product_name' => $exit->productEquipament->name ?? null,
+                'id_product' => $exit->productEquipament->id ?? null,
                 'category_name' => $exit->productEquipament->category->name ?? null,
-                'created_at' => $this->exits->getFormattedDate($exit, 'created_at'),
-                'updated_at' => $this->exits->getFormattedDate($exit, 'updated_at'),
+                'created_at' => $this->exits->getFormattedDate($exit, 'created_at') ?? null,
+                'updated_at' => $this->exits->getFormattedDate($exit, 'updated_at') ?? null,
             ];
 
             return response()->json([
