@@ -30,9 +30,8 @@ class ProductEquipament extends Model
     public function rulesProductEquipamentos()
     {
         return [
-            'name' => 'required|max:255',
-            // 'quantity' => 'required|integer|',
-            'quantity_min' => 'required|integer|',
+            'name' => 'required|max:255|min:2',
+            'quantity_min' => 'required|integer|min:1',
             'fk_category_id' => 'required|exists:category,id',
         ];
     }
@@ -40,9 +39,14 @@ class ProductEquipament extends Model
     public function feedbackProductEquipaments()
     {
         return [
-            'required' => 'Campo obrigatório.',
-            'name.max' => 'O campo deve ter no máximo 255 caracteres.',
+            'name.required' => 'Campo nome é obrigatório.',
+            'name.max' => 'O campo nome deve ter no máximo 255 caracteres.',
+            'name.min' => 'O campo nome deve ter no mínimo 2 caracteres.',
+            
+            'quantity_min.required' => 'Campo qtd. mínima é obrigatório.',
             'quantity_min.integer' => 'Válido apenas números inteiros.',
+            
+            'fk_category_id.required' => 'Campo setor é obrigatório.',
             'fk_category_id.exists' => 'Categoria não encontrada verifique.',
         ];
     }

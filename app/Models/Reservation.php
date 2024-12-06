@@ -76,7 +76,7 @@ class Reservation extends Model
         return [
             'fk_product_equipament_id' => 'required|exists:products_equipaments,id',
             'fk_user_id' => '|exists:users,id',
-            'reason_project' => 'required|max:255',
+            'reason_project' => 'required|max:255|min:5',
             'observation' => 'required|max:255',
             'quantity' => 'required|integer|max:1000',
             'withdrawal_date' => '',
@@ -92,13 +92,22 @@ class Reservation extends Model
     public function feedbackReservation()
     {
         return [
-            'required' => 'Campo obrigatório.',
+            'reason_project.required' => 'Campo razão é obrigatório.',
+            'observation.required' => 'Campo observação é obrigatório.',
+            'quantity.required' => 'Campo quantidate é obrigatório.',
+            'delivery_to.required' => 'Campo entregue para é obrigatório.',
+            'return_date.required' => 'Campo data de retorno para é obrigatório.',
+            
             'fk_product_equipament_id.exists:' => 'Produto não encontrado, tente novamente.',
             'fk_user_id.exists' => 'Usuário não encontrado, tente novamente.',
+            
             'reason_project.max' => 'O campo deve conter até 255 caracteres.',
             'observation.max' => 'O campo deve conter até 255 caracteres.',
-            'quantity.integer' => 'Válido apenas números inteiros.',
             'quantity.max' => 'O campo deve ter no máximo 1000',
+            
+            'reason_project.min' => 'O campo deve conter no mínimo 5 caracteres.',
+            
+            'quantity.integer' => 'Válido apenas números inteiros.',
         ];
     }
 
@@ -116,7 +125,7 @@ class Reservation extends Model
         return [
             'required' => 'Campo obrigatório.',
             'boolean' => 'Válido apenas "1" para esse campo.',
-            'exists:users,id' => 'Usuário não encontrado, tente novamente.',
+            'exists' => 'Usuário não encontrado, tente novamente.',
         ];
     }
 
@@ -134,7 +143,7 @@ class Reservation extends Model
         return [
             'required' => 'Campo obrigatório.',
             'boolean' => 'Válido apenas "0" para esse campo.',
-            'exists:users,id' => 'Usuário não encontrado, tente novamente.',
+            'exists' => 'Usuário não encontrado, tente novamente.',
         ];
     }
 
