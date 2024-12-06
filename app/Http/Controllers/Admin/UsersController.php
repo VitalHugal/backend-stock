@@ -128,6 +128,18 @@ class UsersController extends CrudController
                 ]);
             }
 
+            $emailExistsDeleted = User::withTrashed()
+                ->where('email', $email)
+                ->whereNotNull('deleted_at')
+                ->first();
+
+            if ($emailExistsDeleted) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Este e-mail já está indisponível.',
+                ]);
+            }
+
             $create = $request->validate($this->user->rulesCreateUser(), $this->user->feedbackCreateUser());
 
             $create = $this->user->create([
