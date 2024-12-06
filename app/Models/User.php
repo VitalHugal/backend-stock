@@ -71,7 +71,7 @@ class User extends Authenticatable
     {
         return [
             'name' => 'required|max:255|min:3',
-            'email' => 'email|required|max:255|',
+            'email' => 'email|required|max:255|min:8',
             'password' => 'required|min:8|max:40',
             // 'responsible_category' => '',
         ];
@@ -87,6 +87,7 @@ class User extends Authenticatable
             'email.required' => 'Campo e-mail é obrigatório.',
             'email.max' => 'O campo e-mail deve ter no máximo 255 caracteres.',
             'email.email' => 'E-mail inválido.',
+            'email.min' => 'E-mail inválido.',
             
             'password.required' => 'Campo senha é obrigatório.',
             'password.min' => 'O campo senha deve ter no mínimo 8 carcateres.',

@@ -22,7 +22,7 @@ class Category extends Model
     {
         return [
             'name' => 'required|max:40|min:2',
-            'description' => 'required|max:100|min:20',
+            'description' => 'required|max:400|min:1',
         ];
     }
     public function feedbackCategory()
@@ -33,8 +33,8 @@ class Category extends Model
             'name.min' => 'O campo nome deve conter no mínimo 2 caracteres.',
             
             'description.required' => 'Campo descrição é obrigatório.',
-            'description.max' => 'O campo deve conter até 100 caracteres.',
-            'description.min' => 'O campo nome deve conter no mínimo 20 caracteres.',
+            'description.max' => 'O campo descrição deve conter até 400 caracteres.',
+            'description.min' => 'O campo descrição deve conter no mínimo 1 carácter.',
         ];
     }
 
