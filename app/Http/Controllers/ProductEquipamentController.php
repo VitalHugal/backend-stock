@@ -94,10 +94,17 @@ class ProductEquipamentController extends CrudController
                     ]);
                 }
 
-                $productEquipamentUser = ProductEquipament::with('category')
-                    ->whereIn('fk_category_id', $categoryUser)
-                    ->orderBy('fk_category_id', 'asc')
-                    ->paginate(10);
+                // $productEquipamentUser = ProductEquipament::with('category')
+                //     ->whereIn('fk_category_id', $categoryUser)
+                //     ->orderBy('fk_category_id', 'asc')
+                //     ->paginate(10);
+
+                $productEquipamentUser = ProductEquipament::withTrashed() // Inclui registros deletados no modelo ProductEquipament
+                    ->with('category') // Relacionamento com a categoria
+                    ->whereIn('fk_category_id', $categoryUser) // Filtra pelo id da categoria
+                    ->orderBy('fk_category_id', 'asc') // Ordena pelos ids das categorias
+                    ->paginate(10); // Paginação
+
 
                 $productEquipamentUser->getCollection()->transform(function ($product) {
 
@@ -131,8 +138,13 @@ class ProductEquipamentController extends CrudController
                 ]);
             }
 
-            $productAllAdmin = ProductEquipament::with('category')
-                // ->get()
+            // $productAllAdmin = ProductEquipament::with('category')
+            //     // ->get()
+            //     ->orderBy('fk_category_id', 'asc')
+            //     ->paginate(10);
+
+            $productAllAdmin = ProductEquipament::withTrashed() // Inclui registros deletados no modelo ProductEquipament
+                ->with('category')
                 ->orderBy('fk_category_id', 'asc')
                 ->paginate(10);
 
@@ -265,8 +277,13 @@ class ProductEquipamentController extends CrudController
                     }
                 }
 
+                // $productEquipamentUser = ProductEquipament::with('category')
+                //     ->whereIn('fk_category_id', $categoryUser)->where('id', $id)
+                //     ->get()
                 $productEquipamentUser = ProductEquipament::with('category')
-                    ->whereIn('fk_category_id', $categoryUser)->where('id', $id)
+                    ->whereIn('fk_category_id', $categoryUser)
+                    ->where('id', $id)
+                    ->withTrashed() // Inclui registros soft-deleted
                     ->get()
                     ->map(function ($product) {
 
@@ -309,6 +326,7 @@ class ProductEquipamentController extends CrudController
 
             $productAdmin = ProductEquipament::with('category')
                 ->where('id', $id)
+                ->withTrashed()
                 ->get()
                 ->map(function ($product) {
 
