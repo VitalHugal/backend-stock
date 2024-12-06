@@ -70,7 +70,7 @@ class User extends Authenticatable
     public function rulesCreateUser()
     {
         return [
-            'name' => 'required|max:255',
+            'name' => 'required|max:255|min:3',
             'email' => 'email|required|max:255|',
             'password' => 'required|min:8|max:40',
             // 'responsible_category' => '',
@@ -84,10 +84,11 @@ class User extends Authenticatable
             'email.required' => 'Campo e-mail é obrigatório.',
             'password.required' => 'Campo senha é obrigatório.',
             'name.max' => 'O campo nome deve ter no máximo 255 caracteres.',
+            'name.min' => 'O campo nome deve ter no mínimo 3 caracteres.',
             'email.max' => 'O campo e-mail deve ter no máximo 255 caracteres.',
-            'email' => 'E-mail inválido.',
-            'min' => 'O campo senha deve ter no mínimo 8 carcateres.',
-            'max' => 'O campo senha deve ter no máximo 40 carcateres.',
+            'email.email' => 'E-mail inválido.',
+            'password.min' => 'O campo senha deve ter no mínimo 8 carcateres.',
+            'password.max' => 'O campo senha deve ter no máximo 40 carcateres.',
         ];
     }
 
@@ -95,8 +96,8 @@ class User extends Authenticatable
     public function rulesUpdateUser()
     {
         return [
-            'name' => 'required|max:255',
-            'email' => 'email|required|max:255|',
+            'name' => 'required|max:255|min:3',
+            'email' => 'email|required|max:255',
             // 'responsible_category' => '',
         ];
     }
@@ -107,8 +108,9 @@ class User extends Authenticatable
             'name.required' => 'Campo nome é obrigatório.',
             'email.required' => 'Campo e-mail é obrigatório.',
             'name.max' => 'O campo nome deve ter no máximo 255 caracteres.',
+            'name.min' => 'O campo nome deve ter no mínimo 3 caracteres.',
             'email.max' => 'O campo e-mail deve ter no máximo 255 caracteres.',
-            'email' => 'E-mail inválido.',
+            'email.email' => 'E-mail inválido.',
         ];
     }
 
