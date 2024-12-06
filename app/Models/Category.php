@@ -21,7 +21,7 @@ class Category extends Model
     public function rulesCategory()
     {
         return [
-            'name' => 'required|max:255',
+            'name' => 'required|max:40',
             'description' => 'required|max:999',
         ];
     }
@@ -30,7 +30,7 @@ class Category extends Model
         return [
             'name.required' => 'Campo nome é obrigatório.',
             'description.required' => 'Campo descrição é obrigatório.',
-            'name.max' => 'O campo nome deve conter até 255 caracteres.',
+            'name.max' => 'O campo nome deve conter até 40 caracteres.',
             'description.max' => 'O campo deve conter até 999 caracteres.',
         ];
     }
