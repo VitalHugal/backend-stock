@@ -43,9 +43,22 @@ class InputsController extends CrudController
 
             // Verifica o nível de acesso e filtra as saídas
             if ($level == 'user') {
-                $inputs = Inputs::with(['productEquipament.category', 'user'])
+                // $inputs = Inputs::with(['productEquipament.category', 'user'])
+                //     ->whereHas('productEquipament', function ($query) use ($categoryUser) {
+                //         $query->whereIn('fk_category_id', $categoryUser);
+                //     })
+                //     ->orderBy('created_at', 'desc')
+                //     ->paginate(10);
+
+                $inputs = Inputs::withTrashed() // Inclui registros com soft deletes
+                    ->with(['productEquipament.category' => function ($query) {
+                        $query->withTrashed(); // Inclui registros deletados de 'productEquipament.category'
+                    }, 'user' => function ($query) {
+                        $query->withTrashed(); // Inclui registros deletados de 'user'
+                    }])
                     ->whereHas('productEquipament', function ($query) use ($categoryUser) {
-                        $query->whereIn('fk_category_id', $categoryUser);
+                        $query->whereIn('fk_category_id', $categoryUser)
+                            ->withTrashed(); // Inclui registros deletados ao filtrar
                     })
                     ->orderBy('created_at', 'desc')
                     ->paginate(10);
@@ -72,8 +85,24 @@ class InputsController extends CrudController
                 ]);
             }
 
-            $inputsAdmin = Inputs::with(['productEquipament.category', 'user'])
+            // $inputsAdmin = Inputs::with(['productEquipament.category', 'user'])
+            //     ->whereHas('productEquipament', function ($query) use ($categoryUser) {
+            //         // $query->whereIn('fk_category_id', $categoryUser);
+            //     })
+            //     ->orderBy('created_at', 'desc')
+            //     ->paginate(10);
+
+            $inputsAdmin = Inputs::withTrashed()
+                ->with([
+                    'productEquipament.category' => function ($query) {
+                        $query->withTrashed();
+                    },
+                    'user' => function ($query) {
+                        $query->withTrashed();
+                    },
+                ])
                 ->whereHas('productEquipament', function ($query) use ($categoryUser) {
+                    $query->withTrashed();
                     // $query->whereIn('fk_category_id', $categoryUser);
                 })
                 ->orderBy('created_at', 'desc')
@@ -142,8 +171,24 @@ class InputsController extends CrudController
             }
             // Verifica o nível de acesso e filtra as saídas
             if ($level == 'user') {
-                $inputs = Inputs::with(['productEquipament.category', 'user'])->where('id', $id)
+                // $inputs = Inputs::with(['productEquipament.category', 'user'])->where('id', $id)
+                //     ->whereHas('productEquipament', function ($query) use ($categoryUser) {
+                //         $query->whereIn('fk_category_id', $categoryUser);
+                //     })
+                //     ->get()
+
+                $inputs = Inputs::withTrashed() // Inclui registros deletados no modelo principal
+                    ->with([
+                        'productEquipament.category' => function ($query) {
+                            $query->withTrashed(); // Inclui registros deletados na categoria
+                        },
+                        'user' => function ($query) {
+                            $query->withTrashed(); // Inclui registros deletados no usuário
+                        },
+                    ])
+                    ->where('id', $id)
                     ->whereHas('productEquipament', function ($query) use ($categoryUser) {
+                        $query->withTrashed(); // Inclui registros deletados no filtro de categoria
                         $query->whereIn('fk_category_id', $categoryUser);
                     })
                     ->get()
@@ -170,9 +215,24 @@ class InputsController extends CrudController
                 ]);
             }
 
-            $inputsAdmin = Inputs::with(['productEquipament.category', 'user'])->where('id', $id)
+            // $inputsAdmin = Inputs::with(['productEquipament.category', 'user'])->where('id', $id)
+            //     ->whereHas('productEquipament', function ($query) use ($categoryUser) {
+            //         // $query->whereIn('fk_category_id', $categoryUser);
+            //     })
+            //     ->get()
+
+            $inputsAdmin = Inputs::withTrashed() // Inclui registros deletados no modelo Exits
+                ->with([
+                    'productEquipament.category' => function ($query) {
+                        $query->withTrashed(); // Inclui registros deletados na categoria
+                    },
+                    'user' => function ($query) {
+                        $query->withTrashed(); // Inclui registros deletados no usuário
+                    },
+                ])
+                ->where('id', $id)
                 ->whereHas('productEquipament', function ($query) use ($categoryUser) {
-                    // $query->whereIn('fk_category_id', $categoryUser);
+                    // $query->whereIn('fk_category_id', $categoryUser); // Filtra com base nas categorias
                 })
                 ->get()
                 ->map(function ($input) {

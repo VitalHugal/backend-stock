@@ -11,10 +11,6 @@ use Exception;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
-
-use function Laravel\Prompts\table;
-use function PHPUnit\Framework\isEmpty;
 
 class ExitsController extends CrudController
 {
@@ -48,9 +44,15 @@ class ExitsController extends CrudController
             }
 
             if ($level == 'user') {
-                $exits = Exits::with(['productEquipament.category', "user"])
+                $exits = Exits::withTrashed() // Inclui registros com soft deletes
+                    ->with(['productEquipament.category' => function ($query) {
+                        $query->withTrashed(); // Inclui registros deletados de 'productEquipament.category'
+                    }, 'user' => function ($query) {
+                        $query->withTrashed(); // Inclui registros deletados de 'user'
+                    }])
                     ->whereHas('productEquipament', function ($query) use ($categoryUser) {
-                        $query->whereIn('fk_category_id', $categoryUser);
+                        $query->whereIn('fk_category_id', $categoryUser)
+                            ->withTrashed(); // Inclui registros deletados ao filtrar
                     })
                     ->orderBy('created_at', 'desc')
                     ->paginate(10);
@@ -81,12 +83,22 @@ class ExitsController extends CrudController
                 ]);
             }
 
-            $exitsAdmin = Exits::with(['productEquipament.category', "user"])
+            $exitsAdmin = Exits::withTrashed()
+                ->with([
+                    'productEquipament.category' => function ($query) {
+                        $query->withTrashed();
+                    },
+                    'user' => function ($query) {
+                        $query->withTrashed();
+                    },
+                ])
                 ->whereHas('productEquipament', function ($query) use ($categoryUser) {
+                    $query->withTrashed();
                     // $query->whereIn('fk_category_id', $categoryUser);
                 })
                 ->orderBy('created_at', 'desc')
                 ->paginate(10);
+
 
             // Transformando os itens dentro da paginação
             $exitsAdmin->getCollection()->transform(function ($exit) {
@@ -159,11 +171,22 @@ class ExitsController extends CrudController
                         ]);
                     }
                 }
-                $exit = Exits::with(['productEquipament.category', "user"])
+                $exit = Exits::withTrashed() // Inclui registros deletados no modelo principal
+                    ->with([
+                        'productEquipament.category' => function ($query) {
+                            $query->withTrashed(); // Inclui registros deletados na categoria
+                        },
+                        'user' => function ($query) {
+                            $query->withTrashed(); // Inclui registros deletados no usuário
+                        },
+                    ])
                     ->where('id', $id)
                     ->whereHas('productEquipament', function ($query) use ($categoryUser) {
+                        $query->withTrashed(); // Inclui registros deletados no filtro de categoria
                         $query->whereIn('fk_category_id', $categoryUser);
-                    })->first();
+                    })
+                    ->first();
+
 
                 if (!$exit) {
                     return response()->json([
@@ -193,11 +216,27 @@ class ExitsController extends CrudController
                     'data' => $exitDataUser,
                 ]);
             }
-            $exit = Exits::with(['productEquipament.category', "user"])
+            // $exit = Exits::with(['productEquipament.category', "user"])
+            //     ->where('id', $id)
+            //     ->whereHas('productEquipament', function ($query) use ($categoryUser) {
+            //         // $query->whereIn('fk_category_id', $categoryUser);
+            //     })->first();
+
+            $exit = Exits::withTrashed() // Inclui registros deletados no modelo Exits
+                ->with([
+                    'productEquipament.category' => function ($query) {
+                        $query->withTrashed(); // Inclui registros deletados na categoria
+                    },
+                    'user' => function ($query) {
+                        $query->withTrashed(); // Inclui registros deletados no usuário
+                    },
+                ])
                 ->where('id', $id)
                 ->whereHas('productEquipament', function ($query) use ($categoryUser) {
-                    // $query->whereIn('fk_category_id', $categoryUser);
-                })->first();
+                    // $query->whereIn('fk_category_id', $categoryUser); // Filtra com base nas categorias
+                })
+                ->first();
+
 
             if (!$exit) {
                 return response()->json([
