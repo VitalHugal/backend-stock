@@ -56,6 +56,7 @@ class ReservationController extends CrudController
                         'data' => $reservationFilter,
                     ]);
                 }
+
                 $reservations = Reservation::with(['productEquipament.category', 'user', 'userFinished'])
                     ->whereHas('productEquipament', function ($query) use ($categoryUser) {
                         $query->whereIn('fk_category_id', $categoryUser);
@@ -69,6 +70,7 @@ class ReservationController extends CrudController
                     $return_date = 'return_date';
                     $updated_at = 'updated_at';
                     $created_at = 'created_at';
+                    $date_finished = 'date_finished';
 
                     if ($reservation->return_date < now() && (int)$reservation->reservation_finished === 0) {
                         $status = 'Delayed';
@@ -87,12 +89,17 @@ class ReservationController extends CrudController
                         'delivery_to' => $reservation->delivery_to,
                         'status' => $reservation->status,
                         'reservation_finished' => $reservation->reservation_finished,
-                        'date_finished' => $reservation->date_finished,
+                        'date_finished' => $reservation->date_finished
+                            ? $this->reservation->getFormattedDate($reservation, $date_finished)
+                            : null,
                         'fk_user_id_finished' => $reservation->fk_user_id_finished,
                         'name_user_finished' => $reservation->userFinished->name ?? null,
                         'product_name' => $reservation->productEquipament->name ?? null,
                         'id_product' => $reservation->productEquipament->id ?? null,
-                        'category_name' => $reservation->productEquipament->category->name ?? null,
+                        // 'category_name' => $reservation->productEquipament->category->name ?? null,
+                        'category_name' => $reservation->productEquipament->category->trashed()
+                            ? $reservation->productEquipament->category->name . ' (Deletado)' // Se deletado, adiciona "(Deletado)"
+                            : $reservation->productEquipament->category->name ?? null,
                         'created_at' => $this->reservation->getFormattedDate($reservation, $created_at),
                         'updated_at' => $this->reservation->getFormattedDate($reservation, $updated_at),
                     ];
@@ -141,19 +148,24 @@ class ReservationController extends CrudController
                         'reason_project' => $reservation->reason_project,
                         'observation' => $reservation->observation,
                         'quantity' => $reservation->quantity,
-                        'withdrawal_date' => $this->reservation->getFormattedDate($reservation, $withdrawal_date_admin),
-                        'return_date' => $this->reservation->getFormattedDate($reservation, $return_date_admin),
+                        'withdrawal_date' => $this->reservation->getFormattedDate($reservation, 'withdrawal_date'),
+                        'return_date' => $this->reservation->getFormattedDate($reservation, 'return_date'),
                         'delivery_to' => $reservation->delivery_to,
                         'status' => $reservation->status,
                         'reservation_finished' => $reservation->reservation_finished,
-                        'date_finished' => $reservation->date_finished,
+                        'date_finished' => $reservation->date_finished
+                            ? $this->reservation->getFormattedDate($reservation, 'date_finished')
+                            : null,
                         'fk_user_id_finished' => $reservation->fk_user_id_finished,
                         'name_user_finished' => $reservation->userFinished->name ?? null,
                         'product_name' => $reservation->productEquipament->name ?? null,
                         'id_product' => $reservation->productEquipament->id ?? null,
-                        'category_name' => $reservation->productEquipament->category->name ?? null,
-                        'created_at' => $this->reservation->getFormattedDate($reservation, $created_at_admin),
-                        'updated_at' => $this->reservation->getFormattedDate($reservation, $updated_at_admin),
+                        // 'category_name' => $reservation->productEquipament->category->name ?? null,
+                        'category_name' => $reservation->productEquipament->category->trashed()
+                            ? $reservation->productEquipament->category->name . ' (Deletado)' // Se deletado, adiciona "(Deletado)"
+                            : $reservation->productEquipament->category->name ?? null,
+                        'created_at' => $this->reservation->getFormattedDate($reservation, 'created_at'),
+                        'updated_at' => $this->reservation->getFormattedDate($reservation, 'updated_at'),
                     ];
                 });
 
@@ -237,24 +249,29 @@ class ReservationController extends CrudController
 
                 $reservationData = [
                     'id' => $reservation->id,
-                    'fk_user_id_create' => $reservation->fk_user_id,
-                    'name_user_create' => $reservation->user->name ?? null,
-                    'reason_project' => $reservation->reason_project,
-                    'observation' => $reservation->observation,
-                    'quantity' => $reservation->quantity,
-                    'withdrawal_date' => $this->reservation->getFormattedDate($reservation, $withdrawal_date),
-                    'return_date' => $this->reservation->getFormattedDate($reservation, $return_date),
-                    'delivery_to' => $reservation->delivery_to,
-                    'status' => $reservation->status,
-                    'reservation_finished' => $reservation->reservation_finished,
-                    'date_finished' => $reservation->date_finished,
-                    'fk_user_id_finished' => $reservation->fk_user_id_finished,
-                    'name_user_finished' => $reservation->userFinished->name ?? null,
-                    'product_name' => $reservation->productEquipament->name ?? null,
-                    'id_product' => $reservation->productEquipament->id ?? null,
-                    'category_name' => $reservation->productEquipament->category->name ?? null,
-                    'created_at' => $this->reservation->getFormattedDate($reservation, $created_at),
-                    'updated_at' => $this->reservation->getFormattedDate($reservation, $updated_at),
+                        'fk_user_id_create' => $reservation->fk_user_id,
+                        'name_user_create' => $reservation->user->name ?? null,
+                        'reason_project' => $reservation->reason_project,
+                        'observation' => $reservation->observation,
+                        'quantity' => $reservation->quantity,
+                        'withdrawal_date' => $this->reservation->getFormattedDate($reservation, $withdrawal_date),
+                        'return_date' => $this->reservation->getFormattedDate($reservation, $return_date),
+                        'delivery_to' => $reservation->delivery_to,
+                        'status' => $reservation->status,
+                        'reservation_finished' => $reservation->reservation_finished,
+                        'date_finished' => $reservation->date_finished
+                            ? $this->reservation->getFormattedDate($reservation, 'date_finished')
+                            : null,
+                        'fk_user_id_finished' => $reservation->fk_user_id_finished,
+                        'name_user_finished' => $reservation->userFinished->name ?? null,
+                        'product_name' => $reservation->productEquipament->name ?? null,
+                        'id_product' => $reservation->productEquipament->id ?? null,
+                        // 'category_name' => $reservation->productEquipament->category->name ?? null,
+                        'category_name' => $reservation->productEquipament->category->trashed()
+                            ? $reservation->productEquipament->category->name . ' (Deletado)' // Se deletado, adiciona "(Deletado)"
+                            : $reservation->productEquipament->category->name ?? null,
+                        'created_at' => $this->reservation->getFormattedDate($reservation, $created_at),
+                        'updated_at' => $this->reservation->getFormattedDate($reservation, $updated_at),
                 ];
 
                 if ($reservationData == null) {
@@ -298,25 +315,30 @@ class ReservationController extends CrudController
                 }
 
                 $reservationDataAdmin = [
-                    'id' => $reservation->id,
-                    'fk_user_id_create' => $reservation->fk_user_id,
-                    'name_user_create' => $reservation->user->name ?? null,
-                    'reason_project' => $reservation->reason_project,
-                    'observation' => $reservation->observation,
-                    'quantity' => $reservation->quantity,
-                    'withdrawal_date' => $this->reservation->getFormattedDate($reservation, $withdrawal_date_admin),
-                    'return_date' => $this->reservation->getFormattedDate($reservation, $return_date_admin),
-                    'delivery_to' => $reservation->delivery_to,
-                    'status' => $reservation->status,
-                    'reservation_finished' => $reservation->reservation_finished,
-                    'date_finished' => $reservation->date_finished,
-                    'fk_user_id_finished' => $reservation->fk_user_id_finished,
-                    'name_user_finished' => $reservation->userFinished->name ?? null,
-                    'product_name' => $reservation->productEquipament->name ?? null,
-                    'id_product' => $reservation->productEquipament->id ?? null,
-                    'category_name' => $reservation->productEquipament->category->name ?? null,
-                    'created_at' => $this->reservation->getFormattedDate($reservation, $created_at_admin),
-                    'updated_at' => $this->reservation->getFormattedDate($reservation, $updated_at_admin),
+                   'id' => $reservation->id,
+                        'fk_user_id_create' => $reservation->fk_user_id,
+                        'name_user_create' => $reservation->user->name ?? null,
+                        'reason_project' => $reservation->reason_project,
+                        'observation' => $reservation->observation,
+                        'quantity' => $reservation->quantity,
+                        'withdrawal_date' => $this->reservation->getFormattedDate($reservation, 'withdrawal_date'),
+                        'return_date' => $this->reservation->getFormattedDate($reservation, 'return_date'),
+                        'delivery_to' => $reservation->delivery_to,
+                        'status' => $reservation->status,
+                        'reservation_finished' => $reservation->reservation_finished,
+                        'date_finished' => $reservation->date_finished
+                            ? $this->reservation->getFormattedDate($reservation, 'date_finished')
+                            : null,
+                        'fk_user_id_finished' => $reservation->fk_user_id_finished,
+                        'name_user_finished' => $reservation->userFinished->name ?? null,
+                        'product_name' => $reservation->productEquipament->name ?? null,
+                        'id_product' => $reservation->productEquipament->id ?? null,
+                        // 'category_name' => $reservation->productEquipament->category->name ?? null,
+                        'category_name' => $reservation->productEquipament->category->trashed()
+                            ? $reservation->productEquipament->category->name . ' (Deletado)' // Se deletado, adiciona "(Deletado)"
+                            : $reservation->productEquipament->category->name ?? null,
+                        'created_at' => $this->reservation->getFormattedDate($reservation, 'created_at'),
+                        'updated_at' => $this->reservation->getFormattedDate($reservation, 'updated_at'),
                 ];
 
                 if ($reservationDataAdmin == null) {
@@ -942,11 +964,11 @@ class ReservationController extends CrudController
 
                 $reservation->fk_user_id_finished = null;
                 $reservation->date_finished = null;
-                
+
                 if ($reservation->return_date < now()) {
                     $status = 'Delayed';
                     Reservation::where('id', $reservation->id)->update(['status' => $status]);
-                }else {
+                } else {
                     $status = 'In progress';
                     Reservation::where('id', $reservation->id)->update(['status' => $status]);
                 }

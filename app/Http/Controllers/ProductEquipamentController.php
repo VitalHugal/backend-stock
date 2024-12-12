@@ -46,54 +46,62 @@ class ProductEquipamentController extends CrudController
 
             if ($user->level == 'user') {
 
-                // if ($request->has('name') && $request->input('name') != '') {
+                if ($request->has('name') && $request->input('name') != '') {
 
-                //     $productEquipamentUserSearch = ProductEquipament::with('category')
-                //         ->whereIn('fk_category_id', $categoryUser)
-                //         ->where('name', 'like', '%' . $request->input('name') . '%')
-                //         ->orderBy('fk_category_id', 'asc')
-                //         ->paginate(10)
-                //         ->appends(['name' => $request->input('name')]);
+                    $productEquipamentUserSearch = ProductEquipament::
+                        // with('category')
+                        withTrashed() // Inclui registros deletados no modelo ProductEquipament
+                        ->with(['category' => function ($query) {
+                            $query->withTrashed(); // Inclui as categorias deletadas no relacionamento
+                        }])
+                        ->whereIn('fk_category_id', $categoryUser)
+                        ->where('name', 'like', '%' . $request->input('name') . '%')
+                        ->orderBy('fk_category_id', 'asc')
+                        ->paginate(10)
+                        ->appends(['name' => $request->input('name')]);
 
-                //     if ($productEquipamentUserSearch->isEmpty()) {
-                //         return response()->json([
-                //             'success' => false,
-                //             'message' => 'Nenhum produto encontrado com o nome informado.',
-                //         ]);
-                //     }
+                    if ($productEquipamentUserSearch->isEmpty()) {
+                        return response()->json([
+                            'success' => false,
+                            'message' => 'Nenhum produto encontrado com o nome informado.',
+                        ]);
+                    }
 
-                //     $productEquipamentUserSearch->getCollection()->transform(function ($product) {
+                    $productEquipamentUserSearch->getCollection()->transform(function ($product) {
 
-                //         $quantityTotalInputs = Inputs::where('fk_product_equipament_id', $product->id)->sum('quantity');
-                //         $quantityTotalExits = Exits::where('fk_product_equipament_id', $product->id)->sum('quantity');
+                        $quantityTotalInputs = Inputs::where('fk_product_equipament_id', $product->id)->sum('quantity');
+                        $quantityTotalExits = Exits::where('fk_product_equipament_id', $product->id)->sum('quantity');
 
-                //         $quantityReserveNotFinished = Reservation::where('fk_product_equipament_id', $product->id)
-                //             ->where('reservation_finished', false)
-                //             ->whereNull('date_finished')
-                //             ->whereNull('fk_user_id_finished')
-                //             ->sum('quantity');
+                        $quantityReserveNotFinished = Reservation::where('fk_product_equipament_id', $product->id)
+                            ->where('reservation_finished', false)
+                            ->whereNull('date_finished')
+                            ->whereNull('fk_user_id_finished')
+                            ->sum('quantity');
 
-                //         $quantityTotalProduct = $quantityTotalInputs - ($quantityTotalExits + $quantityReserveNotFinished);
+                        $quantityTotalProduct = $quantityTotalInputs - ($quantityTotalExits + $quantityReserveNotFinished);
 
-                //         return [
-                //             'id' => $product->id,
-                //             'name-category' => $product->category ? $product->category->name : null,
-                //             'name' => $product->name,
-                //             'quantity_stock' => $quantityTotalProduct,
-                //             'quantity_min' => $product->quantity_min,
-                //             'fk_category_id' => $product->fk_category_id,
-                //             'created_at' => $this->productEquipaments->getFormattedDate($product, 'created_at'),
-                //             'updated_at' => $this->productEquipaments->getFormattedDate($product, 'updated_at'),
-                //         ];
-                //     });
+                        return [
+                            'id' => $product->id,
+                            // 'name-category' => $product->category ? $product->category->name : null,
+                            'name-category' => $product->category->trashed()
+                                ? $product->category->name . ' (Deletado)' // Se deletado, adiciona "(Deletado)"
+                                : $product->category->name ?? null,
+                            'name' => $product->name,
+                            'quantity_stock' => $quantityTotalProduct,
+                            'quantity_min' => $product->quantity_min,
+                            'fk_category_id' => $product->fk_category_id,
+                            'created_at' => $this->productEquipaments->getFormattedDate($product, 'created_at'),
+                            'updated_at' => $this->productEquipaments->getFormattedDate($product, 'updated_at'),
+                        ];
+                    });
 
-                //     return response()->json([
-                //         'success' => true,
-                //         'message' => 'Produto(s)/Equipamento(s) pesquisado recuperados com sucesso.',
-                //         'data' => $productEquipamentUserSearch,
-                //     ]);
-                // }
-
+                    return response()->json([
+                        'success' => true,
+                        'message' => 'Produto(s)/Equipamento(s) pesquisado recuperados com sucesso.',
+                        'data' => $productEquipamentUserSearch,
+                    ]);
+                }
+                // query sem os produtos deletados
                 // $productEquipamentUser = ProductEquipament::with('category')
                 //     ->whereIn('fk_category_id', $categoryUser)
                 //     ->orderBy('fk_category_id', 'asc')
@@ -123,7 +131,7 @@ class ProductEquipamentController extends CrudController
 
                     return [
                         'id' => $product->id,
-                        'name-category' => $categoryName = $product->category->trashed()
+                        'name-category' => $product->category->trashed()
                             ? $product->category->name . ' (Deletado)' // Se deletado, adiciona "(Deletado)"
                             : $product->category->name ?? null,
                         'name' => $product->name,
@@ -142,6 +150,7 @@ class ProductEquipamentController extends CrudController
                 ]);
             }
 
+            // query sem os produtos deletados
             // $productAllAdmin = ProductEquipament::with('category')
             //     // ->get()
             //     ->orderBy('fk_category_id', 'asc')
@@ -154,54 +163,61 @@ class ProductEquipamentController extends CrudController
                 ->orderBy('fk_category_id', 'asc')
                 ->paginate(10);
 
-            // if ($request->has('name') && $request->input('name') != '') {
+            if ($request->has('name') && $request->input('name') != '') {
 
-            //     $productAllAdminSearch = ProductEquipament::with('category')
-            //         // ->whereIn('fk_category_id', $categoryUser)
-            //         ->where('name', 'like', '%' . $request->input('name') . '%')
-            //         // ->orderBy('name', 'asc')
-            //         ->orderBy('fk_category_id', 'asc')
-            //         ->paginate(10)
-            //         ->appends(['name' => $request->input('name')]);
+                $productAllAdminSearch = ProductEquipament::withTrashed() // Inclui registros deletados no modelo ProductEquipament
+                    ->with(['category' => function ($query) {
+                        $query->withTrashed(); // Inclui as categorias deletadas no relacionamento
+                    }])
+                    // with('category')
+                    // ->whereIn('fk_category_id', $categoryUser)
+                    ->where('name', 'like', '%' . $request->input('name') . '%')
+                    // ->orderBy('name', 'asc')
+                    ->orderBy('fk_category_id', 'asc')
+                    ->paginate(10)
+                    ->appends(['name' => $request->input('name')]);
 
-            //     if ($productAllAdminSearch->isEmpty()) {
-            //         return response()->json([
-            //             'success' => false,
-            //             'message' => 'Nenhum produto encontrado com o nome informado.',
-            //         ]);
-            //     }
+                if ($productAllAdminSearch->isEmpty()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Nenhum produto encontrado com o nome informado.',
+                    ]);
+                }
 
-            //     $productAllAdminSearch->getCollection()->transform(function ($product) {
+                $productAllAdminSearch->getCollection()->transform(function ($product) {
 
-            //         $quantityTotalInputs = Inputs::where('fk_product_equipament_id', $product->id)->sum('quantity');
-            //         $quantityTotalExits = Exits::where('fk_product_equipament_id', $product->id)->sum('quantity');
+                    $quantityTotalInputs = Inputs::where('fk_product_equipament_id', $product->id)->sum('quantity');
+                    $quantityTotalExits = Exits::where('fk_product_equipament_id', $product->id)->sum('quantity');
 
-            //         $quantityReserveNotFinished = Reservation::where('fk_product_equipament_id', $product->id)
-            //             ->where('reservation_finished', false)
-            //             ->whereNull('date_finished')
-            //             ->whereNull('fk_user_id_finished')
-            //             ->sum('quantity');
+                    $quantityReserveNotFinished = Reservation::where('fk_product_equipament_id', $product->id)
+                        ->where('reservation_finished', false)
+                        ->whereNull('date_finished')
+                        ->whereNull('fk_user_id_finished')
+                        ->sum('quantity');
 
-            //         $quantityTotalProduct = $quantityTotalInputs - ($quantityTotalExits + $quantityReserveNotFinished);
+                    $quantityTotalProduct = $quantityTotalInputs - ($quantityTotalExits + $quantityReserveNotFinished);
 
-            //         return [
-            //             'id' => $product->id,
-            //             'name-category' => $product->category->name ?? null,
-            //             'name' => $product->name,
-            //             'quantity_stock' => $quantityTotalProduct,
-            //             'quantity_min' => $product->quantity_min,
-            //             'fk_category_id' => $product->fk_category_id,
-            //             'created_at' => $this->productEquipaments->getFormattedDate($product, 'created_at'),
-            //             'updated_at' => $this->productEquipaments->getFormattedDate($product, 'updated_at'),
-            //         ];
-            //     });
+                    return [
+                        'id' => $product->id,
+                        // 'name-category' => $product->category->name ?? null,
+                        'name-category' => $product->category->trashed()
+                            ? $product->category->name . ' (Deletado)' // Se deletado, adiciona "(Deletado)"
+                            : $product->category->name ?? null,
+                        'name' => $product->name,
+                        'quantity_stock' => $quantityTotalProduct,
+                        'quantity_min' => $product->quantity_min,
+                        'fk_category_id' => $product->fk_category_id,
+                        'created_at' => $this->productEquipaments->getFormattedDate($product, 'created_at'),
+                        'updated_at' => $this->productEquipaments->getFormattedDate($product, 'updated_at'),
+                    ];
+                });
 
-            //     return response()->json([
-            //         'success' => true,
-            //         'message' => 'Produto(s)/Equipamento(s) pesquisado recuperados com sucesso.',
-            //         'data' => $productAllAdminSearch,
-            //     ]);
-            // }
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Produto(s)/Equipamento(s) pesquisado recuperados com sucesso.',
+                    'data' => $productAllAdminSearch,
+                ]);
+            }
 
             $productAllAdmin->getCollection()->transform(function ($product) {
 
@@ -223,7 +239,7 @@ class ProductEquipamentController extends CrudController
 
                 return [
                     'id' => $product->id,
-                    'name-category' => $categoryName = $product->category->trashed()
+                    'name-category' => $product->category->trashed()
                         ? $product->category->name . ' (Deletado)' // Se deletado, adiciona "(Deletado)"
                         : $product->category->name ?? null,
                     'name' => $product->name,

@@ -70,7 +70,10 @@ class ExitsController extends CrudController
                         'delivery_to' => $exit->delivery_to ?? null,
                         'product_name' => $exit->productEquipament->name ?? null,
                         'id_product' => $exit->productEquipament->id ?? null,
-                        'category_name' => $exit->productEquipament->category->name ?? null,
+                        // 'category_name' => $exit->productEquipament->category->name ?? null,
+                        'category_name' => $exit->productEquipament->category->trashed()
+                            ? $exit->productEquipament->category->name . ' (Deletado)' // Se deletado, adiciona "(Deletado)"
+                            : $exit->productEquipament->category->name ?? null,
                         'created_at' => $this->exits->getFormattedDate($exit, 'created_at') ?? null,
                         'updated_at' => $this->exits->getFormattedDate($exit, 'updated_at') ?? null,
                     ];
@@ -113,7 +116,10 @@ class ExitsController extends CrudController
                     'delivery_to' => $exit->delivery_to ?? null,
                     'product_name' => $exit->productEquipament->name ?? null,
                     'id_product' => $exit->productEquipament->id ?? null,
-                    'category_name' => $exit->productEquipament->category->name ?? null,
+                    // 'category_name' => $exit->productEquipament->category->name ?? null,
+                    'category_name' => $exit->productEquipament->category->trashed()
+                        ? $exit->productEquipament->category->name . ' (Deletado)' // Se deletado, adiciona "(Deletado)"
+                        : $exit->productEquipament->category->name ?? null,
                     'created_at' => $this->exits->getFormattedDate($exit, 'created_at') ?? null,
                     'updated_at' => $this->exits->getFormattedDate($exit, 'updated_at') ?? null,
                 ];
@@ -157,7 +163,7 @@ class ExitsController extends CrudController
             }
 
             if ($user->level == 'user') {
-                
+
                 $exitRequest = Exits::where('id', $id)->first();
 
                 if ($exitRequest) {
@@ -206,7 +212,10 @@ class ExitsController extends CrudController
                     'delivery_to' => $exit->delivery_to ?? null,
                     'product_name' => $exit->productEquipament->name ?? null,
                     'id_product' => $exit->productEquipament->id ?? null,
-                    'category_name' => $exit->productEquipament->category->name ?? null,
+                    // 'category_name' => $exit->productEquipament->category->name ?? null,
+                    'category_name' => $exit->productEquipament->category->trashed()
+                        ? $exit->productEquipament->category->name . ' (Deletado)' // Se deletado, adiciona "(Deletado)"
+                        : $exit->productEquipament->category->name ?? null,
                     'created_at' => $this->exits->getFormattedDate($exit, 'created_at') ?? null,
                     'updated_at' => $this->exits->getFormattedDate($exit, 'updated_at') ?? null,
                 ];
@@ -256,7 +265,10 @@ class ExitsController extends CrudController
                 'delivery_to' => $exit->delivery_to ?? null,
                 'product_name' => $exit->productEquipament->name ?? null,
                 'id_product' => $exit->productEquipament->id ?? null,
-                'category_name' => $exit->productEquipament->category->name ?? null,
+                // 'category_name' => $exit->productEquipament->category->name ?? null,
+                'category_name' => $exit->productEquipament->category->trashed()
+                    ? $exit->productEquipament->category->name . ' (Deletado)' // Se deletado, adiciona "(Deletado)"
+                    : $exit->productEquipament->category->name ?? null,
                 'created_at' => $this->exits->getFormattedDate($exit, 'created_at') ?? null,
                 'updated_at' => $this->exits->getFormattedDate($exit, 'updated_at') ?? null,
             ];
