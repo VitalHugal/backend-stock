@@ -57,12 +57,26 @@ class ReservationController extends CrudController
                     ]);
                 }
 
-                $reservations = Reservation::with(['productEquipament.category', 'user', 'userFinished'])
+                // $reservations = Reservation::with(['productEquipament.category', 'user', 'userFinished'])
+                //     ->whereHas('productEquipament', function ($query) use ($categoryUser) {
+                //         $query->whereIn('fk_category_id', $categoryUser);
+                //     })
+                //     ->orderBy('created_at', 'desc')
+                //     ->paginate(10);
+
+                $reservations = Reservation::with([
+                    'productEquipament.category' => function ($query) {
+                        $query->withTrashed(); // Inclui registros soft-deleted no relacionamento `category`
+                    },
+                    'user',
+                    'userFinished'
+                ])
                     ->whereHas('productEquipament', function ($query) use ($categoryUser) {
                         $query->whereIn('fk_category_id', $categoryUser);
                     })
                     ->orderBy('created_at', 'desc')
                     ->paginate(10);
+
 
                 $reservations->getCollection()->transform(function ($reservation) {
 
