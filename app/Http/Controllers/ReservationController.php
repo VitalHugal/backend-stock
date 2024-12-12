@@ -125,9 +125,20 @@ class ReservationController extends CrudController
                     ]);
                 }
 
-                $reservationsAdmin = Reservation::with(['productEquipament.category', 'user', 'userFinished'])
+                // $reservationsAdmin = Reservation::with(['productEquipament.category', 'user', 'userFinished'])
+                //     ->orderBy('created_at', 'desc')
+                //     ->paginate(10);
+
+                $reservationsAdmin = Reservation::with([
+                    'productEquipament.category' => function ($query) {
+                        $query->withTrashed(); // Inclui os registros soft-deleted
+                    },
+                    'user',
+                    'userFinished'
+                ])
                     ->orderBy('created_at', 'desc')
                     ->paginate(10);
+
 
                 $reservationsAdmin->getCollection()->transform(function ($reservation) {
 
