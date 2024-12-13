@@ -42,15 +42,23 @@ class CategorysController extends CrudController
                     ]);
                 }
 
-                $categoryAccessUser = Category::whereIn('id', $categoryUser)
+                // $categoryAccessUser = Category::whereIn('id', $categoryUser)
+                //     ->orderBy('id', 'asc')
+                //     ->get();
+
+                $categoryAccessUser = Category::withTrashed()
+                    ->whereIn('id', $categoryUser)
                     ->orderBy('id', 'asc')
                     ->get();
+
 
                 $categoryAccessUser->transform(function ($category) {
 
                     return [
                         'id' => $category->id,
-                        'name' => $category->name,
+                        'name' => $category->trashed()
+                            ? $category->name . ' (Deletado)'
+                            : $category->name,
                         'description' => $category->description,
                         'created_at' => $this->category->getFormattedDate($category, 'created_at'),
                         'updated_at' => $this->category->getFormattedDate($category, 'updated_at'),
@@ -66,13 +74,25 @@ class CategorysController extends CrudController
 
             if ($user->level == 'admin') {
 
-                $getAllCategorys = Category::all();
+                $getAllCategorys = Category::withTrashed()->get();
 
-                if ($getAllCategorys) {
+                $categories = $getAllCategorys->map(function ($category) {
+                    return [
+                        'id' => $category->id,
+                        'name' => $category->trashed()
+                            ? $category->name . ' (Deletado)'
+                            : $category->name,
+                        'description' => $category->description,
+                        'created_at' => $this->category->getFormattedDate($category, 'created_at'),
+                        'updated_at' => $this->category->getFormattedDate($category, 'updated_at'),
+                    ];
+                });
+
+                if ($categories) {
                     return response()->json([
                         'success' => true,
                         'message' => 'Categorias recuperadas com sucesso.',
-                        'data' => $getAllCategorys,
+                        'data' => $categories,
                     ]);
                 }
             }
