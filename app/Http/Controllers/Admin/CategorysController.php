@@ -42,14 +42,14 @@ class CategorysController extends CrudController
                     ]);
                 }
 
-                // $categoryAccessUser = Category::whereIn('id', $categoryUser)
-                //     ->orderBy('id', 'asc')
-                //     ->get();
-
-                $categoryAccessUser = Category::withTrashed()
-                    ->whereIn('id', $categoryUser)
+                $categoryAccessUser = Category::whereIn('id', $categoryUser)
                     ->orderBy('id', 'asc')
                     ->get();
+
+                // $categoryAccessUser = Category::withTrashed()
+                //     ->whereIn('id', $categoryUser)
+                //     ->orderBy('id', 'asc')
+                //     ->get();
 
 
                 $categoryAccessUser->transform(function ($category) {
@@ -74,7 +74,9 @@ class CategorysController extends CrudController
 
             if ($user->level == 'admin') {
 
-                $getAllCategorys = Category::withTrashed()->get();
+                // $getAllCategorys = Category::withTrashed()->get();
+                
+                $getAllCategorys = Category::all();
 
                 $categories = $getAllCategorys->map(function ($category) {
                     return [
