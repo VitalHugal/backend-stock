@@ -83,8 +83,8 @@ class ProductEquipamentController extends CrudController
                         return [
                             'id' => $product->id,
                             // 'name-category' => $product->category ? $product->category->name : null,
-                            'name-category' => $product->category->trashed()
-                                ? $product->category->name . ' (Deletado)' // Se deletado, adiciona "(Deletado)"
+                            'name_category' => $product->category && $product->category->trashed()
+                                ? $product->category->name . ' (Deletado)'
                                 : $product->category->name ?? null,
                             'name' => $product->name,
                             'quantity_stock' => $quantityTotalProduct,
@@ -101,20 +101,27 @@ class ProductEquipamentController extends CrudController
                         'data' => $productEquipamentUserSearch,
                     ]);
                 }
-                // query sem os produtos deletados
-                // $productEquipamentUser = ProductEquipament::with('category')
-                //     ->whereIn('fk_category_id', $categoryUser)
-                //     ->orderBy('fk_category_id', 'asc')
-                //     ->paginate(10);
 
-                $productEquipamentUser = ProductEquipament::withTrashed() // Inclui registros deletados no modelo ProductEquipament
-                    ->with(['category' => function ($query) {
-                        $query->withTrashed(); // Inclui as categorias deletadas no relacionamento
+                if ($request->has('active')) {
+
+                    $productEquipamentUser = ProductEquipament::with(['category' => function ($query) {
+                        $query->whereNull('deleted_at');
                     }])
-                    ->whereIn('fk_category_id', $categoryUser) // Filtra pelo id da categoria
-                    ->orderBy('fk_category_id', 'asc') // Ordena pelos ids das categorias
-                    ->paginate(10); // Paginação
-
+                        ->whereHas('category', function ($query) {
+                            $query->whereNull('deleted_at');
+                        })
+                        ->whereIn('fk_category_id', $categoryUser)
+                        ->orderBy('fk_category_id', 'asc')
+                        ->paginate(10);
+                } else {
+                    $productEquipamentUser = ProductEquipament::withTrashed()
+                        ->with(['category' => function ($query) {
+                            $query->withTrashed();
+                        }])
+                        ->whereIn('fk_category_id', $categoryUser)
+                        ->orderBy('fk_category_id', 'asc')
+                        ->paginate(10);
+                }
 
                 $productEquipamentUser->getCollection()->transform(function ($product) {
 
@@ -131,8 +138,8 @@ class ProductEquipamentController extends CrudController
 
                     return [
                         'id' => $product->id,
-                        'name-category' => $product->category->trashed()
-                            ? $product->category->name . ' (Deletado)' // Se deletado, adiciona "(Deletado)"
+                        'name_category' => $product->category && $product->category->trashed()
+                            ? $product->category->name . ' (Deletado)'
                             : $product->category->name ?? null,
                         'name' => $product->name,
                         'quantity_stock' => $quantityTotalProduct,
@@ -151,17 +158,30 @@ class ProductEquipamentController extends CrudController
             }
 
             // query sem os produtos deletados
-            // $productAllAdmin = ProductEquipament::with('category')
-            //     // ->get()
-            //     ->orderBy('fk_category_id', 'asc')
-            //     ->paginate(10);
 
-            $productAllAdmin = ProductEquipament::withTrashed() // Inclui registros deletados no modelo ProductEquipament
-                ->with(['category' => function ($query) {
-                    $query->withTrashed(); // Inclui as categorias deletadas no relacionamento
+            if ($request->has('active')) {
+                $productAllAdmin = ProductEquipament::with(['category' => function ($query) {
+                    $query->whereNull('deleted_at');
                 }])
-                ->orderBy('fk_category_id', 'asc')
-                ->paginate(10);
+                    ->whereHas('category', function ($query) {
+                        $query->whereNull('deleted_at');
+                    })
+                    ->orderBy('fk_category_id', 'asc')
+                    ->paginate(10);
+
+                // $productAllAdmin = ProductEquipament::with('category')
+                //     // ->get()
+                //     ->orderBy('fk_category_id', 'asc')
+                //     ->paginate(10);
+
+            } else {
+                $productAllAdmin = ProductEquipament::withTrashed() // Inclui registros deletados no modelo ProductEquipament
+                    ->with(['category' => function ($query) {
+                        $query->withTrashed(); // Inclui as categorias deletadas no relacionamento
+                    }])
+                    ->orderBy('fk_category_id', 'asc')
+                    ->paginate(10);
+            }
 
             if ($request->has('name') && $request->input('name') != '') {
 
@@ -200,8 +220,8 @@ class ProductEquipamentController extends CrudController
                     return [
                         'id' => $product->id,
                         // 'name-category' => $product->category->name ?? null,
-                        'name-category' => $product->category->trashed()
-                            ? $product->category->name . ' (Deletado)' // Se deletado, adiciona "(Deletado)"
+                        'name_category' => $product->category && $product->category->trashed()
+                            ? $product->category->name . ' (Deletado)'
                             : $product->category->name ?? null,
                         'name' => $product->name,
                         'quantity_stock' => $quantityTotalProduct,
@@ -239,8 +259,8 @@ class ProductEquipamentController extends CrudController
 
                 return [
                     'id' => $product->id,
-                    'name-category' => $product->category->trashed()
-                        ? $product->category->name . ' (Deletado)' // Se deletado, adiciona "(Deletado)"
+                    'name_category' => $product->category && $product->category->trashed()
+                        ? $product->category->name . ' (Deletado)'
                         : $product->category->name ?? null,
                     'name' => $product->name,
                     'quantity_stock' => $quantityTotalProduct,
