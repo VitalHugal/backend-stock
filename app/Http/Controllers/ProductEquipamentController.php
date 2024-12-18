@@ -83,7 +83,7 @@ class ProductEquipamentController extends CrudController
                         return [
                             'id' => $product->id,
                             // 'name-category' => $product->category ? $product->category->name : null,
-                            'name_category' => $product->category && $product->category->trashed()
+                            'name-category' => $product->category && $product->category->trashed()
                                 ? $product->category->name . ' (Deletado)'
                                 : $product->category->name ?? null,
                             'name' => $product->name,
@@ -138,7 +138,7 @@ class ProductEquipamentController extends CrudController
 
                     return [
                         'id' => $product->id,
-                        'name_category' => $product->category && $product->category->trashed()
+                        'name-category' => $product->category && $product->category->trashed()
                             ? $product->category->name . ' (Deletado)'
                             : $product->category->name ?? null,
                         'name' => $product->name,
@@ -220,7 +220,7 @@ class ProductEquipamentController extends CrudController
                     return [
                         'id' => $product->id,
                         // 'name-category' => $product->category->name ?? null,
-                        'name_category' => $product->category && $product->category->trashed()
+                        'name-category' => $product->category && $product->category->trashed()
                             ? $product->category->name . ' (Deletado)'
                             : $product->category->name ?? null,
                         'name' => $product->name,
@@ -259,7 +259,7 @@ class ProductEquipamentController extends CrudController
 
                 return [
                     'id' => $product->id,
-                    'name_category' => $product->category && $product->category->trashed()
+                    'name-category' => $product->category && $product->category->trashed()
                         ? $product->category->name . ' (Deletado)'
                         : $product->category->name ?? null,
                     'name' => $product->name,
