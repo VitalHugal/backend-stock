@@ -94,7 +94,7 @@
         font-weight: bold;
     }
 
-    .product-list {
+    /* .product-list {
         margin: 0;
         padding: 0;
         list-style: none;
@@ -117,6 +117,37 @@
     .product-item p {
         margin: 0;
         font-size: 12px;
+    } */
+
+    .product-list {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+
+    .product-list th,
+    .product-list td {
+        text-align: left;
+        padding: 10px;
+        border: 1px solid var(--color-black);
+    }
+
+    .product-list td{
+        text-align: center;
+    }
+
+    .product-list th {
+        text-transform: uppercase;
+        font-size: 13px;
+        text-align: center;
+        font-weight: bold;
+        background-color: var(--color-gray);
+        color: var(--color-black);
+    }
+
+    .product-list td {
+        text-transform: uppercase;
+        font-size: 14px;
     }
 </style>
 
@@ -137,7 +168,33 @@
         <span></span>
     </div>
     <main>
-        <div>
+        <table class="product-list">
+            <thead>
+                <tr>
+                    {{-- <th>ID</th> --}}
+                    <th>Nome</th>
+                    <th>Qtd. em estoque</th>
+                    <th>Qtd. mínima</th>
+                    <th>Setor</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse ($products as $product)
+                    <tr>
+                        {{-- <td>{{ $product['id'] }}</td> --}}
+                        <td>{{ $product['name'] }}</td>
+                        <td>{{ $product['quantity_stock'] }}</td>
+                        <td>{{ $product['quantity_min'] }}</td>
+                        <td>{{ $product['name-category'] ?? 'Sem categoria' }}</td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="5">Nenhum produto encontrado.</td>
+                    </tr>
+                @endforelse
+            </tbody>
+        </table>
+        {{-- <div>
             <ul class="product-list">
                 @forelse ($products as $product)
                     <li class="product-item">
@@ -151,7 +208,7 @@
                     <li>Nenhum produto encontrado.</li>
                 @endforelse
             </ul>
-        </div>
+        </div> --}}
     </main>
 </body>
 
