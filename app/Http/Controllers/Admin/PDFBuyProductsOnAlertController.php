@@ -31,7 +31,8 @@ class PDFBuyProductsOnAlertController extends CrudController
             DB::beginTransaction();
 
             $user = $request->user();
-            $userName = $user->name;
+            // $userName = $user->name;
+            $userName = 'teste';
 
             if ($user->level == 'admin') {
                 
