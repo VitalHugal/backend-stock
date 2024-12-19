@@ -144,7 +144,7 @@
                 @forelse ($products as $product)
                     <li class="product-item">
                         <h4><strong>Produto ID:</strong> {{ $product['id'] }}</h4>
-                        <p><strong>Nome:</strong> {{ $product['name'] }}</p>
+                        {{-- <p><strong>Nome:</strong> {{ $product['name'] }}</p> --}}
                         <p><strong>Quantidade em estoque:</strong> {{ $product['quantity_stock'] }}</p>
                         <p><strong>Estoque mínimo:</strong> {{ $product['quantity_min'] }}</p>
                         <p><strong>Categoria:</strong> {{ $product['name-category'] ?? 'Sem categoria' }}</p>
