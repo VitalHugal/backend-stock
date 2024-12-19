@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Admin;
+namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\CrudController;
 use App\Models\Exits;
@@ -87,7 +87,7 @@ class PDFBuyProductsOnAlertController extends CrudController
             $date = date('d-m-Y H:i:s');
 
             $data = [
-                // 'name' => $userName,
+                'name' => $userName,
                 'date' => $date,
                 'products' => $filteredCollectionAdmin->toArray(),
             ];
