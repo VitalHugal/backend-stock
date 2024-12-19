@@ -20,17 +20,19 @@ Route::get('/user', function (Request $request) {
 
 Route::post('/login', [LoginController::class, 'login']);
 
-Route::middleware(['auth:sanctum'])->group(function () {
+Route::get('/pdf', [PDFBuyProductsOnAlertController::class, 'generatedPDFBuyProductOnAlert']);
 
+Route::middleware(['auth:sanctum'])->group(function () {
+    
     //INPUTS
     Route::post('/inputs', [InputsController::class, 'store']);
     Route::post('/update-inputs/{id}', [InputsController::class, 'update']);
     Route::get('/get-all-inputs', [InputsController::class, 'getAllInputs']);
     Route::get('/get-inputs/{id}', [InputsController::class, 'getIdInputs']);
-
+    
     //PRODUCT_ALERT
     Route::get('/product-alert', [ProductAlertController::class, 'getAllProductAlert']);
-
+    
     //RESERVATION
     Route::post('/reservation', [ReservationController::class, 'reservation']);
     Route::post('/finished-reservation/{id}', [ReservationController::class, 'pendingReservationCompleted']);
@@ -38,37 +40,36 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/get-all-reservation', [ReservationController::class, 'getAllReservation']);
     Route::get('/get-reservation/{id}', [ReservationController::class, 'getIdReservation']);
     Route::get('/get-all-delayed-reservation', [ReservationController::class, 'delayedReservations']);
-
+    
     //EXITS
     Route::post('/exits', [ExitsController::class, 'exits']);
     Route::post('/update-exits/{id}', [ExitsController::class, 'updateExits']);
     Route::get('/get-all-exits', [ExitsController::class, 'getAllExits']);
     Route::get('/get-exits/{id}', [ExitsController::class, 'getIdExits']);
-
+    
     //PRODUCT/EQUIPAMENTS
     Route::post('/product-equipaments', [ProductEquipamentController::class, 'store']);
     Route::post('/update-product-equipaments/{id}', [ProductEquipamentController::class, 'update']);
     Route::get('/get-all-product-equipaments', [ProductEquipamentController::class, 'getAllProductEquipament']);
     Route::get('/get-product-equipaments/{id}', [ProductEquipamentController::class, 'getIdProductEquipament']);
-
+    
     //ME
     Route::post('/update-password', [UsersController::class, 'updatePassword']);
     Route::get('/my-profile', [UsersController::class, 'myProfile']);
     Route::post('/logout', [LogoutController::class, 'logout']);
-
+    
     //-------------------------------------------
     // ROUTES FOR ADMINISTRATOR LEVEL USERS ONLY 
     //-------------------------------------------
-
+    
     //ALL LOGS
     Route::get('/get-all-logs', [SystemLogsController::class, 'getAllLogs']);
-
+    
     //Generate PDF
-    Route::get('/pdf', [PDFBuyProductsOnAlertController::class, 'generatedPDFBuyProductOnAlert']);
     
     //REVERSE FINISHED RESERVATION
     Route::post('/reverse-finalized-reservention/{id}', [ReservationController::class, 'reverseReservationCompleted']);
-
+    
     //ALL DELETE
     Route::delete('/delete-exits/{id}', [ExitsController::class, 'delete']);
     Route::delete('/delete-product-equipaments/{id}', [ProductEquipamentController::class, 'delete']);
@@ -76,7 +77,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::delete('/delete-inputs/{id}', [InputsController::class, 'delete']);
     Route::delete('/delete-user/{id}', [UsersController::class, 'delete']);
     Route::delete('/delete-category/{id}', [CategorysController::class, 'delete']);
-
+    
     //USERS
     Route::post('/register-user', [UsersController::class, 'store']);
     Route::post('/update-user/{id}', [UsersController::class, 'update']);
@@ -87,7 +88,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/get-all-user', [UsersController::class, 'getAll']);
     Route::get('/get-user/{id}', [UsersController::class, 'getId']);
     Route::get('/view-category-user/{id}', [UsersController::class, 'viewCategoryUser']);
-
+    
     //CATEGORYS
     Route::post('/category', [CategorysController::class, 'store']);
     Route::post('/update-category/{id}', [CategorysController::class, 'update']);
