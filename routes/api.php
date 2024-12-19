@@ -3,7 +3,7 @@
 use App\Http\Controllers\Authentication\LoginController;
 use App\Http\Controllers\Admin\UsersController;
 use App\Http\Controllers\Admin\CategorysController;
-use App\Http\Controllers\admin\PDFBuyProductsOnAlertController;
+use App\Http\Controllers\Admin\PDFBuyProductsOnAlertController;
 use App\Http\Controllers\Authentication\LogoutController;
 use App\Http\Controllers\ExitsController;
 use App\Http\Controllers\InputsController;
