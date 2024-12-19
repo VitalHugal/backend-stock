@@ -3,6 +3,7 @@
 use App\Http\Controllers\Authentication\LoginController;
 use App\Http\Controllers\Admin\UsersController;
 use App\Http\Controllers\Admin\CategorysController;
+use App\Http\Controllers\admin\PDFBuyProductsOnAlertController;
 use App\Http\Controllers\Authentication\LogoutController;
 use App\Http\Controllers\ExitsController;
 use App\Http\Controllers\InputsController;
@@ -61,6 +62,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     //ALL LOGS
     Route::get('/get-all-logs', [SystemLogsController::class, 'getAllLogs']);
+
+    //Generate PDF
+    Route::get('/pdf', [PDFBuyProductsOnAlertController::class, 'generatedPDFBuyProductOnAlert']);
     
     //REVERSE FINISHED RESERVATION
     Route::post('/reverse-finalized-reservention/{id}', [ReservationController::class, 'reverseReservationCompleted']);

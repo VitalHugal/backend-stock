@@ -44,8 +44,7 @@ class ExitsController extends CrudController
             }
 
             if ($level == 'user') {
-                $exits = Exits::withTrashed()
-                    ->with(['productEquipament.category' => function ($query) {
+                $exits = Exits::with(['productEquipament.category' => function ($query) {
                         $query->withTrashed();
                     }, 'user' => function ($query) {
                         $query->withTrashed();
@@ -436,7 +435,7 @@ class ExitsController extends CrudController
             }
 
             $updateExits = $this->exits->find($id);
-
+            
             if (!$updateExits) {
                 return response()->json([
                     'success' => false,

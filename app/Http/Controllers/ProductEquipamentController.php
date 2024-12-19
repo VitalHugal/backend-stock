@@ -54,6 +54,7 @@ class ProductEquipamentController extends CrudController
                         ->whereHas('category', function ($query) {
                             $query->whereNull('deleted_at');
                         })
+                        
                         // with('category')
 
                         //--------------
