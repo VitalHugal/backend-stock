@@ -66,7 +66,7 @@ class ReservationController extends CrudController
 
                 $reservations = Reservation::with([
                     'productEquipament.category' => function ($query) {
-                        $query->withTrashed(); // Inclui registros soft-deleted no relacionamento `category`
+                        $query->withTrashed();
                     },
                     'user',
                     'userFinished'
@@ -112,7 +112,7 @@ class ReservationController extends CrudController
                         'id_product' => $reservation->productEquipament->id ?? null,
                         // 'category_name' => $reservation->productEquipament->category->name ?? null,
                         'category_name' => $reservation->productEquipament->category->trashed()
-                            ? $reservation->productEquipament->category->name . ' (Deletado)' // Se deletado, adiciona "(Deletado)"
+                            ? $reservation->productEquipament->category->name . ' (Deletado)' // Se deletado(Deletado)
                             : $reservation->productEquipament->category->name ?? null,
                         'created_at' => $this->reservation->getFormattedDate($reservation, $created_at),
                         'updated_at' => $this->reservation->getFormattedDate($reservation, $updated_at),
@@ -145,7 +145,7 @@ class ReservationController extends CrudController
 
                 $reservationsAdmin = Reservation::with([
                     'productEquipament.category' => function ($query) {
-                        $query->withTrashed(); // Inclui os registros soft-deleted
+                        $query->withTrashed();
                     },
                     'user',
                     'userFinished'
@@ -293,7 +293,7 @@ class ReservationController extends CrudController
                     'id_product' => $reservation->productEquipament->id ?? null,
                     // 'category_name' => $reservation->productEquipament->category->name ?? null,
                     'category_name' => $reservation->productEquipament->category->trashed()
-                        ? $reservation->productEquipament->category->name . ' (Deletado)' // Se deletado, adiciona "(Deletado)"
+                        ? $reservation->productEquipament->category->name . ' (Deletado)' // Se deletado(Deletado)
                         : $reservation->productEquipament->category->name ?? null,
                     'created_at' => $this->reservation->getFormattedDate($reservation, $created_at),
                     'updated_at' => $this->reservation->getFormattedDate($reservation, $updated_at),
@@ -360,7 +360,7 @@ class ReservationController extends CrudController
                     'id_product' => $reservation->productEquipament->id ?? null,
                     // 'category_name' => $reservation->productEquipament->category->name ?? null,
                     'category_name' => $reservation->productEquipament->category->trashed()
-                        ? $reservation->productEquipament->category->name . ' (Deletado)' // Se deletado, adiciona "(Deletado)"
+                        ? $reservation->productEquipament->category->name . ' (Deletado)' // Se deletado(Deletado)
                         : $reservation->productEquipament->category->name ?? null,
                     'created_at' => $this->reservation->getFormattedDate($reservation, 'created_at'),
                     'updated_at' => $this->reservation->getFormattedDate($reservation, 'updated_at'),

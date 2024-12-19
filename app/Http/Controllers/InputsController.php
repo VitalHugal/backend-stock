@@ -50,15 +50,15 @@ class InputsController extends CrudController
                 //     ->orderBy('created_at', 'desc')
                 //     ->paginate(10);
 
-                $inputs = Inputs::withTrashed() // Inclui registros com soft deletes
+                $inputs = Inputs::withTrashed()
                     ->with(['productEquipament.category' => function ($query) {
-                        $query->withTrashed(); // Inclui registros deletados de 'productEquipament.category'
+                        $query->withTrashed();
                     }, 'user' => function ($query) {
-                        $query->withTrashed(); // Inclui registros deletados de 'user'
+                        $query->withTrashed();
                     }])
                     ->whereHas('productEquipament', function ($query) use ($categoryUser) {
                         $query->whereIn('fk_category_id', $categoryUser)
-                            ->withTrashed(); // Inclui registros deletados ao filtrar
+                            ->withTrashed();
                     })
                     ->orderBy('created_at', 'desc')
                     ->paginate(10);
@@ -71,7 +71,7 @@ class InputsController extends CrudController
                         'id_product' => $input->productEquipament->id ?? null,
                         'product_name' => $input->productEquipament->name ?? null,
                         'category_name' => $input->productEquipament->category->trashed()
-                            ? $input->productEquipament->category->name . ' (Deletado)' // Se deletado, adiciona "(Deletado)"
+                            ? $input->productEquipament->category->name . ' (Deletado)' // Se deletado (Deletado)
                             : $input->productEquipament->category->name ?? null,
                         // 'category_name' => $input->productEquipament->category->name ?? null,
                         'fk_user_id' => $input->fk_user_id ?? null,
@@ -120,7 +120,7 @@ class InputsController extends CrudController
                     'product_name' => $input->productEquipament->name ?? null,
                     // 'category_name' => $input->productEquipament->category->name ?? null,
                     'category_name' => $input->productEquipament->category->trashed()
-                        ? $input->productEquipament->category->name . ' (Deletado)' // Se deletado, adiciona "(Deletado)"
+                        ? $input->productEquipament->category->name . ' (Deletado)' // Se deletado(Deletado)
                         : $input->productEquipament->category->name ?? null,
                     'fk_user_id' => $input->fk_user_id ?? null,
                     'name_user_input' => $input->user->name ?? null,
@@ -183,18 +183,18 @@ class InputsController extends CrudController
                 //     })
                 //     ->get()
 
-                $inputs = Inputs::withTrashed() // Inclui registros deletados no modelo principal
+                $inputs = Inputs::withTrashed()
                     ->with([
                         'productEquipament.category' => function ($query) {
-                            $query->withTrashed(); // Inclui registros deletados na categoria
+                            $query->withTrashed();
                         },
                         'user' => function ($query) {
-                            $query->withTrashed(); // Inclui registros deletados no usuário
+                            $query->withTrashed(); 
                         },
                     ])
                     ->where('id', $id)
                     ->whereHas('productEquipament', function ($query) use ($categoryUser) {
-                        $query->withTrashed(); // Inclui registros deletados no filtro de categoria
+                        $query->withTrashed();
                         $query->whereIn('fk_category_id', $categoryUser);
                     })
                     ->get()
@@ -207,7 +207,7 @@ class InputsController extends CrudController
                             'product_name' => $input->productEquipament->name ?? null,
                             // 'category_name' => $input->productEquipament->category->name ?? null,
                             'category_name' => $input->productEquipament->category->trashed()
-                                ? $input->productEquipament->category->name . ' (Deletado)' // Se deletado, adiciona "(Deletado)"
+                                ? $input->productEquipament->category->name . ' (Deletado)' // Se deletado(Deletado)
                                 : $input->productEquipament->category->name ?? null,
                             'fk_user_id' => $input->fk_user_id ?? null,
                             'name_user_input' => $input->user->name ?? null,
@@ -230,18 +230,18 @@ class InputsController extends CrudController
             //     })
             //     ->get()
 
-            $inputsAdmin = Inputs::withTrashed() // Inclui registros deletados no modelo Exits
+            $inputsAdmin = Inputs::withTrashed()
                 ->with([
                     'productEquipament.category' => function ($query) {
-                        $query->withTrashed(); // Inclui registros deletados na categoria
+                        $query->withTrashed();
                     },
                     'user' => function ($query) {
-                        $query->withTrashed(); // Inclui registros deletados no usuário
+                        $query->withTrashed();
                     },
                 ])
                 ->where('id', $id)
                 ->whereHas('productEquipament', function ($query) use ($categoryUser) {
-                    // $query->whereIn('fk_category_id', $categoryUser); // Filtra com base nas categorias
+                    // $query->whereIn('fk_category_id', $categoryUser);
                 })
                 ->get()
                 ->map(function ($input) {
@@ -252,7 +252,7 @@ class InputsController extends CrudController
                         'product_name' => $input->productEquipament->name ?? null,
                         // 'category_name' => $input->productEquipament->category->name ?? null,
                         'category_name' => $input->productEquipament->category->trashed()
-                            ? $input->productEquipament->category->name . ' (Deletado)' // Se deletado, adiciona "(Deletado)"
+                            ? $input->productEquipament->category->name . ' (Deletado)' // Se deletado(Deletado)
                             : $input->productEquipament->category->name ?? null,
                         'fk_user_id' => $input->fk_user_id ?? null,
                         'name_user_input' => $input->user->name ?? null,

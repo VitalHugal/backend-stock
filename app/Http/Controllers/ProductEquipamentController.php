@@ -344,6 +344,7 @@ class ProductEquipamentController extends CrudController
                 // $productEquipamentUser = ProductEquipament::with('category')
                 //     ->whereIn('fk_category_id', $categoryUser)->where('id', $id)
                 //     ->get()
+                
                 $productEquipamentUser = ProductEquipament::with('category')
                     ->whereIn('fk_category_id', $categoryUser)
                     ->where('id', $id)

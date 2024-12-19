@@ -44,15 +44,15 @@ class ExitsController extends CrudController
             }
 
             if ($level == 'user') {
-                $exits = Exits::withTrashed() // Inclui registros com soft deletes
+                $exits = Exits::withTrashed()
                     ->with(['productEquipament.category' => function ($query) {
-                        $query->withTrashed(); // Inclui registros deletados de 'productEquipament.category'
+                        $query->withTrashed();
                     }, 'user' => function ($query) {
-                        $query->withTrashed(); // Inclui registros deletados de 'user'
+                        $query->withTrashed();
                     }])
                     ->whereHas('productEquipament', function ($query) use ($categoryUser) {
                         $query->whereIn('fk_category_id', $categoryUser)
-                            ->withTrashed(); // Inclui registros deletados ao filtrar
+                            ->withTrashed();
                     })
                     ->orderBy('created_at', 'desc')
                     ->paginate(10);
@@ -72,7 +72,7 @@ class ExitsController extends CrudController
                         'id_product' => $exit->productEquipament->id ?? null,
                         // 'category_name' => $exit->productEquipament->category->name ?? null,
                         'category_name' => $exit->productEquipament->category->trashed()
-                            ? $exit->productEquipament->category->name . ' (Deletado)' // Se deletado, adiciona "(Deletado)"
+                            ? $exit->productEquipament->category->name . ' (Deletado)' // Se deletado, (Deletado)
                             : $exit->productEquipament->category->name ?? null,
                         'created_at' => $this->exits->getFormattedDate($exit, 'created_at') ?? null,
                         'updated_at' => $this->exits->getFormattedDate($exit, 'updated_at') ?? null,
@@ -118,7 +118,7 @@ class ExitsController extends CrudController
                     'id_product' => $exit->productEquipament->id ?? null,
                     // 'category_name' => $exit->productEquipament->category->name ?? null,
                     'category_name' => $exit->productEquipament->category->trashed()
-                        ? $exit->productEquipament->category->name . ' (Deletado)' // Se deletado, adiciona "(Deletado)"
+                        ? $exit->productEquipament->category->name . ' (Deletado)' // Se deletado (Deletado)
                         : $exit->productEquipament->category->name ?? null,
                     'created_at' => $this->exits->getFormattedDate($exit, 'created_at') ?? null,
                     'updated_at' => $this->exits->getFormattedDate($exit, 'updated_at') ?? null,
@@ -178,18 +178,18 @@ class ExitsController extends CrudController
                         ]);
                     }
                 }
-                $exit = Exits::withTrashed() // Inclui registros deletados no modelo principal
+                $exit = Exits::withTrashed()
                     ->with([
                         'productEquipament.category' => function ($query) {
-                            $query->withTrashed(); // Inclui registros deletados na categoria
+                            $query->withTrashed();
                         },
                         'user' => function ($query) {
-                            $query->withTrashed(); // Inclui registros deletados no usuário
+                            $query->withTrashed();
                         },
                     ])
                     ->where('id', $id)
                     ->whereHas('productEquipament', function ($query) use ($categoryUser) {
-                        $query->withTrashed(); // Inclui registros deletados no filtro de categoria
+                        $query->withTrashed();
                         $query->whereIn('fk_category_id', $categoryUser);
                     })
                     ->first();
@@ -214,7 +214,7 @@ class ExitsController extends CrudController
                     'id_product' => $exit->productEquipament->id ?? null,
                     // 'category_name' => $exit->productEquipament->category->name ?? null,
                     'category_name' => $exit->productEquipament->category->trashed()
-                        ? $exit->productEquipament->category->name . ' (Deletado)' // Se deletado, adiciona "(Deletado)"
+                        ? $exit->productEquipament->category->name . ' (Deletado)' // Se deletado (Deletado)
                         : $exit->productEquipament->category->name ?? null,
                     'created_at' => $this->exits->getFormattedDate($exit, 'created_at') ?? null,
                     'updated_at' => $this->exits->getFormattedDate($exit, 'updated_at') ?? null,
@@ -232,18 +232,18 @@ class ExitsController extends CrudController
             //         // $query->whereIn('fk_category_id', $categoryUser);
             //     })->first();
 
-            $exit = Exits::withTrashed() // Inclui registros deletados no modelo Exits
+            $exit = Exits::withTrashed()
                 ->with([
                     'productEquipament.category' => function ($query) {
-                        $query->withTrashed(); // Inclui registros deletados na categoria
+                        $query->withTrashed();
                     },
                     'user' => function ($query) {
-                        $query->withTrashed(); // Inclui registros deletados no usuário
+                        $query->withTrashed();
                     },
                 ])
                 ->where('id', $id)
                 ->whereHas('productEquipament', function ($query) use ($categoryUser) {
-                    // $query->whereIn('fk_category_id', $categoryUser); // Filtra com base nas categorias
+                    // $query->whereIn('fk_category_id', $categoryUser);
                 })
                 ->first();
 
@@ -267,7 +267,7 @@ class ExitsController extends CrudController
                 'id_product' => $exit->productEquipament->id ?? null,
                 // 'category_name' => $exit->productEquipament->category->name ?? null,
                 'category_name' => $exit->productEquipament->category->trashed()
-                    ? $exit->productEquipament->category->name . ' (Deletado)' // Se deletado, adiciona "(Deletado)"
+                    ? $exit->productEquipament->category->name . ' (Deletado)' // Se deletado (Deletado)
                     : $exit->productEquipament->category->name ?? null,
                 'created_at' => $this->exits->getFormattedDate($exit, 'created_at') ?? null,
                 'updated_at' => $this->exits->getFormattedDate($exit, 'updated_at') ?? null,
