@@ -12,7 +12,6 @@ use Illuminate\Http\Request;
 use Dompdf\Dompdf;
 use Exception;
 use Illuminate\Database\QueryException;
-use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 
 class PDFBuyProductsOnAlertController extends CrudController
