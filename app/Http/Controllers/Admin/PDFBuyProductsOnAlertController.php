@@ -33,7 +33,7 @@ class PDFBuyProductsOnAlertController extends CrudController
             $user = $request->user();
             $userName = $user->name;
 
-            if ($user->level == 'admin') {
+            // if ($user->level == 'admin') {
                 
                 $productAllAdmin = ProductEquipament::with(['category' => function ($query) {
                     $query->whereNull('deleted_at');
@@ -81,7 +81,7 @@ class PDFBuyProductsOnAlertController extends CrudController
                         'name-category' => $product->category->name ?? null,
                     ];
                 });
-            }
+            // }
 
             // data atual da maquina;
             $date = date('d-m-Y H:i:s');
