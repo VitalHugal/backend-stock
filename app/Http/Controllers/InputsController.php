@@ -50,8 +50,7 @@ class InputsController extends CrudController
                 //     ->orderBy('created_at', 'desc')
                 //     ->paginate(10);
 
-                $inputs = Inputs::withTrashed()
-                    ->with(['productEquipament.category' => function ($query) {
+                $inputs = Inputs::with(['productEquipament.category' => function ($query) {
                         $query->withTrashed();
                     }, 'user' => function ($query) {
                         $query->withTrashed();
@@ -95,8 +94,7 @@ class InputsController extends CrudController
             //     ->orderBy('created_at', 'desc')
             //     ->paginate(10);
 
-            $inputsAdmin = Inputs::withTrashed()
-                ->with([
+            $inputsAdmin = Inputs::with([
                     'productEquipament.category' => function ($query) {
                         $query->withTrashed();
                     },
