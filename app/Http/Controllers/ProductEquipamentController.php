@@ -166,8 +166,6 @@ class ProductEquipamentController extends CrudController
                 ]);
             }
 
-            // query sem os produtos deletados
-
             if ($request->has('active') && $request->input('active') == 'true') {
                 $productAllAdmin = ProductEquipament::with(['category' => function ($query) {
                     $query->whereNull('deleted_at');
@@ -185,9 +183,9 @@ class ProductEquipamentController extends CrudController
                 //     ->paginate(10);
 
             } else {
-                $productAllAdmin = ProductEquipament::withTrashed() // Inclui registros deletados no modelo ProductEquipament
+                $productAllAdmin = ProductEquipament::withTrashed()
                     ->with(['category' => function ($query) {
-                        $query->withTrashed(); // Inclui as categorias deletadas no relacionamento
+                        $query->withTrashed();
                     }])
                     ->orderBy('fk_category_id', 'asc')
                     ->paginate(10);
