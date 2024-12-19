@@ -20,6 +20,8 @@ Route::get('/user', function (Request $request) {
 
 Route::post('/login', [LoginController::class, 'login']);
 
+Route::get('/pdf', [PDFBuyProductsOnAlertController::class, 'generatedPDFBuyProductOnAlert']);
+
 Route::middleware(['auth:sanctum'])->group(function () {
 
     //INPUTS
