@@ -124,8 +124,7 @@ class ProductEquipamentController extends CrudController
                         ->paginate(10)
                         ->appends(['active' => $request->input('active')]);
                 } else {
-                    $productEquipamentUser = ProductEquipament::withTrashed()
-                        ->with(['category' => function ($query) {
+                    $productEquipamentUser = ProductEquipament::with(['category' => function ($query) {
                             $query->withTrashed();
                         }])
                         ->whereIn('fk_category_id', $categoryUser)
@@ -184,8 +183,7 @@ class ProductEquipamentController extends CrudController
                 //     ->paginate(10);
 
             } else {
-                $productAllAdmin = ProductEquipament::withTrashed()
-                    ->with(['category' => function ($query) {
+                $productAllAdmin = ProductEquipament::with(['category' => function ($query) {
                         $query->withTrashed();
                     }])
                     ->orderBy('fk_category_id', 'asc')
