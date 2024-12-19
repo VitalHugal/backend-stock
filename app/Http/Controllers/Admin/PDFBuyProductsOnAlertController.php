@@ -2,94 +2,95 @@
 
 namespace App\Http\Controllers\admin;
 
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\CrudController;
+use App\Models\Exits;
+use App\Models\Inputs;
 use App\Models\ProductAlert;
+use App\Models\ProductEquipament;
+use App\Models\Reservation;
 use Illuminate\Http\Request;
 use Dompdf\Dompdf;
 use Exception;
 use Illuminate\Database\QueryException;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 
-class PDFBuyProductsOnAlertController extends Controller
+class PDFBuyProductsOnAlertController extends CrudController
 {
+    protected $product_alert;
+
+    public function __construct(ProductAlert $product_alert)
+    {
+        parent::__construct($product_alert);
+
+        $this->product_alert = $product_alert;
+    }
+
     public function generatedPDFBuyProductOnAlert(Request $request)
     {
         try {
             DB::beginTransaction();
 
-            // verifica se o id informado na requisição existe, senão retorna erro
-            $product_alert = ProductAlert::all();
+            $user = $request->user();
+            $userName = $user->name;
 
-            // nome do projeto
-            $userName = $request->user('name');
+            if ($user->level == 'admin') {
+                
+                $productAllAdmin = ProductEquipament::with(['category' => function ($query) {
+                    $query->whereNull('deleted_at');
+                }])->whereHas('category', function ($query) {
+                    $query->whereNull('deleted_at');
+                })
+                    ->orderBy('fk_category_id', 'asc')
+                    ->get(); 
+                    
+                $filteredCollectionAdmin = $productAllAdmin->filter(function ($product) {
+                    $productEquipamentId = $product->id;
+
+                    // Calcula as quantidades totais
+                    $quantityTotalInputs = Inputs::where('fk_product_equipament_id', $productEquipamentId)->sum('quantity');
+                    $quantityTotalExits = Exits::where('fk_product_equipament_id', $productEquipamentId)->sum('quantity');
+                    $quantityReserveNotFinished = Reservation::where('fk_product_equipament_id', $productEquipamentId)
+                        ->where('reservation_finished', false)
+                        ->whereNull('date_finished')
+                        ->whereNull('fk_user_id_finished')
+                        ->sum('quantity');
+
+                    $quantityTotalProduct = $quantityTotalInputs - ($quantityTotalExits + $quantityReserveNotFinished);
+
+                    // Retorna somente os produtos que atendem à condição
+                    return $quantityTotalProduct <= $product->quantity_min;
+                })->map(function ($product) {
+                    $productEquipamentId = $product->id;
+
+                    // Recalcula as quantidades totais
+                    $quantityTotalInputs = Inputs::where('fk_product_equipament_id', $productEquipamentId)->sum('quantity');
+                    $quantityTotalExits = Exits::where('fk_product_equipament_id', $productEquipamentId)->sum('quantity');
+                    $quantityReserveNotFinished = Reservation::where('fk_product_equipament_id', $productEquipamentId)
+                        ->where('reservation_finished', false)
+                        ->whereNull('date_finished')
+                        ->whereNull('fk_user_id_finished')
+                        ->sum('quantity');
+
+                    $quantityTotalProduct = $quantityTotalInputs - ($quantityTotalExits + $quantityReserveNotFinished);
+
+                    return [
+                        'id' => $product->id,
+                        'name' => $product->name,
+                        'quantity_stock' => $quantityTotalProduct,
+                        'quantity_min' => $product->quantity_min,
+                        'name-category' => $product->category->name ?? null,
+                    ];
+                });
+            }
 
             // data atual da maquina;
             $date = date('d-m-Y H:i:s');
 
-            // briefing do projeto
-            $briefing = $product_alert->briefing;
-
-            // Tempo total do projeto em horas e minutos
-            $timeTotal = $product_alert->tempo;
-            $hours = intdiv($timeTotal, 60);
-            $minutes = $timeTotal % 60;
-
-            ////////////////////////////////////////////////////////////////////////////////////////////
-            // observações do projeto
-            $observations = $product_alert->observacoes;
-
-            if ($observations === null || $observations === "[]") {
-                $observationsFinal = "";
-            } else {
-                $observationsArray = json_decode($observations, true);
-
-                // Acessar os itens individualmente
-                foreach ($observationsArray as $itemObs) {
-                    $arrayObsResult[] = "<div id='obsResult'>" . '<li id="list-observations">' . $itemObs . '</li>' . "</div>" . PHP_EOL;
-                }
-
-                $observationsFinal = implode(" ", $arrayObsResult);
-            }
-            ////////////////////////////////////////////////////////////////////////////////////////////
-
-            ////////////////////////////////////////////////////////////////////////////////////////////
-            // grupos e tempo total de cada grupo
-            $groups = json_decode($product_alert->registros);
-
-            // inicializando a variavel
-            $mergedGroups = [];
-
-            if ($groups !== null) {
-                // loop para ercuperar o apenas o nome eo tempo de cada grupo
-                foreach ($groups as $groupsSingle) {
-                    if (isset($groupsSingle->name, $groupsSingle->time)) {
-                        $mergedGroups[] = [
-                            'name' => $groupsSingle->name,
-                            'time' => $groupsSingle->time,
-                        ];
-                    }
-                }
-            }
-            // inicializando a variavel
-            $mergedGroupsString = [];
-
-            // loop para pegar nome do grupoe tempo formatado e separado
-            foreach ($mergedGroups as $item) {
-                $mergedGroupsString[] = '<div id="groups">' . '<span id="time-groups-name">' . $item['name'] . '</span>' . '<span id="time-groups">' . intdiv($item['time'], 60) . 'H:' . ($item['time'] % 60) . 'm' . '</span>' . '<br>' . "</div>";
-            }
-            // transformando em string
-            $str = implode(' ', $mergedGroupsString);
-            ////////////////////////////////////////////////////////////////////////////////////////////
-
-            // Valores recebidos no html do PDF 
             $data = [
-                // 'name' => $userName,
+                'name' => $userName,
                 'date' => $date,
-                'briefing' => $briefing,
-                'hours' => $hours,
-                'minutes' => $minutes,
-                'groups' => $str,
-                'observations' => $observationsFinal,
+                'products' => $filteredCollectionAdmin->toArray(),
             ];
 
             // Carregar conteúdo HTML
@@ -105,15 +106,15 @@ class PDFBuyProductsOnAlertController extends Controller
 
             // Renderizar PDF
             $dompdf->render();
-            
+
             DB::commit();
-            
+
             // hack para liberar no front a requisição (HACK DE CORS) - IMPORTANTE !!!
             header('Access-Control-Allow-Origin: *');
 
             // Saida do PDF no naveagdor
             return $dompdf->stream('document.pdf');
-
+            
         } catch (QueryException $qe) {
             DB::rollBack();
             return response()->json([

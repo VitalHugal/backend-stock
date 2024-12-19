@@ -72,6 +72,10 @@
         font-size: 17px;
     }
 
+    #paragrafh {
+        text-transform: uppercase;
+    }
+
     .line {
         border-top: 1px solid var(--color-black);
         margin-top: 25px;
@@ -90,62 +94,29 @@
         font-weight: bold;
     }
 
-    #briefing p {
-        font-family: var(--font-main);
-        font-size: 17px;
+    .product-list {
+        margin: 0;
+        padding: 0;
+        list-style: none;
     }
 
-    #time-groups {
-        position: absolute;
-        right: 65px;
-        text-transform: uppercase;
-    }
-
-    #time-groups-name {
-        text-transform: uppercase;
-        font-family: var(--font-main);
-    }
-
-    #groups {
-        padding: 5px;
-        border: 1px solid var(--color-black);
-        margin-bottom: 7px;
-    }
-
-    #timeTotal {
-        font-family: var(--font-main);
-        font-weight: bold;
+    .product-item {
+        margin-bottom: 15px;
+        padding: 10px;
+        border: 1px solid var(--color-gray2);
+        border-radius: 5px;
         background-color: var(--color-gray);
-        padding: 5px;
-        margin-top: 25px;
     }
 
-    #timeTotalParagrafh {
-        text-transform: uppercase;
-        font-size: 17px;
+    .product-item h4 {
+        margin: 0 0 5px 0;
+        font-size: 14px;
+        color: var(--color-black);
     }
 
-    #timeTotalParagrafh #hours {
-        position: absolute;
-        right: 65px;
-    }
-
-    #observations {
-        font-family: var(--font-main);
-        font-size: 16px;
-    }
-
-    #obsResult,
-    #list-observations {
-        position: relative;
-        font-family: var(--font-main);
-        font-size: 16.8px;
-        left: 8px;
-    }
-
-    #list-observations {
-        margin-bottom: 10px;
-
+    .product-item p {
+        margin: 0;
+        font-size: 12px;
     }
 </style>
 
@@ -156,8 +127,9 @@
                 src="data:image/jpeg;base64,{{ base64_encode(file_get_contents(public_path('assets/img/logobizsys.jpg'))) }}">
         </div>
         <div id="info-date-name">
-            {{-- <h1 id="title">{{ $name }}</h1> --}}
-            <p id="paragrafh">Gerado em: {{ $date }}</p>
+            <h1 id="title">Produtos em alerta</h1>
+            <p id="paragrafh">{{ $name }} - {{ $date }}</p>
+            {{-- <p>{{ $date }}</p> --}}
         </div>
     </header>
     <div class="separator">
@@ -165,35 +137,20 @@
         <span></span>
     </div>
     <main>
-        <div id="briefing">
-            <h2 class="subtitle">briefing</h2>
-            <p>{{ $briefing }}</p>
-        </div>
-        <div class="separator">
-            <div class="line"></div>
-            <span></span>
-        </div>
-        <div id="info-project">
-            <h2 class="subtitle">Plano de Ação</h2>
-
-            <div>
-                {!! $groups !!}
-            </div>
-
-            <div id="timeTotal">
-                <p id="timeTotalParagrafh">Tempo total do projeto: <span
-                        id="hours">{{ $hours }}H:{{ $minutes }}m</span></p>
-            </div>
-        </div>
-        <div class="separator">
-            <div class="line"></div>
-            <span></span>
-        </div>
-        <div id="observations">
-            <h2 class="subtitle">Observações</h2>
-            <div>
-                {!! $observations !!}
-            </div>
+        <div>
+            <ul class="product-list">
+                @forelse ($products as $product)
+                    <li class="product-item">
+                        <h4><strong>Produto ID:</strong> {{ $product['id'] }}</h4>
+                        <p><strong>Nome:</strong> {{ $product['name'] }}</p>
+                        <p><strong>Quantidade em estoque:</strong> {{ $product['quantity_stock'] }}</p>
+                        <p><strong>Estoque mínimo:</strong> {{ $product['quantity_min'] }}</p>
+                        <p><strong>Categoria:</strong> {{ $product['name-category'] ?? 'Sem categoria' }}</p>
+                    </li>
+                @empty
+                    <li>Nenhum produto encontrado.</li>
+                @endforelse
+            </ul>
         </div>
     </main>
 </body>

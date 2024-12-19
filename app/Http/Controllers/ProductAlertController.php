@@ -38,7 +38,12 @@ class ProductAlertController extends CrudController
 
             if ($user->level == 'user') {
 
-                $productAlertUser = ProductEquipament::with(['category'])
+                $productAlertUser = ProductEquipament::with(['category' => function ($query) {
+                    $query->whereNull('deleted_at');
+                }])
+                    ->whereHas('category', function ($query) {
+                        $query->whereNull('deleted_at');
+                    })
                     ->whereIn('fk_category_id', $categoryUser)
                     ->orderBy('fk_category_id', 'asc')
                     ->paginate(10);
@@ -63,7 +68,7 @@ class ProductAlertController extends CrudController
                             'name' => $product->name,
                             'quantity_stock' => $quantityTotalProduct,
                             'quantity_min' => $product->quantity_min,
-                            'name-category' => $product->category->name ?? null,
+                            'name-category' => $product->category->name,
                             'created_at' => $this->product_alert->getFormattedDate($product, 'created_at'),
                             'updated_at' => $this->product_alert->getFormattedDate($product, 'updated_at'),
                         ];
@@ -89,7 +94,12 @@ class ProductAlertController extends CrudController
 
             if ($user->level == 'admin') {
 
-                $productAllAdmin = ProductEquipament::with(['category'])
+                $productAllAdmin = ProductEquipament::with(['category' => function ($query) {
+                    $query->whereNull('deleted_at');
+                }])
+                    ->whereHas('category', function ($query) {
+                        $query->whereNull('deleted_at');
+                    })
                     ->orderBy('fk_category_id', 'asc')
                     ->paginate(10);
 
@@ -106,14 +116,14 @@ class ProductAlertController extends CrudController
                         ->sum('quantity');
 
                     $quantityTotalProduct = $quantityTotalInputs - ($quantityTotalExits + $quantityReserveNotFinished);
-
+                    
                     if ($quantityTotalProduct <= $product->quantity_min) {
                         return [
                             'id' => $product->id,
                             'name' => $product->name,
                             'quantity_stock' => $quantityTotalProduct,
                             'quantity_min' => $product->quantity_min,
-                            'name-category' => $product->category->name ?? null,
+                            'name-category' => $product->category->name,
                             'created_at' => $this->product_alert->getFormattedDate($product, 'created_at'),
                             'updated_at' => $this->product_alert->getFormattedDate($product, 'updated_at'),
                         ];
