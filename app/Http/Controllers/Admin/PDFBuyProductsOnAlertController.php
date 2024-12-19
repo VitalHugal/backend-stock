@@ -31,8 +31,7 @@ class PDFBuyProductsOnAlertController extends CrudController
             DB::beginTransaction();
 
             $user = $request->user();
-            // $userName = $user->name;
-            // $userName = 'teste';
+            $userName = $user->name;
 
             if ($user->level == 'admin') {
                 
@@ -76,10 +75,10 @@ class PDFBuyProductsOnAlertController extends CrudController
 
                     return [
                         'id' => $product->id,
-                        // 'name' => $product->name,
+                        'name' => $product->name,
                         'quantity_stock' => $quantityTotalProduct,
                         'quantity_min' => $product->quantity_min,
-                        // 'name-category' => $product->category->name ?? null,
+                        'name-category' => $product->category->name ?? null,
                     ];
                 });
             }
@@ -88,7 +87,7 @@ class PDFBuyProductsOnAlertController extends CrudController
             $date = date('d-m-Y H:i:s');
 
             $data = [
-                // 'name' => $userName,
+                'name' => $userName,
                 'date' => $date,
                 'products' => $filteredCollectionAdmin->toArray(),
             ];
