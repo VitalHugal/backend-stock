@@ -44,7 +44,8 @@ class ExitsController extends CrudController
             }
 
             if ($level == 'user') {
-                $exits = Exits::with(['productEquipament.category' => function ($query) {
+                $exits = Exits::withTrashed()
+                    ->with(['productEquipament.category' => function ($query) {
                         $query->withTrashed();
                     }, 'user' => function ($query) {
                         $query->withTrashed();
@@ -85,8 +86,7 @@ class ExitsController extends CrudController
                 ]);
             }
 
-            $exitsAdmin = Exits::withTrashed()
-                ->with([
+            $exitsAdmin = Exits::with([
                     'productEquipament.category' => function ($query) {
                         $query->withTrashed();
                     },
