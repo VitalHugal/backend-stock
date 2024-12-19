@@ -128,7 +128,9 @@
         </div>
         <div id="info-date-name">
             <h1 id="title">Produtos em alerta</h1>
-            <p id="paragrafh">{{ $name }} - {{ $date }}</p>
+            <p id="paragrafh">
+                {{-- {{ $name }} -  --}}
+                {{ $date }}</p>
             {{-- <p>{{ $date }}</p> --}}
         </div>
     </header>
