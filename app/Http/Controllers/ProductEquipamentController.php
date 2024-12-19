@@ -46,19 +46,28 @@ class ProductEquipamentController extends CrudController
 
             if ($user->level == 'user') {
 
-                if ($request->has('name') && $request->input('name') != '') {
+                if ($request->has('name') && $request->input('name') != '' && $request->has('active') && $request->input('active') == 'true') {
 
-                    $productEquipamentUserSearch = ProductEquipament::
-                        // with('category')
-                        withTrashed() // Inclui registros deletados no modelo ProductEquipament
-                        ->with(['category' => function ($query) {
-                            $query->withTrashed(); // Inclui as categorias deletadas no relacionamento
+                    $productEquipamentUserSearch = ProductEquipament::with(['category' => function ($query) {
+                            $query->whereNull('deleted_at');
                         }])
+                        ->whereHas('category', function ($query) {
+                            $query->whereNull('deleted_at');
+                        })
+                        // with('category')
+
+                        //--------------
+
+                        // withTrashed()
+                        // ->with(['category' => function ($query) {
+                        //     $query->withTrashed();
+                        // }])
+
                         ->whereIn('fk_category_id', $categoryUser)
                         ->where('name', 'like', '%' . $request->input('name') . '%')
                         ->orderBy('fk_category_id', 'asc')
                         ->paginate(10)
-                        ->appends(['name' => $request->input('name')]);
+                        ->appends(['name' => $request->input('name'), 'active' => $request->input('active')]);
 
                     if ($productEquipamentUserSearch->isEmpty()) {
                         return response()->json([
@@ -102,8 +111,7 @@ class ProductEquipamentController extends CrudController
                     ]);
                 }
 
-                if ($request->has('active')) {
-
+                if ($request->has('active') && $request->input('active') == 'true') {
                     $productEquipamentUser = ProductEquipament::with(['category' => function ($query) {
                         $query->whereNull('deleted_at');
                     }])
@@ -112,7 +120,8 @@ class ProductEquipamentController extends CrudController
                         })
                         ->whereIn('fk_category_id', $categoryUser)
                         ->orderBy('fk_category_id', 'asc')
-                        ->paginate(10);
+                        ->paginate(10)
+                        ->appends(['active' => $request->input('active')]);
                 } else {
                     $productEquipamentUser = ProductEquipament::withTrashed()
                         ->with(['category' => function ($query) {
@@ -159,7 +168,7 @@ class ProductEquipamentController extends CrudController
 
             // query sem os produtos deletados
 
-            if ($request->has('active')) {
+            if ($request->has('active') && $request->input('active') == 'true') {
                 $productAllAdmin = ProductEquipament::with(['category' => function ($query) {
                     $query->whereNull('deleted_at');
                 }])
@@ -167,7 +176,8 @@ class ProductEquipamentController extends CrudController
                         $query->whereNull('deleted_at');
                     })
                     ->orderBy('fk_category_id', 'asc')
-                    ->paginate(10);
+                    ->paginate(10)
+                    ->appends(['active' => $request->input('active')]);
 
                 // $productAllAdmin = ProductEquipament::with('category')
                 //     // ->get()
@@ -183,19 +193,31 @@ class ProductEquipamentController extends CrudController
                     ->paginate(10);
             }
 
-            if ($request->has('name') && $request->input('name') != '') {
+            if ($request->has('name') && $request->input('name') != '' && $request->has('active') &&  $request->input('active') == 'true') {
 
-                $productAllAdminSearch = ProductEquipament::withTrashed() // Inclui registros deletados no modelo ProductEquipament
-                    ->with(['category' => function ($query) {
-                        $query->withTrashed(); // Inclui as categorias deletadas no relacionamento
-                    }])
+                $productAllAdminSearch = ProductEquipament::with(['category' => function ($query) {
+                    $query->whereNull('deleted_at');
+                }])
+                    ->whereHas('category', function ($query) {
+                        $query->whereNull('deleted_at');
+                    })
+
+                    // withTrashed()
+                    //     ->with(['category' => function ($query) {
+                    //         $query->withTrashed();
+                    //     }])
+
+                    //-------
+
                     // with('category')
                     // ->whereIn('fk_category_id', $categoryUser)
+
+
                     ->where('name', 'like', '%' . $request->input('name') . '%')
                     // ->orderBy('name', 'asc')
                     ->orderBy('fk_category_id', 'asc')
                     ->paginate(10)
-                    ->appends(['name' => $request->input('name')]);
+                    ->appends(['name' => $request->input('name'), 'active' => $request->input('active')]);
 
                 if ($productAllAdminSearch->isEmpty()) {
                     return response()->json([
