@@ -87,7 +87,7 @@ class PDFBuyProductsOnAlertController extends CrudController
             $date = date('d-m-Y H:i:s');
 
             $data = [
-                'name' => $userName,
+                'name' => '$userName',
                 'date' => $date,
                 'products' => $filteredCollectionAdmin->toArray(),
             ];
