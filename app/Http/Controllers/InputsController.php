@@ -50,17 +50,31 @@ class InputsController extends CrudController
                 //     ->orderBy('created_at', 'desc')
                 //     ->paginate(10);
 
+                //------
+
+                // $inputs = Inputs::withTrashed(['productEquipament.category' => function ($query) {
+                //     $query->withTrashed();
+                // }, 'user' => function ($query) {
+                //     $query->withTrashed();
+                // }])
+                //     ->whereHas('productEquipament', function ($query) use ($categoryUser) {
+                //         $query->whereIn('fk_category_id', $categoryUser)
+                //             ->withTrashed();
+                //     })
+                //     ->orderBy('created_at', 'desc')
+                //     ->paginate(10);
+
                 $inputs = Inputs::withTrashed(['productEquipament.category' => function ($query) {
                     $query->withTrashed();
                 }, 'user' => function ($query) {
                     $query->withTrashed();
                 }])
                     ->whereHas('productEquipament', function ($query) use ($categoryUser) {
-                        $query->whereIn('fk_category_id', $categoryUser)
-                            ->withTrashed();
+                        $query->whereIn('fk_category_id', $categoryUser);
                     })
                     ->orderBy('created_at', 'desc')
                     ->paginate(10);
+
 
                 $inputs->getCollection()->transform(function ($input) {
 
@@ -97,20 +111,34 @@ class InputsController extends CrudController
             //     ->orderBy('created_at', 'desc')
             //     ->paginate(10);
 
-            $inputsAdmin = Inputs::withTrashed([
-                'productEquipament.category' => function ($query) {
-                    $query->withTrashed();
-                },
-                'user' => function ($query) {
-                    $query->withTrashed();
-                },
-            ])
+            // ------
+            
+            // $inputsAdmin = Inputs::withTrashed([
+            //     'productEquipament.category' => function ($query) {
+            //         $query->withTrashed();
+            //     },
+            //     'user' => function ($query) {
+            //         $query->withTrashed();
+            //     },
+            // ])
+            //     ->whereHas('productEquipament', function ($query) use ($categoryUser) {
+            //         $query->withTrashed();
+            //         // $query->whereIn('fk_category_id', $categoryUser);
+            //     })
+            //     ->orderBy('created_at', 'desc')
+            //     ->paginate(10);
+
+            $inputs = Inputs::withTrashed(['productEquipament.category' => function ($query) {
+                $query->withTrashed();
+            }, 'user' => function ($query) {
+                $query->withTrashed();
+            }])
                 ->whereHas('productEquipament', function ($query) use ($categoryUser) {
-                    $query->withTrashed();
                     // $query->whereIn('fk_category_id', $categoryUser);
                 })
                 ->orderBy('created_at', 'desc')
                 ->paginate(10);
+
 
             $inputsAdmin->getCollection()->transform(function ($input) {
 
