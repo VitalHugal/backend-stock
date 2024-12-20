@@ -121,24 +121,12 @@ class InputsController extends CrudController
                     $query->withTrashed();
                 },
             ])
-                ->whereHas('productEquipament', function ($query) use ($categoryUser) {
-                    $query->withTrashed();
-                    // $query->whereIn('fk_category_id', $categoryUser);
-                })
+                // ->whereHas('productEquipament', function ($query) use ($categoryUser) {
+                //     $query->withTrashed();
+                //     // $query->whereIn('fk_category_id', $categoryUser);
+                // })
                 ->orderBy('created_at', 'desc')
                 ->paginate(10);
-
-            // $inputsAdmin = Inputs::withTrashed(['productEquipament.category' => function ($query) {
-            //     $query->withTrashed();
-            // }, 'user' => function ($query) {
-            //     $query->withTrashed();
-            // }])
-            //     ->whereHas('productEquipament', function ($query) use ($categoryUser) {
-            //         // $query->whereIn('fk_category_id', $categoryUser);
-            //     })
-            //     ->orderBy('created_at', 'desc')
-            //     ->paginate(10);
-
 
             $inputsAdmin->getCollection()->transform(function ($input) {
 
