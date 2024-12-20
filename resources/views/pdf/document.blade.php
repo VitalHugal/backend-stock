@@ -122,6 +122,7 @@
         font-weight: bolder;
         background-color: var(--color-gray);
         color: var(--color-black);
+        /* border: 1px solid var(--color-black); */
     }
 
     .product-list td {
@@ -161,6 +162,7 @@
         text-transform: uppercase;
         padding-top: 10px;
     } */
+     
 </style>
 
 <body>
