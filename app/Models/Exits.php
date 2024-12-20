@@ -71,6 +71,11 @@ class Exits extends Model
         return $this->belongsTo(ProductEquipament::class, 'fk_product_equipament_id');
     }
 
+    public function category()
+    {
+        return $this->belongsTo(Category::class, 'fk_category_id');
+    }
+
     public function user()
     {
         return $this->belongsTo(User::class, 'fk_user_id');
