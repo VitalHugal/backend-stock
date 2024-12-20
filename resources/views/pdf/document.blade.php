@@ -63,7 +63,7 @@
 
     #info-date-name {
         position: absolute;
-        top: 35px;
+        top: 22px;
         right: 60px;
         text-align: right
     }
@@ -73,7 +73,7 @@
     }
 
     #paragrafh {
-        padding-top: 10px;
+        /* padding-top: 10px; */
         text-transform: uppercase;
         font-size: 5px;
     }
@@ -155,6 +155,12 @@
         margin-top: 10mm;
         text-transform: uppercase;
     }
+
+    /* #notFound{
+        text-align: center;
+        text-transform: uppercase;
+        padding-top: 10px;
+    } */
 </style>
 
 <body>
@@ -173,7 +179,7 @@
         <div class="line"></div>
         <span></span>
     </div>
-
+    {{-- <p id="notFound">{{$notFound}}</p> --}}
     <main>
         @foreach ($pages as $index => $products)
             <table class="product-list">

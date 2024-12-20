@@ -63,6 +63,18 @@ class PDFBuyProductsOnAlertController extends CrudController
                         })
                         ->orderBy('fk_category_id', 'asc')
                         ->get();
+
+
+                    // $categoryIds = $request->input('category');
+                    // $filterArray = explode(',', $categoryIds);
+                    // $retrievedIds = $productAllAdmin->pluck('fk_category_id')->toArray();
+                    // $missingIds = array_diff($filterArray, $retrievedIds);
+
+                    // $namesCategorysNoResult = Category::whereIn('id', $missingIds)->pluck('name');
+                    // $result = implode(',', $namesCategorysNoResult->toArray());
+
+                    // $namesCategorysNoResultFormatted = "Nenhum resultado encontrado para: " . $result;
+                    
                 } else {
 
                     $productAllAdmin = ProductEquipament::with(['category' => function ($query) {
@@ -72,6 +84,8 @@ class PDFBuyProductsOnAlertController extends CrudController
                     })
                         ->orderBy('fk_category_id', 'asc')
                         ->get();
+
+                        // $namesCategorysNoResultFormatted = ''; 
                 }
 
                 $filteredCollectionAdmin = $productAllAdmin->filter(function ($product) {
@@ -134,6 +148,7 @@ class PDFBuyProductsOnAlertController extends CrudController
                 'name' => $userName,
                 'date' => $date,
                 'pages' => $productChunks,
+                // 'notFound' => $namesCategorysNoResultFormatted,
             ];
 
             // Carregar conteúdo HTML
