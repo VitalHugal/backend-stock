@@ -128,7 +128,7 @@ class InputsController extends CrudController
             //     ->orderBy('created_at', 'desc')
             //     ->paginate(10);
 
-            $inputs = Inputs::withTrashed(['productEquipament.category' => function ($query) {
+            $inputsAdmin = Inputs::withTrashed(['productEquipament.category' => function ($query) {
                 $query->withTrashed();
             }, 'user' => function ($query) {
                 $query->withTrashed();
