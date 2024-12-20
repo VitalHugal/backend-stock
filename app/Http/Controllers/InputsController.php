@@ -50,31 +50,17 @@ class InputsController extends CrudController
                 //     ->orderBy('created_at', 'desc')
                 //     ->paginate(10);
 
-                //------
-
-                // $inputs = Inputs::withTrashed(['productEquipament.category' => function ($query) {
-                //     $query->withTrashed();
-                // }, 'user' => function ($query) {
-                //     $query->withTrashed();
-                // }])
-                //     ->whereHas('productEquipament', function ($query) use ($categoryUser) {
-                //         $query->whereIn('fk_category_id', $categoryUser)
-                //             ->withTrashed();
-                //     })
-                //     ->orderBy('created_at', 'desc')
-                //     ->paginate(10);
-
-                $inputs = Inputs::withTrashed(['productEquipament.category' => function ($query) {
-                    $query->withTrashed();
-                }, 'user' => function ($query) {
-                    $query->withTrashed();
-                }])
+                $inputs = Inputs::with(['productEquipament.category' => function ($query) {
+                        $query->withTrashed();
+                    }, 'user' => function ($query) {
+                        $query->withTrashed();
+                    }])
                     ->whereHas('productEquipament', function ($query) use ($categoryUser) {
-                        $query->whereIn('fk_category_id', $categoryUser);
+                        $query->whereIn('fk_category_id', $categoryUser)
+                            ->withTrashed();
                     })
                     ->orderBy('created_at', 'desc')
                     ->paginate(10);
-
 
                 $inputs->getCollection()->transform(function ($input) {
 
@@ -82,10 +68,7 @@ class InputsController extends CrudController
                         'id' => $input->id ?? null,
                         'quantity' => $input->quantity ?? null,
                         'id_product' => $input->productEquipament->id ?? null,
-                        // 'product_name' => $input->productEquipament->name ?? null,
-                        'product_name' => $input->productEquipament->name->trashed()
-                            ? $input->productEquipament->name . ' (Deletado)' // Se deletado (Deletado)
-                            : $input->productEquipament->name ?? null,
+                        'product_name' => $input->productEquipament->name ?? null,
                         'category_name' => $input->productEquipament->category->trashed()
                             ? $input->productEquipament->category->name . ' (Deletado)' // Se deletado (Deletado)
                             : $input->productEquipament->category->name ?? null,
@@ -111,20 +94,18 @@ class InputsController extends CrudController
             //     ->orderBy('created_at', 'desc')
             //     ->paginate(10);
 
-            // ------
-            
-            $inputsAdmin = Inputs::withTrashed([
-                'productEquipament.category' => function ($query) {
+            $inputsAdmin = Inputs::with([
+                    'productEquipament.category' => function ($query) {
+                        $query->withTrashed();
+                    },
+                    'user' => function ($query) {
+                        $query->withTrashed();
+                    },
+                ])
+                ->whereHas('productEquipament', function ($query) use ($categoryUser) {
                     $query->withTrashed();
-                },
-                'user' => function ($query) {
-                    $query->withTrashed();
-                },
-            ])
-                // ->whereHas('productEquipament', function ($query) use ($categoryUser) {
-                //     $query->withTrashed();
-                //     // $query->whereIn('fk_category_id', $categoryUser);
-                // })
+                    // $query->whereIn('fk_category_id', $categoryUser);
+                })
                 ->orderBy('created_at', 'desc')
                 ->paginate(10);
 
@@ -134,10 +115,7 @@ class InputsController extends CrudController
                     'id' => $input->id ?? null,
                     'quantity' => $input->quantity ?? null,
                     'id_product' => $input->productEquipament->id ?? null,
-                    // 'product_name' => $input->productEquipament->name ?? null,
-                    'product_name' => $input->productEquipament->trashed()
-                        ? $input->productEquipament->name . ' (Deletado)' // Se deletado (Deletado)
-                        : $input->productEquipament->name ?? null,
+                    'product_name' => $input->productEquipament->name ?? null,
                     // 'category_name' => $input->productEquipament->category->name ?? null,
                     'category_name' => $input->productEquipament->category->trashed()
                         ? $input->productEquipament->category->name . ' (Deletado)' // Se deletado(Deletado)
@@ -209,7 +187,7 @@ class InputsController extends CrudController
                             $query->withTrashed();
                         },
                         'user' => function ($query) {
-                            $query->withTrashed();
+                            $query->withTrashed(); 
                         },
                     ])
                     ->where('id', $id)
