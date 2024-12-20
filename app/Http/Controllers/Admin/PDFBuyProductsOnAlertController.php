@@ -32,58 +32,65 @@ class PDFBuyProductsOnAlertController extends CrudController
             DB::beginTransaction();
 
             $user = $request->user();
-            // $userName = $user->name;
-            $userName = '$user->name';
+            $userName = $user->name;
+            // $userName = '$user->name';
 
-            // if ($user->level == 'admin') {
+            if ($user->level == 'user') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Você não tem permissão de acesso para seguir adiante.'
+                ]);
+            }
 
-            $productAllAdmin = ProductEquipament::with(['category' => function ($query) {
-                $query->whereNull('deleted_at');
-            }])->whereHas('category', function ($query) {
-                $query->whereNull('deleted_at');
-            })
-                ->orderBy('fk_category_id', 'asc')
-                ->get();
+            if ($user->level == 'admin') {
 
-            $filteredCollectionAdmin = $productAllAdmin->filter(function ($product) {
-                $productEquipamentId = $product->id;
+                $productAllAdmin = ProductEquipament::with(['category' => function ($query) {
+                    $query->whereNull('deleted_at');
+                }])->whereHas('category', function ($query) {
+                    $query->whereNull('deleted_at');
+                })
+                    ->orderBy('fk_category_id', 'asc')
+                    ->get();
 
-                // Calcula as quantidades totais
-                $quantityTotalInputs = Inputs::where('fk_product_equipament_id', $productEquipamentId)->sum('quantity');
-                $quantityTotalExits = Exits::where('fk_product_equipament_id', $productEquipamentId)->sum('quantity');
-                $quantityReserveNotFinished = Reservation::where('fk_product_equipament_id', $productEquipamentId)
-                    ->where('reservation_finished', false)
-                    ->whereNull('date_finished')
-                    ->whereNull('fk_user_id_finished')
-                    ->sum('quantity');
+                $filteredCollectionAdmin = $productAllAdmin->filter(function ($product) {
+                    $productEquipamentId = $product->id;
 
-                $quantityTotalProduct = $quantityTotalInputs - ($quantityTotalExits + $quantityReserveNotFinished);
+                    // Calcula as quantidades totais
+                    $quantityTotalInputs = Inputs::where('fk_product_equipament_id', $productEquipamentId)->sum('quantity');
+                    $quantityTotalExits = Exits::where('fk_product_equipament_id', $productEquipamentId)->sum('quantity');
+                    $quantityReserveNotFinished = Reservation::where('fk_product_equipament_id', $productEquipamentId)
+                        ->where('reservation_finished', false)
+                        ->whereNull('date_finished')
+                        ->whereNull('fk_user_id_finished')
+                        ->sum('quantity');
 
-                // Retorna somente os produtos que atendem à condição
-                return $quantityTotalProduct <= $product->quantity_min;
-            })->map(function ($product) {
-                $productEquipamentId = $product->id;
+                    $quantityTotalProduct = $quantityTotalInputs - ($quantityTotalExits + $quantityReserveNotFinished);
 
-                // Recalcula as quantidades totais
-                $quantityTotalInputs = Inputs::where('fk_product_equipament_id', $productEquipamentId)->sum('quantity');
-                $quantityTotalExits = Exits::where('fk_product_equipament_id', $productEquipamentId)->sum('quantity');
-                $quantityReserveNotFinished = Reservation::where('fk_product_equipament_id', $productEquipamentId)
-                    ->where('reservation_finished', false)
-                    ->whereNull('date_finished')
-                    ->whereNull('fk_user_id_finished')
-                    ->sum('quantity');
+                    // Retorna somente os produtos que atendem à condição
+                    return $quantityTotalProduct <= $product->quantity_min;
+                })->map(function ($product) {
+                    $productEquipamentId = $product->id;
 
-                $quantityTotalProduct = $quantityTotalInputs - ($quantityTotalExits + $quantityReserveNotFinished);
+                    // Recalcula as quantidades totais
+                    $quantityTotalInputs = Inputs::where('fk_product_equipament_id', $productEquipamentId)->sum('quantity');
+                    $quantityTotalExits = Exits::where('fk_product_equipament_id', $productEquipamentId)->sum('quantity');
+                    $quantityReserveNotFinished = Reservation::where('fk_product_equipament_id', $productEquipamentId)
+                        ->where('reservation_finished', false)
+                        ->whereNull('date_finished')
+                        ->whereNull('fk_user_id_finished')
+                        ->sum('quantity');
 
-                return [
-                    'id' => $product->id,
-                    'name' => $product->name,
-                    'quantity_stock' => $quantityTotalProduct,
-                    'quantity_min' => $product->quantity_min,
-                    'name-category' => $product->category->name ?? null,
-                ];
-            });
-            // }
+                    $quantityTotalProduct = $quantityTotalInputs - ($quantityTotalExits + $quantityReserveNotFinished);
+
+                    return [
+                        'id' => $product->id,
+                        'name' => $product->name,
+                        'quantity_stock' => $quantityTotalProduct,
+                        'quantity_min' => $product->quantity_min,
+                        'name-category' => $product->category->name ?? null,
+                    ];
+                });
+            }
 
             // data atual da maquina;
             $date = date('d-m-Y H:i:s');

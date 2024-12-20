@@ -173,29 +173,29 @@
         <div class="line"></div>
         <span></span>
     </div>
-    
+
     <main>
         @foreach ($pages as $index => $products)
-        <table class="product-list">
-            <thead>
-                <tr>
-                    <th>Nome</th>
-                    <th>Qtd. em estoque</th>
-                    <th>Qtd. mínima</th>
-                    <th>Setor</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach ($products as $product)
+            <table class="product-list">
+                <thead>
                     <tr>
-                        <td>{{ $product['name'] }}</td>
-                        <td>{{ $product['quantity_stock'] }}</td>
-                        <td>{{ $product['quantity_min'] }}</td>
-                        <td>{{ $product['name-category'] ?? 'Sem categoria' }}</td>
+                        <th>Nome</th>
+                        <th>Qtd. em estoque</th>
+                        <th>Qtd. mínima</th>
+                        <th>Setor</th>
                     </tr>
-                @endforeach
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    @foreach ($products as $product)
+                        <tr>
+                            <td>{{ $product['name'] }}</td>
+                            <td>{{ $product['quantity_stock'] }}</td>
+                            <td>{{ $product['quantity_min'] }}</td>
+                            <td>{{ $product['name-category'] ?? 'Sem categoria' }}</td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
 
             {{-- Rodapé com número da página --}}
             <footer>
