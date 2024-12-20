@@ -125,11 +125,14 @@ class InputsController extends CrudController
                     'id' => $input->id ?? null,
                     'quantity' => $input->quantity ?? null,
                     'id_product' => $input->productEquipament->id ?? null,
-                    // 'product_name' => $input->productEquipament->name ?? null,
-                    'product_name' => $input->productEquipament->trashed()
-                        ? $input->productEquipament->name . ' (Deletado)' // Se deletado(Deletado)
-                        : $input->productEquipament->name ?? null,
+                    'product_name' => $input->productEquipament->name ?? null,
+                    
+                    // 'product_name' => $input->productEquipament->trashed()
+                    //     ? $input->productEquipament->name . ' (Deletado)' // Se deletado(Deletado)
+                    //     : $input->productEquipament->name ?? null,
+                    
                     // 'category_name' => $input->productEquipament->category->name ?? null,
+                    
                     'category_name' => $input->productEquipament->category->trashed()
                         ? $input->productEquipament->category->name . ' (Deletado)' // Se deletado(Deletado)
                         : $input->productEquipament->category->name ?? null,
