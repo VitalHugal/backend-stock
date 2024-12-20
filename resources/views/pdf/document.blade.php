@@ -162,7 +162,6 @@
         text-transform: uppercase;
         padding-top: 10px;
     } */
-     
 </style>
 
 <body>
