@@ -73,13 +73,15 @@
     }
 
     #paragrafh {
+        padding-top: 10px;
         text-transform: uppercase;
+        font-size: 5px;
     }
 
     .line {
         border-top: 1px solid var(--color-black);
         margin-top: 25px;
-        margin-bottom: 25px;
+        /* margin-bottom: 25px; */
     }
 
     #briefing {
@@ -94,30 +96,7 @@
         font-weight: bold;
     }
 
-    /* .product-list {
-        margin: 0;
-        padding: 0;
-        list-style: none;
-    }
-
-    .product-item {
-        margin-bottom: 15px;
-        padding: 10px;
-        border: 1px solid var(--color-gray2);
-        border-radius: 5px;
-        background-color: var(--color-gray);
-    }
-
-    .product-item h4 {
-        margin: 0 0 5px 0;
-        font-size: 14px;
-        color: var(--color-black);
-    }
-
-    .product-item p {
-        margin: 0;
-        font-size: 12px;
-    } */
+    /* //------------------------------------------- */
 
     .product-list {
         width: 100%;
@@ -132,7 +111,7 @@
         border: 1px solid var(--color-black);
     }
 
-    .product-list td{
+    .product-list td {
         text-align: center;
     }
 
@@ -140,7 +119,7 @@
         text-transform: uppercase;
         font-size: 13px;
         text-align: center;
-        font-weight: bold;
+        font-weight: bolder;
         background-color: var(--color-gray);
         color: var(--color-black);
     }
@@ -148,6 +127,33 @@
     .product-list td {
         text-transform: uppercase;
         font-size: 14px;
+    }
+
+    @page {
+        margin: 20mm;
+    }
+
+    .page {
+        page-break-after: always;
+        width: 100%;
+        text-align: center;
+    }
+
+    .page-break {
+        page-break-after: always;
+    }
+
+    footer {
+        text-align: center;
+        bottom: 10mm;
+        width: 100%;
+        text-align: center;
+        font-size: 12px;
+    }
+
+    .page-number {
+        margin-top: 10mm;
+        text-transform: uppercase;
     }
 </style>
 
@@ -159,19 +165,20 @@
         </div>
         <div id="info-date-name">
             <h1 id="title">Produtos em alerta</h1>
-            <p id="paragrafh">{{ $name }} - {{ $date }}</p>
-            {{-- <p>{{ $date }}</p> --}}
+            <p id="paragrafh">{{ $name }} em {{ $date }}</p>
         </div>
     </header>
+
     <div class="separator">
         <div class="line"></div>
         <span></span>
     </div>
+    
     <main>
+        @foreach ($pages as $index => $products)
         <table class="product-list">
             <thead>
                 <tr>
-                    {{-- <th>ID</th> --}}
                     <th>Nome</th>
                     <th>Qtd. em estoque</th>
                     <th>Qtd. mínima</th>
@@ -179,36 +186,27 @@
                 </tr>
             </thead>
             <tbody>
-                @forelse ($products as $product)
+                @foreach ($products as $product)
                     <tr>
-                        {{-- <td>{{ $product['id'] }}</td> --}}
                         <td>{{ $product['name'] }}</td>
                         <td>{{ $product['quantity_stock'] }}</td>
                         <td>{{ $product['quantity_min'] }}</td>
                         <td>{{ $product['name-category'] ?? 'Sem categoria' }}</td>
                     </tr>
-                @empty
-                    <tr>
-                        <td colspan="5">Nenhum produto encontrado.</td>
-                    </tr>
-                @endforelse
+                @endforeach
             </tbody>
         </table>
-        {{-- <div>
-            <ul class="product-list">
-                @forelse ($products as $product)
-                    <li class="product-item">
-                        <h4><strong>Produto ID:</strong> {{ $product['id'] }}</h4>
-                        <p><strong>Nome:</strong> {{ $product['name'] }}</p>
-                        <p><strong>Quantidade em estoque:</strong> {{ $product['quantity_stock'] }}</p>
-                        <p><strong>Estoque mínimo:</strong> {{ $product['quantity_min'] }}</p>
-                        <p><strong>Categoria:</strong> {{ $product['name-category'] ?? 'Sem categoria' }}</p>
-                    </li>
-                @empty
-                    <li>Nenhum produto encontrado.</li>
-                @endforelse
-            </ul>
-        </div> --}}
+
+            {{-- Rodapé com número da página --}}
+            <footer>
+                <p class="page-number">Página {{ $index + 1 }} de {{ count($pages) }}</p>
+            </footer>
+
+            {{-- Adiciona uma quebra de página, exceto na última página --}}
+            @if (!$loop->last)
+                <div class="page-break"></div>
+            @endif
+        @endforeach
     </main>
 </body>
 

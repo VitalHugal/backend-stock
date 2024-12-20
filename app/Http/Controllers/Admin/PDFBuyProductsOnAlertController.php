@@ -10,6 +10,7 @@ use App\Models\ProductEquipament;
 use App\Models\Reservation;
 use Illuminate\Http\Request;
 use Dompdf\Dompdf;
+use Dompdf\Options;
 use Exception;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
@@ -31,65 +32,79 @@ class PDFBuyProductsOnAlertController extends CrudController
             DB::beginTransaction();
 
             $user = $request->user();
-            $userName = $user->name;
+            // $userName = $user->name;
+            $userName = '$user->name';
 
-            if ($user->level == 'admin') {
-                
-                $productAllAdmin = ProductEquipament::with(['category' => function ($query) {
-                    $query->whereNull('deleted_at');
-                }])->whereHas('category', function ($query) {
-                    $query->whereNull('deleted_at');
-                })
-                    ->orderBy('fk_category_id', 'asc')
-                    ->get(); 
-                    
-                $filteredCollectionAdmin = $productAllAdmin->filter(function ($product) {
-                    $productEquipamentId = $product->id;
+            // if ($user->level == 'admin') {
 
-                    // Calcula as quantidades totais
-                    $quantityTotalInputs = Inputs::where('fk_product_equipament_id', $productEquipamentId)->sum('quantity');
-                    $quantityTotalExits = Exits::where('fk_product_equipament_id', $productEquipamentId)->sum('quantity');
-                    $quantityReserveNotFinished = Reservation::where('fk_product_equipament_id', $productEquipamentId)
-                        ->where('reservation_finished', false)
-                        ->whereNull('date_finished')
-                        ->whereNull('fk_user_id_finished')
-                        ->sum('quantity');
+            $productAllAdmin = ProductEquipament::with(['category' => function ($query) {
+                $query->whereNull('deleted_at');
+            }])->whereHas('category', function ($query) {
+                $query->whereNull('deleted_at');
+            })
+                ->orderBy('fk_category_id', 'asc')
+                ->get();
 
-                    $quantityTotalProduct = $quantityTotalInputs - ($quantityTotalExits + $quantityReserveNotFinished);
+            $filteredCollectionAdmin = $productAllAdmin->filter(function ($product) {
+                $productEquipamentId = $product->id;
 
-                    // Retorna somente os produtos que atendem à condição
-                    return $quantityTotalProduct <= $product->quantity_min;
-                })->map(function ($product) {
-                    $productEquipamentId = $product->id;
+                // Calcula as quantidades totais
+                $quantityTotalInputs = Inputs::where('fk_product_equipament_id', $productEquipamentId)->sum('quantity');
+                $quantityTotalExits = Exits::where('fk_product_equipament_id', $productEquipamentId)->sum('quantity');
+                $quantityReserveNotFinished = Reservation::where('fk_product_equipament_id', $productEquipamentId)
+                    ->where('reservation_finished', false)
+                    ->whereNull('date_finished')
+                    ->whereNull('fk_user_id_finished')
+                    ->sum('quantity');
 
-                    // Recalcula as quantidades totais
-                    $quantityTotalInputs = Inputs::where('fk_product_equipament_id', $productEquipamentId)->sum('quantity');
-                    $quantityTotalExits = Exits::where('fk_product_equipament_id', $productEquipamentId)->sum('quantity');
-                    $quantityReserveNotFinished = Reservation::where('fk_product_equipament_id', $productEquipamentId)
-                        ->where('reservation_finished', false)
-                        ->whereNull('date_finished')
-                        ->whereNull('fk_user_id_finished')
-                        ->sum('quantity');
+                $quantityTotalProduct = $quantityTotalInputs - ($quantityTotalExits + $quantityReserveNotFinished);
 
-                    $quantityTotalProduct = $quantityTotalInputs - ($quantityTotalExits + $quantityReserveNotFinished);
+                // Retorna somente os produtos que atendem à condição
+                return $quantityTotalProduct <= $product->quantity_min;
+            })->map(function ($product) {
+                $productEquipamentId = $product->id;
 
-                    return [
-                        'id' => $product->id,
-                        'name' => $product->name,
-                        'quantity_stock' => $quantityTotalProduct,
-                        'quantity_min' => $product->quantity_min,
-                        'name-category' => $product->category->name ?? null,
-                    ];
-                });
-            }
+                // Recalcula as quantidades totais
+                $quantityTotalInputs = Inputs::where('fk_product_equipament_id', $productEquipamentId)->sum('quantity');
+                $quantityTotalExits = Exits::where('fk_product_equipament_id', $productEquipamentId)->sum('quantity');
+                $quantityReserveNotFinished = Reservation::where('fk_product_equipament_id', $productEquipamentId)
+                    ->where('reservation_finished', false)
+                    ->whereNull('date_finished')
+                    ->whereNull('fk_user_id_finished')
+                    ->sum('quantity');
+
+                $quantityTotalProduct = $quantityTotalInputs - ($quantityTotalExits + $quantityReserveNotFinished);
+
+                return [
+                    'id' => $product->id,
+                    'name' => $product->name,
+                    'quantity_stock' => $quantityTotalProduct,
+                    'quantity_min' => $product->quantity_min,
+                    'name-category' => $product->category->name ?? null,
+                ];
+            });
+            // }
 
             // data atual da maquina;
             $date = date('d-m-Y H:i:s');
 
+            $itemsFirstPage = 22;
+            $itemsPerPage = 26;
+
+            // Divide os itens para a primeira página e as demais
+            $firstPageItems = $filteredCollectionAdmin->slice(0, $itemsFirstPage)->toArray();
+            $remainingItems = $filteredCollectionAdmin->slice($itemsFirstPage)->toArray();
+
+            // Cria um array de páginas
+            $productChunks = array_merge(
+                [$firstPageItems],
+                array_chunk($remainingItems, $itemsPerPage)
+            );
+
             $data = [
                 'name' => $userName,
                 'date' => $date,
-                'products' => $filteredCollectionAdmin->toArray(),
+                'pages' => $productChunks,
             ];
 
             // Carregar conteúdo HTML
@@ -113,7 +128,6 @@ class PDFBuyProductsOnAlertController extends CrudController
 
             // Saida do PDF no naveagdor
             return $dompdf->stream('document.pdf');
-            
         } catch (QueryException $qe) {
             DB::rollBack();
             return response()->json([
