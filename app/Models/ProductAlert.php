@@ -9,7 +9,7 @@ use Laravel\Sanctum\HasApiTokens;
 class ProductAlert extends Model
 {
     use HasApiTokens, SoftDeletes;
-    
+
     protected $fillable = [
         'fk_product_equipament_id',
         'quantity_min',
@@ -54,7 +54,7 @@ class ProductAlert extends Model
     {
         return $this->belongsTo(ProductEquipament::class, 'fk_product_equipament_id');
     }
-    
+
     public function inputs()
     {
         return $this->belongsTo(Inputs::class, 'fk_product_equipament_id');

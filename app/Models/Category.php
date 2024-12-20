@@ -45,6 +45,31 @@ class Category extends Model
         $formatedDateWithdrawalDate = explode('-', $formatedDateWithdrawalDate[0]);
         return $formatedDateWithdrawalDate[2] . '/' . $formatedDateWithdrawalDate[1] . '/' . $formatedDateWithdrawalDate[0] . ' ' . $formatedHoursWithdrawalDate;
     }
+
+    public static function listCategorys($request)
+    {
+        $query = self::query();
+
+        // Se o parâmetro projeto_id existir, filtra pelos IDs informados
+        if ($request->has('category')) {
+
+            $filter = $request->input('category');
+            $filterArray = explode(',', $filter);
+
+            $query->whereIn('id', $filterArray);
+        }
+
+        $result = $query->get();
+        
+        if ($result->isEmpty()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Nenhum resultado encontrado.',
+            ]);
+        }
+
+        return response()->json($result);
+    }
     
     public function users()
     {

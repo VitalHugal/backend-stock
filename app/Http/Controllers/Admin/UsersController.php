@@ -8,9 +8,9 @@ use App\Models\SystemLog;
 use App\Models\User;
 use Exception;
 use Illuminate\Database\QueryException;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Http\Request;
 
 class UsersController extends CrudController
 {

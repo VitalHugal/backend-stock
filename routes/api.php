@@ -20,9 +20,10 @@ Route::get('/user', function (Request $request) {
 
 Route::post('/login', [LoginController::class, 'login']);
 
-Route::get('/pdf', [PDFBuyProductsOnAlertController::class, 'generatedPDFBuyProductOnAlert']);
 
 Route::middleware(['auth:sanctum'])->group(function () {
+    
+    Route::get('/pdf', [PDFBuyProductsOnAlertController::class, 'generatedPDFBuyProductOnAlert']);
     
     //INPUTS
     Route::post('/inputs', [InputsController::class, 'store']);

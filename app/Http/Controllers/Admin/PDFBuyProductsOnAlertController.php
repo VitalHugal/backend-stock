@@ -1,16 +1,17 @@
 <?php
 
-namespace App\Http\Controllers\admin;
+namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\CrudController;
+use App\Models\Category;
 use App\Models\Exits;
 use App\Models\Inputs;
 use App\Models\ProductAlert;
 use App\Models\ProductEquipament;
 use App\Models\Reservation;
-use Illuminate\Http\Request;
+use App\Models\SystemLog;
 use Dompdf\Dompdf;
-use Dompdf\Options;
+use Illuminate\Http\Request;
 use Exception;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
@@ -44,13 +45,34 @@ class PDFBuyProductsOnAlertController extends CrudController
 
             if ($user->level == 'admin') {
 
-                $productAllAdmin = ProductEquipament::with(['category' => function ($query) {
-                    $query->whereNull('deleted_at');
-                }])->whereHas('category', function ($query) {
-                    $query->whereNull('deleted_at');
-                })
-                    ->orderBy('fk_category_id', 'asc')
-                    ->get();
+                if ($request->has('category') && $request->input('category') != '') {
+                    $categoryList = Category::listCategorys($request);
+
+                    if ($categoryList->isEmpty()) {
+                        return response()->json([
+                            'success' => false,
+                            'message' => 'Nenhum resultado encontrado.',
+                        ]);
+                    }
+
+                    $productAllAdmin = ProductEquipament::with(['category' => function ($query) {
+                        $query->whereNull('deleted_at');
+                    }])
+                        ->whereHas('category', function ($query) use ($categoryList) {
+                            $query->whereIn('id', $categoryList->original->pluck('id'));
+                        })
+                        ->orderBy('fk_category_id', 'asc')
+                        ->get();
+                } else {
+
+                    $productAllAdmin = ProductEquipament::with(['category' => function ($query) {
+                        $query->whereNull('deleted_at');
+                    }])->whereHas('category', function ($query) {
+                        $query->whereNull('deleted_at');
+                    })
+                        ->orderBy('fk_category_id', 'asc')
+                        ->get();
+                }
 
                 $filteredCollectionAdmin = $productAllAdmin->filter(function ($product) {
                     $productEquipamentId = $product->id;
@@ -128,10 +150,10 @@ class PDFBuyProductsOnAlertController extends CrudController
             // Renderizar PDF
             $dompdf->render();
 
-            DB::commit();
-
             // hack para liberar no front a requisição (HACK DE CORS) - IMPORTANTE !!!
             header('Access-Control-Allow-Origin: *');
+
+            DB::commit();
 
             // Saida do PDF no naveagdor
             return $dompdf->stream('document.pdf');
