@@ -80,7 +80,7 @@
 
     .line {
         border-top: 1px solid var(--color-black);
-        margin-top: 25px;
+        margin-top: 10px;
         /* margin-bottom: 25px; */
     }
 
