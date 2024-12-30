@@ -111,13 +111,14 @@ class InputsController extends CrudController
             //     ->orderBy('created_at', 'desc')
             //     ->paginate(10);
 
-            $inputsAdmin = Inputs::withTrashed(['productEquipament' => function ($query) {
-                $query->withTrashed(); // Inclui produtos deletados (soft delete)
-            }, 'productEquipament.category' => function ($query) {
-                $query->withTrashed(); // Inclui categorias deletadas (soft delete)
-            }, 'user' => function ($query) {
-                $query->withTrashed(); // Inclui usuários deletados (soft delete)
-            }])
+            $inputsAdmin = Inputs::with([
+                'productEquipament.category' => function ($query) {
+                    $query->withTrashed(); // Inclui categorias deletadas (soft delete)
+                },
+                'user' => function ($query) {
+                    $query->withTrashed(); // Inclui usuários deletados (soft delete)
+                },
+            ])
                 ->orderBy('created_at', 'desc')
                 ->paginate(10);
 
