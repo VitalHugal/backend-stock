@@ -68,12 +68,22 @@ class ExitsController extends CrudController
                         'observation' => $exit->observation ?? null,
                         'quantity' => $exit->quantity ?? null,
                         'delivery_to' => $exit->delivery_to ?? null,
-                        'product_name' => $exit->productEquipament->name ?? null,
-                        'id_product' => $exit->productEquipament->id ?? null,
-                        // 'category_name' => $exit->productEquipament->category->name ?? null,
+
+                        // 'product_name' => $exit->productEquipament->name ?? null,
+                        // 'id_product' => $exit->productEquipament->id ?? null,
+
+                        'product_name' => $exit->productEquipament->trashed()
+                            ? $exit->productEquipament->name . ' (Deletado)' // Se deletado, (Deletado)
+                            : $exit->productEquipament->name ?? null,
+
+                        'id_product' => $exit->productEquipament->trashed()
+                            ? $exit->productEquipament->id
+                            : $exit->productEquipament->id ?? null,
+
                         'category_name' => $exit->productEquipament->category->trashed()
                             ? $exit->productEquipament->category->name . ' (Deletado)' // Se deletado, (Deletado)
                             : $exit->productEquipament->category->name ?? null,
+                        // 'category_name' => $exit->productEquipament->category->name ?? null,
                         'created_at' => $this->exits->getFormattedDate($exit, 'created_at') ?? null,
                         'updated_at' => $this->exits->getFormattedDate($exit, 'updated_at') ?? null,
                     ];
@@ -87,13 +97,13 @@ class ExitsController extends CrudController
             }
 
             $exitsAdmin = Exits::with([
-                    'productEquipament.category' => function ($query) {
-                        $query->withTrashed();
-                    },
-                    'user' => function ($query) {
-                        $query->withTrashed();
-                    },
-                ])
+                'productEquipament.category' => function ($query) {
+                    $query->withTrashed();
+                },
+                'user' => function ($query) {
+                    $query->withTrashed();
+                },
+            ])
                 ->whereHas('productEquipament', function ($query) use ($categoryUser) {
                     $query->withTrashed();
                     // $query->whereIn('fk_category_id', $categoryUser);
@@ -113,8 +123,17 @@ class ExitsController extends CrudController
                     'observation' => $exit->observation ?? null,
                     'quantity' => $exit->quantity ?? null,
                     'delivery_to' => $exit->delivery_to ?? null,
-                    'product_name' => $exit->productEquipament->name ?? null,
-                    'id_product' => $exit->productEquipament->id ?? null,
+                    // 'product_name' => $exit->productEquipament->name ?? null,
+                    // 'id_product' => $exit->productEquipament->id ?? null,
+
+                    'product_name' => $exit->productEquipament->trashed()
+                        ? $exit->productEquipament->name . ' (Deletado)' // Se deletado, (Deletado)
+                        : $exit->productEquipament->name ?? null,
+
+                    'id_product' => $exit->productEquipament->trashed()
+                        ? $exit->productEquipament->id
+                        : $exit->productEquipament->id ?? null,
+
                     // 'category_name' => $exit->productEquipament->category->name ?? null,
                     'category_name' => $exit->productEquipament->category->trashed()
                         ? $exit->productEquipament->category->name . ' (Deletado)' // Se deletado (Deletado)
@@ -435,7 +454,7 @@ class ExitsController extends CrudController
             }
 
             $updateExits = $this->exits->find($id);
-            
+
             if (!$updateExits) {
                 return response()->json([
                     'success' => false,
