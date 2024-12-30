@@ -104,10 +104,10 @@ class ExitsController extends CrudController
                     $query->withTrashed();
                 },
             ])
-                ->whereHas('productEquipament', function ($query) use ($categoryUser) {
-                    $query->withTrashed();
-                    // $query->whereIn('fk_category_id', $categoryUser);
-                })
+                // ->whereHas('productEquipament', function ($query) use ($categoryUser) {
+                //     $query->withTrashed();
+                //     // $query->whereIn('fk_category_id', $categoryUser);
+                // })
                 ->orderBy('created_at', 'desc')
                 ->paginate(10);
 
@@ -126,13 +126,13 @@ class ExitsController extends CrudController
                     // 'product_name' => $exit->productEquipament->name ?? null,
                     // 'id_product' => $exit->productEquipament->id ?? null,
 
-                    'product_name' => $exit->productEquipament->trashed()
-                        ? $exit->productEquipament->name . ' (Deletado)' // Se deletado, (Deletado)
-                        : $exit->productEquipament->name ?? null,
+                    'product_name' => $exit->productEquipament && $exit->productEquipament->trashed()
+                        ? $exit->productEquipament->name . ' (Deletado)'
+                        : $exit->productEquipament->name,
 
-                    'id_product' => $exit->productEquipament->trashed()
+                    'id_product' => $exit->productEquipament
                         ? $exit->productEquipament->id
-                        : $exit->productEquipament->id ?? null,
+                        : null,
 
                     // 'category_name' => $exit->productEquipament->category->name ?? null,
                     'category_name' => $exit->productEquipament->category->trashed()
