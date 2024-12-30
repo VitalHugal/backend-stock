@@ -74,11 +74,6 @@ class InputsController extends CrudController
                             ? $input->productEquipament->category->name . ' (Deletado)' // Se deletado (Deletado)
                             : $input->productEquipament->category->name ?? null,
 
-
-                        // 'category_name' => $input->productEquipament->category->trashed()
-                        //     ? $input->productEquipament->category->name . ' (Deletado)' // Se deletado (Deletado)
-                        //     : $input->productEquipament->category->name ?? null,
-
                         // 'category_name' => $input->productEquipament->category->name ?? null,
                         'fk_user_id' => $input->fk_user_id ?? null,
                         'name_user_input' => $input->user->name ?? null,
@@ -141,10 +136,6 @@ class InputsController extends CrudController
                     'category_name' => $input->productEquipament->category->trashed()
                         ? $input->productEquipament->category->name . ' (Deletado)' // Se deletado (Deletado)
                         : $input->productEquipament->category->name ?? null,
-
-                    // 'category_name' => $input->productEquipament->category->trashed()
-                    //     ? $input->productEquipament->category->name . ' (Deletado)' // Se deletado(Deletado)
-                    //     : $input->productEquipament->category->name ?? null,
 
                     // 'category_name' => $input->productEquipament->category->name ?? null,
 
