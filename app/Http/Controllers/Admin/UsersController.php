@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\Request;
 
+use function PHPUnit\Framework\isEmpty;
+
 class UsersController extends CrudController
 {
     protected $user;
@@ -33,10 +35,24 @@ class UsersController extends CrudController
                     'message' => 'Você não tem permissão de acesso para seguir adiante.',
                 ]);
             }
+            // $getAllUser = User::all();
 
             $getAllUser = User::withTrashed()->get();
 
-            // $getAllUser = User::all();
+            $getAllUser = $getAllUser->transform(function ($user) {
+                return [
+                    'id' => $user->id,
+                    'name' => $user->trashed()
+                        ? $user->name . ' (Deletado)'
+                        : $user->name ?? null,
+                    'email' => $user->email,
+                    'email_verified_at' => $user->email_verified_at,
+                    'level' => $user->level,
+                    'reservation_enabled' => $user->reservation_enabled,
+                    'created_at' => $this->user->getFormattedDate($user, 'created_at'),
+                    'updated_at' => $this->user->getFormattedDate($user, 'updated_at'),
+                ];
+            });
 
             if ($getAllUser) {
                 return response()->json([
@@ -70,16 +86,32 @@ class UsersController extends CrudController
                     'message' => 'Você não tem permissão de acesso para seguir adiante.',
                 ]);
             }
+            
+            // $getIdUser = User::where('id', $id)->first();
 
+            $getIdUser = User::withTrashed()->where('id', $id)->get();
 
-            $getIdUser = User::where('id', $id)->first();
-
-            if (!$getIdUser) {
+            if ($getIdUser->isEmpty()) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Nenhum resultado encontrado.',
                 ]);
             }
+
+            $getIdUser = $getIdUser->transform(function ($user) {
+                return [
+                    'id' => $user->id,
+                    'name' => $user->trashed()
+                        ? $user->name . ' (Deletado)'
+                        : $user->name ?? null,
+                    'email' => $user->email,
+                    'email_verified_at' => $user->email_verified_at,
+                    'level' => $user->level,
+                    'reservation_enabled' => $user->reservation_enabled,
+                    'created_at' => $this->user->getFormattedDate($user, 'created_at'),
+                    'updated_at' => $this->user->getFormattedDate($user, 'updated_at'),
+                ];
+            });
 
             return response()->json([
                 'success' => true,
