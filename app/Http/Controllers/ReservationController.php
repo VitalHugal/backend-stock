@@ -166,7 +166,9 @@ class ReservationController extends CrudController
                     'productEquipament.category' => function ($query) {
                         $query->withTrashed();
                     },
-                    'user',
+                    'user' => function ($query) {
+                        $query->withTrashed();
+                    },
                     'userFinished'
                 ])
                     ->orderBy('created_at', 'desc')
