@@ -63,10 +63,12 @@ class ExitsController extends CrudController
                     return [
                         'id' => $exit->id ?? null,
                         'fk_user_id' => $exit->fk_user_id ?? null,
+                        
                         // 'name_user_exits' => $exit->user->name ?? null,
                         'name_user_exits' => $exit->user->trashed()
                             ? $exit->user->name . ' (Deletado)'
                             : $exit->user->name ?? null,
+                            
                         'reason_project' => $exit->reason_project ?? null,
                         'observation' => $exit->observation ?? null,
                         'quantity' => $exit->quantity ?? null,
@@ -74,21 +76,20 @@ class ExitsController extends CrudController
 
                         // 'product_name' => $exit->productEquipament->name ?? null,
                         // 'id_product' => $exit->productEquipament->id ?? null,
-
                         'product_name' => $exit->productEquipament && $exit->productEquipament->trashed()
                             ? $exit->productEquipament->name . ' (Deletado)'
                             : $exit->productEquipament->name ?? null,
-
                         'id_product' => $exit->productEquipament
                             ? ($exit->productEquipament->trashed()
                                 ? $exit->productEquipament->id
                                 : $exit->productEquipament->id)
                             : null,
 
-                        'category_name' => $exit->productEquipament->category->trashed()
-                            ? $exit->productEquipament->category->name . ' (Deletado)' // Se deletado, (Deletado)
-                            : $exit->productEquipament->category->name ?? null,
                         // 'category_name' => $exit->productEquipament->category->name ?? null,
+                        'category_name' => $exit->productEquipament->category->trashed()
+                            ? $exit->productEquipament->category->name . ' (Deletado)'
+                            : $exit->productEquipament->category->name ?? null,
+                            
                         'created_at' => $this->exits->getFormattedDate($exit, 'created_at') ?? null,
                         'updated_at' => $this->exits->getFormattedDate($exit, 'updated_at') ?? null,
                     ];
@@ -101,30 +102,16 @@ class ExitsController extends CrudController
                 ]);
             }
 
-            // $exitsAdmin = Exits::with([
-            //     'productEquipament.category' => function ($query) {
-            //         $query->withTrashed();
-            //     },
-            //     'user' => function ($query) {
-            //         $query->withTrashed();
-            //     },
-            // ])
-            //     // ->whereHas('productEquipament', function ($query) use ($categoryUser) {
-            //     //     $query->withTrashed();
-            //     //     // $query->whereIn('fk_category_id', $categoryUser);
-            //     // })
-            //     ->orderBy('created_at', 'desc')
-            //     ->paginate(10);
 
             $exitsAdmin = Exits::with([
                 'productEquipament' => function ($query) {
-                    $query->withTrashed(); // Inclui produtos soft-deleted
+                    $query->withTrashed();
                 },
                 'productEquipament.category' => function ($query) {
-                    $query->withTrashed(); // Inclui categorias soft-deleted
+                    $query->withTrashed();
                 },
                 'user' => function ($query) {
-                    $query->withTrashed(); // Inclui usuários soft-deleted
+                    $query->withTrashed();
                 },
             ])
                 ->orderBy('created_at', 'desc')
@@ -137,21 +124,22 @@ class ExitsController extends CrudController
                 return [
                     'id' => $exit->id ?? null,
                     'fk_user_id' => $exit->fk_user_id ?? null,
+                    
                     // 'name_user_exits' => $exit->user->name ?? null,
                     'name_user_exits' => $exit->user->trashed()
                         ? $exit->user->name . ' (Deletado)'
                         : $exit->user->name ?? null,
+                        
                     'reason_project' => $exit->reason_project ?? null,
                     'observation' => $exit->observation ?? null,
                     'quantity' => $exit->quantity ?? null,
                     'delivery_to' => $exit->delivery_to ?? null,
+                    
                     // 'product_name' => $exit->productEquipament->name ?? null,
                     // 'id_product' => $exit->productEquipament->id ?? null,
-
                     'product_name' => $exit->productEquipament->trashed()
                         ? $exit->productEquipament->name . ' (Deletado)'
                         : $exit->productEquipament->name ?? null,
-
                     'id_product' => $exit->productEquipament
                         ? ($exit->productEquipament->trashed()
                             ? $exit->productEquipament->id
@@ -162,6 +150,7 @@ class ExitsController extends CrudController
                     'category_name' => $exit->productEquipament->category->trashed()
                         ? $exit->productEquipament->category->name . ' (Deletado)' // Se deletado (Deletado)
                         : $exit->productEquipament->category->name ?? null,
+                        
                     'created_at' => $this->exits->getFormattedDate($exit, 'created_at') ?? null,
                     'updated_at' => $this->exits->getFormattedDate($exit, 'updated_at') ?? null,
                 ];
@@ -247,14 +236,17 @@ class ExitsController extends CrudController
                 $exitDataUser = [
                     'id' => $exit->id ?? null,
                     'fk_user_id' => $exit->fk_user_id ?? null,
+                    
                     // 'name_user_exits' => $exit->user->name ?? null,
                     'name_user_exits' => $exit->user->trashed()
                         ? $exit->user->name . ' (Deletado)'
                         : $exit->user->name ?? null,
+                        
                     'reason_project' => $exit->reason_project ?? null,
                     'observation' => $exit->observation ?? null,
                     'quantity' => $exit->quantity ?? null,
                     'delivery_to' => $exit->delivery_to ?? null,
+                    
                     'product_name' => $exit->productEquipament && $exit->productEquipament->trashed()
                         ? $exit->productEquipament->name . ' (Deletado)'
                         : $exit->productEquipament->name ?? null,
@@ -267,8 +259,9 @@ class ExitsController extends CrudController
 
                     // 'category_name' => $exit->productEquipament->category->name ?? null,
                     'category_name' => $exit->productEquipament->category->trashed()
-                        ? $exit->productEquipament->category->name . ' (Deletado)' // Se deletado (Deletado)
+                        ? $exit->productEquipament->category->name . ' (Deletado)'
                         : $exit->productEquipament->category->name ?? null,
+                        
                     'created_at' => $this->exits->getFormattedDate($exit, 'created_at') ?? null,
                     'updated_at' => $this->exits->getFormattedDate($exit, 'updated_at') ?? null,
                 ];
@@ -279,12 +272,7 @@ class ExitsController extends CrudController
                     'data' => $exitDataUser,
                 ]);
             }
-            // $exit = Exits::with(['productEquipament.category', "user"])
-            //     ->where('id', $id)
-            //     ->whereHas('productEquipament', function ($query) use ($categoryUser) {
-            //         // $query->whereIn('fk_category_id', $categoryUser);
-            //     })->first();
-
+            
             $exit = Exits::withTrashed()
                 ->with([
                     'productEquipament.category' => function ($query) {
@@ -311,14 +299,17 @@ class ExitsController extends CrudController
             $exitDataAdmin = [
                 'id' => $exit->id ?? null,
                 'fk_user_id' => $exit->fk_user_id ?? null,
+                
                 // 'name_user_exits' => $exit->user->name ?? null,
                 'name_user_exits' => $exit->user->trashed()
                     ? $exit->user->name . ' (Deletado)'
                     : $exit->user->name ?? null,
+                    
                 'reason_project' => $exit->reason_project ?? null,
                 'observation' => $exit->observation ?? null,
                 'quantity' => $exit->quantity ?? null,
                 'delivery_to' => $exit->delivery_to ?? null,
+                
                 'product_name' => $exit->productEquipament && $exit->productEquipament->trashed()
                     ? $exit->productEquipament->name . ' (Deletado)'
                     : $exit->productEquipament->name ?? null,
@@ -328,10 +319,12 @@ class ExitsController extends CrudController
                         ? $exit->productEquipament->id
                         : $exit->productEquipament->id)
                     : null,
+                    
                 // 'category_name' => $exit->productEquipament->category->name ?? null,
                 'category_name' => $exit->productEquipament->category->trashed()
-                    ? $exit->productEquipament->category->name . ' (Deletado)' // Se deletado (Deletado)
+                    ? $exit->productEquipament->category->name . ' (Deletado)'
                     : $exit->productEquipament->category->name ?? null,
+                    
                 'created_at' => $this->exits->getFormattedDate($exit, 'created_at') ?? null,
                 'updated_at' => $this->exits->getFormattedDate($exit, 'updated_at') ?? null,
             ];
