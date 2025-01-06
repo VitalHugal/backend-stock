@@ -34,7 +34,9 @@ class UsersController extends CrudController
                 ]);
             }
 
-            $getAllUser = User::all();
+            $getAllUser = User::withTrashed()->get();
+
+            // $getAllUser = User::all();
 
             if ($getAllUser) {
                 return response()->json([

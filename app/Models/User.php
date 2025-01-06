@@ -32,7 +32,7 @@ class User extends Authenticatable
         // 'responsible_category'
     ];
     protected $table = 'users';
-    protected $dates = 'deleted_at';
+    protected $dates = ['deleted_at'];
 
     /**
      * The attributes that should be hidden for serialization.
@@ -83,12 +83,12 @@ class User extends Authenticatable
             'name.required' => 'Campo nome é obrigatório.',
             'name.max' => 'O campo nome deve ter no máximo 255 caracteres.',
             'name.min' => 'O campo nome deve ter no mínimo 3 caracteres.',
-            
+
             'email.required' => 'Campo e-mail é obrigatório.',
             'email.max' => 'O campo e-mail deve ter no máximo 255 caracteres.',
             'email.email' => 'E-mail inválido.',
             'email.min' => 'E-mail inválido.',
-            
+
             'password.required' => 'Campo senha é obrigatório.',
             'password.min' => 'O campo senha deve ter no mínimo 8 carcateres.',
             'password.max' => 'O campo senha deve ter no máximo 40 carcateres.',
@@ -111,7 +111,7 @@ class User extends Authenticatable
             'name.required' => 'Campo nome é obrigatório.',
             'name.max' => 'O campo nome deve ter no máximo 255 caracteres.',
             'name.min' => 'O campo nome deve ter no mínimo 3 caracteres.',
-            
+
             'email.required' => 'Campo e-mail é obrigatório.',
             'email.max' => 'O campo e-mail deve ter no máximo 255 caracteres.',
             'email.email' => 'E-mail inválido.',
