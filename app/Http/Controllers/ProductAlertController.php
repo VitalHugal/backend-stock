@@ -139,7 +139,7 @@ class ProductAlertController extends CrudController
                     $productAllAdmin->currentPage(), // Página atual
                     ['path' => request()->url(), 'query' => request()->query()] // Mantém a URL e query string
                 );
-
+                
                 return response()->json([
                     'success' => true,
                     'message' => 'Produto(s)/Equipamento(s) em alerta recuperado com sucesso.',
