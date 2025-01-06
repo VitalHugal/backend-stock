@@ -318,8 +318,14 @@ class ReservationController extends CrudController
                         : null,
                     'fk_user_id_finished' => $reservation->fk_user_id_finished,
                     'name_user_finished' => $reservation->userFinished->name ?? null,
-                    'product_name' => $reservation->productEquipament->name ?? null,
-                    'id_product' => $reservation->productEquipament->id ?? null,
+                    'product_name' => $reservation->productEquipament && $reservation->productEquipament->trashed()
+                        ? $reservation->productEquipament->name . ' (Deletado)'
+                        : $reservation->productEquipament->name ?? null,
+                    'id_product' => $reservation->productEquipament
+                        ? ($reservation->productEquipament->trashed()
+                            ? $reservation->productEquipament->id
+                            : $reservation->productEquipament->id)
+                        : null,
                     // 'category_name' => $reservation->productEquipament->category->name ?? null,
                     'category_name' => $reservation->productEquipament->category->trashed()
                         ? $reservation->productEquipament->category->name . ' (Deletado)' // Se deletado(Deletado)
@@ -385,8 +391,14 @@ class ReservationController extends CrudController
                         : null,
                     'fk_user_id_finished' => $reservation->fk_user_id_finished,
                     'name_user_finished' => $reservation->userFinished->name ?? null,
-                    'product_name' => $reservation->productEquipament->name ?? null,
-                    'id_product' => $reservation->productEquipament->id ?? null,
+                    'product_name' => $reservation->productEquipament && $reservation->productEquipament->trashed()
+                        ? $reservation->productEquipament->name . ' (Deletado)'
+                        : $reservation->productEquipament->name ?? null,
+                    'id_product' => $reservation->productEquipament
+                        ? ($reservation->productEquipament->trashed()
+                            ? $reservation->productEquipament->id
+                            : $reservation->productEquipament->id)
+                        : null,
                     // 'category_name' => $reservation->productEquipament->category->name ?? null,
                     'category_name' => $reservation->productEquipament->category->trashed()
                         ? $reservation->productEquipament->category->name . ' (Deletado)' // Se deletado(Deletado)
