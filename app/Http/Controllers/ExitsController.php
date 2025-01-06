@@ -76,8 +76,10 @@ class ExitsController extends CrudController
                             ? $exit->productEquipament->name . ' (Deletado)'
                             : $exit->productEquipament->name ?? null,
 
-                        'id_product' => $exit->productEquipament && $exit->productEquipament->trashed()
-                            ? $exit->productEquipament->id
+                        'id_product' => $exit->productEquipament
+                            ? ($exit->productEquipament->trashed()
+                                ? $exit->productEquipament->id
+                                : $exit->productEquipament->id)
                             : null,
 
                         'category_name' => $exit->productEquipament->category->trashed()
@@ -140,12 +142,14 @@ class ExitsController extends CrudController
                     // 'product_name' => $exit->productEquipament->name ?? null,
                     // 'id_product' => $exit->productEquipament->id ?? null,
 
-                    'product_name' => $exit->productEquipament && $exit->productEquipament->trashed()
+                    'product_name' => $exit->productEquipament->trashed()
                         ? $exit->productEquipament->name . ' (Deletado)'
                         : $exit->productEquipament->name ?? null,
 
-                    'id_product' => $exit->productEquipament && $exit->productEquipament->trashed()
-                        ? $exit->productEquipament->id
+                    'id_product' => $exit->productEquipament
+                        ? ($exit->productEquipament->trashed()
+                            ? $exit->productEquipament->id
+                            : $exit->productEquipament->id)
                         : null,
 
                     // 'category_name' => $exit->productEquipament->category->name ?? null,

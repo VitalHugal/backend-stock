@@ -67,13 +67,15 @@ class InputsController extends CrudController
                     return [
                         'id' => $input->id ?? null,
                         'quantity' => $input->quantity ?? null,
-                        
+
                         'product_name' => $input->productEquipament && $input->productEquipament->trashed()
                             ? $input->productEquipament->name . ' (Deletado)'
                             : $input->productEquipament->name ?? null,
 
-                        'id_product' => $input->productEquipament && $input->productEquipament->trashed()
-                            ? $input->productEquipament->id
+                        'id_product' => $input->productEquipament
+                            ? ($input->productEquipament->trashed()
+                                ? $input->productEquipament->id
+                                : $input->productEquipament->id)
                             : null,
 
                         'category_name' => $input->productEquipament->category->trashed()
@@ -114,12 +116,15 @@ class InputsController extends CrudController
                 return [
                     'id' => $input->id ?? null,
                     'quantity' => $input->quantity ?? null,
-                    'product_name' => $input->productEquipament && $input->productEquipament->trashed()
+                    'product_name' => $input->productEquipament->trashed()
                         ? $input->productEquipament->name . ' (Deletado)'
                         : $input->productEquipament->name ?? null,
-                    'id_product' => $input->productEquipament && $input->productEquipament->trashed()
-                        ? $input->productEquipament->id
-                        : $$input->productEquipament->id ?? null,
+
+                    'id_product' => $input->productEquipament
+                        ? ($input->productEquipament->trashed()
+                            ? $input->productEquipament->id
+                            : $input->productEquipament->id)
+                        : null,
 
                     // 'category_name' => $input->productEquipament->category->name ?? null,
                     'category_name' => $input->productEquipament->category->trashed()

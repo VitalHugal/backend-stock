@@ -66,10 +66,10 @@ class ReservationController extends CrudController
 
                 $reservations = Reservation::with([
                     'productEquipament' => function ($query) {
-                        $query->withTrashed(); 
+                        $query->withTrashed();
                     },
                     'productEquipament.category' => function ($query) {
-                        $query->withTrashed(); 
+                        $query->withTrashed();
                     },
                     'user',
                     'userFinished'
@@ -117,8 +117,10 @@ class ReservationController extends CrudController
                         'product_name' => $reservation->productEquipament && $reservation->productEquipament->trashed()
                             ? $reservation->productEquipament->name . ' (Deletado)'
                             : $reservation->productEquipament->name ?? null,
-                        'id_product' => $reservation->productEquipament && $reservation->productEquipament->trashed()
-                            ? $reservation->productEquipament->id
+                        'id_product' => $reservation->productEquipament
+                            ? ($reservation->productEquipament->trashed()
+                                ? $reservation->productEquipament->id
+                                : $reservation->productEquipament->id)
                             : null,
 
                         // 'category_name' => $reservation->productEquipament->category->name ?? null,
@@ -204,8 +206,11 @@ class ReservationController extends CrudController
                         'product_name' => $reservation->productEquipament && $reservation->productEquipament->trashed()
                             ? $reservation->productEquipament->name . ' (Deletado)'
                             : $reservation->productEquipament->name ?? null,
-                        'id_product' => $reservation->productEquipament && $reservation->productEquipament->trashed()
-                            ? $reservation->productEquipament->id
+
+                        'id_product' => $reservation->productEquipament
+                            ? ($reservation->productEquipament->trashed()
+                                ? $reservation->productEquipament->id
+                                : $reservation->productEquipament->id)
                             : null,
 
                         // 'category_name' => $reservation->productEquipament->category->name ?? null,
