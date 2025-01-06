@@ -99,7 +99,11 @@ class ReservationController extends CrudController
                     return [
                         'id' => $reservation->id,
                         'fk_user_id_create' => $reservation->fk_user_id,
-                        'name_user_create' => $reservation->user->name ?? null,
+                        // 'name_user_create' => $reservation->user->name ?? null,
+                        'name_user_create' => $reservation->user->trashed()
+                            ? $reservation->user->name . ' (Deletado)'
+                            : $reservation->user->name ?? null,
+
                         'reason_project' => $reservation->reason_project,
                         'observation' => $reservation->observation,
                         'quantity' => $reservation->quantity,
@@ -190,11 +194,11 @@ class ReservationController extends CrudController
                     return [
                         'id' => $reservation->id,
                         'fk_user_id_create' => $reservation->fk_user_id,
-                        'name_user_create' => $reservation->user->name ?? null,
-                        // 'name_user_create' => $reservation->user->name->trashed()
-                        //     ? $reservation->user->name . ' (Deletado)'
-                        //     : $reservation->user->name ?? null,
-                            
+                        // 'name_user_create' => $reservation->user->name ?? null,
+                        'name_user_create' => $reservation->user->trashed()
+                            ? $reservation->user->name . ' (Deletado)'
+                            : $reservation->user->name ?? null,
+
                         'reason_project' => $reservation->reason_project,
                         'observation' => $reservation->observation,
                         'quantity' => $reservation->quantity,
@@ -312,7 +316,10 @@ class ReservationController extends CrudController
                 $reservationData = [
                     'id' => $reservation->id,
                     'fk_user_id_create' => $reservation->fk_user_id,
-                    'name_user_create' => $reservation->user->name ?? null,
+                    // 'name_user_create' => $reservation->user->name ?? null,
+                    'name_user_create' => $reservation->user->trashed()
+                        ? $reservation->user->name . ' (Deletado)'
+                        : $reservation->user->name ?? null,
                     'reason_project' => $reservation->reason_project,
                     'observation' => $reservation->observation,
                     'quantity' => $reservation->quantity,
@@ -385,7 +392,10 @@ class ReservationController extends CrudController
                 $reservationDataAdmin = [
                     'id' => $reservation->id,
                     'fk_user_id_create' => $reservation->fk_user_id,
-                    'name_user_create' => $reservation->user->name ?? null,
+                    // 'name_user_create' => $reservation->user->name ?? null,
+                    'name_user_create' => $reservation->user->trashed()
+                        ? $reservation->user->name . ' (Deletado)'
+                        : $reservation->user->name ?? null,
                     'reason_project' => $reservation->reason_project,
                     'observation' => $reservation->observation,
                     'quantity' => $reservation->quantity,
