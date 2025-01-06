@@ -23,7 +23,6 @@ Route::post('/login', [LoginController::class, 'login']);
 
 Route::middleware(['auth:sanctum'])->group(function () {
     
-    Route::get('/pdf', [PDFBuyProductsOnAlertController::class, 'generatedPDFBuyProductOnAlert']);
     
     //INPUTS
     Route::post('/inputs', [InputsController::class, 'store']);
@@ -67,6 +66,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/get-all-logs', [SystemLogsController::class, 'getAllLogs']);
     
     //GENERATE PDF
+    Route::get('/pdf', [PDFBuyProductsOnAlertController::class, 'generatedPDFBuyProductOnAlert']);
     
     //REVERSE FINISHED RESERVATION
     Route::post('/reverse-finalized-reservention/{id}', [ReservationController::class, 'reverseReservationCompleted']);
