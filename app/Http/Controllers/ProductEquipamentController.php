@@ -125,6 +125,15 @@ class ProductEquipamentController extends CrudController
                         ->orderBy('fk_category_id', 'asc')
                         ->paginate(10)
                         ->appends(['active' => $request->input('active')]);
+                } elseif ($request->has('active') && $request->input('active') == 'false') {
+                    $productAllAdmin = ProductEquipament::with(['category' => function ($query) {
+                        $query->withTrashed();
+                    }])
+                        ->withTrashed()
+                        ->whereNotNull('deleted_at')
+                        ->orderBy('fk_category_id', 'asc')
+                        ->paginate(10)
+                        ->appends(['active' => request()->input('active')]);
                 } else {
                     $productEquipamentUser = ProductEquipament::with(['category' => function ($query) {
                         $query->withTrashed();
@@ -181,12 +190,15 @@ class ProductEquipamentController extends CrudController
                     ->orderBy('fk_category_id', 'asc')
                     ->paginate(10)
                     ->appends(['active' => $request->input('active')]);
-
-                // $productAllAdmin = ProductEquipament::with('category')
-                //     // ->get()
-                //     ->orderBy('fk_category_id', 'asc')
-                //     ->paginate(10);
-
+            } elseif ($request->has('active') && $request->input('active') == 'false') {
+                $productAllAdmin = ProductEquipament::with(['category' => function ($query) {
+                    $query->withTrashed();
+                }])
+                    ->withTrashed()
+                    ->whereNotNull('deleted_at')
+                    ->orderBy('fk_category_id', 'asc')
+                    ->paginate(10)
+                    ->appends(['active' => request()->input('active')]);
             } else {
                 $productAllAdmin = ProductEquipament::with(['category' => function ($query) {
                     $query->withTrashed();
