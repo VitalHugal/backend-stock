@@ -67,11 +67,17 @@ class InputsController extends CrudController
                     return [
                         'id' => $input->id ?? null,
                         'quantity' => $input->quantity ?? null,
-                        'id_product' => $input->productEquipament->id ?? null,
-                        'product_name' => $input->productEquipament->name ?? null,
+                        
+                        'product_name' => $input->productEquipament && $input->productEquipament->trashed()
+                            ? $input->productEquipament->name . ' (Deletado)'
+                            : $input->productEquipament->name ?? null,
 
-                        'category_name' => $input->productEquipament->category && $input->productEquipament->category->trashed()
-                            ? $input->productEquipament->category->name . ' (Deletado)'
+                        'id_product' => $input->productEquipament && $input->productEquipament->trashed()
+                            ? $input->productEquipament->id
+                            : null,
+
+                        'category_name' => $input->productEquipament->category->trashed()
+                            ? $input->productEquipament->category->name . ' (Deletado)' // Se deletado, (Deletado)
                             : $input->productEquipament->category->name ?? null,
 
                         // 'category_name' => $input->productEquipament->category->name ?? null,
@@ -90,11 +96,14 @@ class InputsController extends CrudController
             }
 
             $inputsAdmin = Inputs::with([
+                'productEquipament' => function ($query) {
+                    $query->withTrashed();
+                },
                 'productEquipament.category' => function ($query) {
-                    $query->withTrashed(); // Inclui categorias deletadas (soft delete)
+                    $query->withTrashed();
                 },
                 'user' => function ($query) {
-                    $query->withTrashed(); // Inclui usuários deletados (soft delete)
+                    $query->withTrashed();
                 },
             ])
                 ->orderBy('created_at', 'desc')
@@ -105,11 +114,16 @@ class InputsController extends CrudController
                 return [
                     'id' => $input->id ?? null,
                     'quantity' => $input->quantity ?? null,
-                    'id_product' => $input->productEquipament->id ?? null,
-                    'product_name' => $input->productEquipament->name ?? null,
+                    'product_name' => $input->productEquipament && $input->productEquipament->trashed()
+                        ? $input->productEquipament->name . ' (Deletado)'
+                        : $input->productEquipament->name ?? null,
+                    'id_product' => $input->productEquipament && $input->productEquipament->trashed()
+                        ? $input->productEquipament->id
+                        : null,
 
-                    'category_name' => $input->productEquipament->category && $input->productEquipament->category->trashed()
-                        ? $input->productEquipament->category->name . ' (Deletado)'
+                    // 'category_name' => $input->productEquipament->category->name ?? null,
+                    'category_name' => $input->productEquipament->category->trashed()
+                        ? $input->productEquipament->category->name . ' (Deletado)' // Se deletado (Deletado)
                         : $input->productEquipament->category->name ?? null,
 
                     // 'category_name' => $input->productEquipament->category->trashed()
