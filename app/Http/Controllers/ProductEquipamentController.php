@@ -49,12 +49,12 @@ class ProductEquipamentController extends CrudController
                 if ($request->has('name') && $request->input('name') != '' && $request->has('active') && $request->input('active') == 'true') {
 
                     $productEquipamentUserSearch = ProductEquipament::with(['category' => function ($query) {
-                            $query->whereNull('deleted_at');
-                        }])
+                        $query->whereNull('deleted_at');
+                    }])
                         ->whereHas('category', function ($query) {
                             $query->whereNull('deleted_at');
                         })
-                        
+
                         // with('category')
 
                         //--------------
@@ -96,7 +96,9 @@ class ProductEquipamentController extends CrudController
                             'name-category' => $product->category && $product->category->trashed()
                                 ? $product->category->name . ' (Deletado)'
                                 : $product->category->name ?? null,
-                            'name' => $product->name,
+                            'name' => $product && $product->trashed()
+                                ? $product->name . ' (Deletado)'
+                                : $product->name ?? null,
                             'quantity_stock' => $quantityTotalProduct,
                             'quantity_min' => $product->quantity_min,
                             'fk_category_id' => $product->fk_category_id,
@@ -125,8 +127,9 @@ class ProductEquipamentController extends CrudController
                         ->appends(['active' => $request->input('active')]);
                 } else {
                     $productEquipamentUser = ProductEquipament::with(['category' => function ($query) {
-                            $query->withTrashed();
-                        }])
+                        $query->withTrashed();
+                    }])
+                        ->withTrashed()
                         ->whereIn('fk_category_id', $categoryUser)
                         ->orderBy('fk_category_id', 'asc')
                         ->paginate(10);
@@ -150,7 +153,9 @@ class ProductEquipamentController extends CrudController
                         'name-category' => $product->category && $product->category->trashed()
                             ? $product->category->name . ' (Deletado)'
                             : $product->category->name ?? null,
-                        'name' => $product->name,
+                        'name' => $product && $product->trashed()
+                            ? $product->name . ' (Deletado)'
+                            : $product->name ?? null,
                         'quantity_stock' => $quantityTotalProduct,
                         'quantity_min' => $product->quantity_min,
                         'fk_category_id' => $product->fk_category_id,
@@ -184,8 +189,9 @@ class ProductEquipamentController extends CrudController
 
             } else {
                 $productAllAdmin = ProductEquipament::with(['category' => function ($query) {
-                        $query->withTrashed();
-                    }])
+                    $query->withTrashed();
+                }])
+                    ->withTrashed()
                     ->orderBy('fk_category_id', 'asc')
                     ->paginate(10);
             }
@@ -242,7 +248,9 @@ class ProductEquipamentController extends CrudController
                         'name-category' => $product->category && $product->category->trashed()
                             ? $product->category->name . ' (Deletado)'
                             : $product->category->name ?? null,
-                        'name' => $product->name,
+                        'name' => $product && $product->trashed()
+                            ? $product->name . ' (Deletado)'
+                            : $product->name ?? null,
                         'quantity_stock' => $quantityTotalProduct,
                         'quantity_min' => $product->quantity_min,
                         'fk_category_id' => $product->fk_category_id,
@@ -281,7 +289,10 @@ class ProductEquipamentController extends CrudController
                     'name-category' => $product->category && $product->category->trashed()
                         ? $product->category->name . ' (Deletado)'
                         : $product->category->name ?? null,
-                    'name' => $product->name,
+                    // 'name' => $product->name,
+                    'name' => $product && $product->trashed()
+                        ? $product->name . ' (Deletado)'
+                        : $product->name ?? null,
                     'quantity_stock' => $quantityTotalProduct,
                     'quantity_min' => $product->quantity_min,
                     'fk_category_id' => $product->fk_category_id,
@@ -343,7 +354,7 @@ class ProductEquipamentController extends CrudController
                 // $productEquipamentUser = ProductEquipament::with('category')
                 //     ->whereIn('fk_category_id', $categoryUser)->where('id', $id)
                 //     ->get()
-                
+
                 $productEquipamentUser = ProductEquipament::with('category')
                     ->whereIn('fk_category_id', $categoryUser)
                     ->where('id', $id)

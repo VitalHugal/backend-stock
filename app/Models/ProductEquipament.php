@@ -12,7 +12,6 @@ class ProductEquipament extends Model
 
     protected $fillable = [
         'name',
-        // 'quantity',
         'fk_category_id',
         'quantity_min'
     ];
