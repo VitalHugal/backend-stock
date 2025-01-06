@@ -35,9 +35,16 @@ class UsersController extends CrudController
                     'message' => 'Você não tem permissão de acesso para seguir adiante.',
                 ]);
             }
-            // $getAllUser = User::all();
 
-            $getAllUser = User::withTrashed()->get();
+            if ($request->has('active') && $request->input('active') == 'true') {
+                $getAllUser = User::all();
+            } elseif ($request->has('active') && $request->input('active') == 'false') {
+                $getAllUser = User::withTrashed()->whereNotNull('deleted_at')->get();
+            } else { 
+                $getAllUser = User::withTrashed()->get();
+            }
+
+            // $getAllUser = User::withTrashed()->get();
 
             $getAllUser = $getAllUser->transform(function ($user) {
                 return [
@@ -86,7 +93,7 @@ class UsersController extends CrudController
                     'message' => 'Você não tem permissão de acesso para seguir adiante.',
                 ]);
             }
-            
+
             // $getIdUser = User::where('id', $id)->first();
 
             $getIdUser = User::withTrashed()->where('id', $id)->get();

@@ -205,17 +205,6 @@ class ProductEquipamentController extends CrudController
                         $query->whereNull('deleted_at');
                     })
 
-                    // withTrashed()
-                    //     ->with(['category' => function ($query) {
-                    //         $query->withTrashed();
-                    //     }])
-
-                    //-------
-
-                    // with('category')
-                    // ->whereIn('fk_category_id', $categoryUser)
-
-
                     ->where('name', 'like', '%' . $request->input('name') . '%')
                     // ->orderBy('name', 'asc')
                     ->orderBy('fk_category_id', 'asc')
