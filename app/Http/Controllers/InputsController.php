@@ -119,7 +119,7 @@ class InputsController extends CrudController
                         : $input->productEquipament->name ?? null,
                     'id_product' => $input->productEquipament && $input->productEquipament->trashed()
                         ? $input->productEquipament->id
-                        : null,
+                        : $$input->productEquipament->id ?? null,
 
                     // 'category_name' => $input->productEquipament->category->name ?? null,
                     'category_name' => $input->productEquipament->category->trashed()
