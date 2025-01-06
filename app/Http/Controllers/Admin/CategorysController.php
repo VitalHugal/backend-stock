@@ -46,12 +46,6 @@ class CategorysController extends CrudController
                     ->orderBy('id', 'asc')
                     ->get();
 
-                // $categoryAccessUser = Category::withTrashed()
-                //     ->whereIn('id', $categoryUser)
-                //     ->orderBy('id', 'asc')
-                //     ->get();
-
-
                 $categoryAccessUser->transform(function ($category) {
 
                     return [

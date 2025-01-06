@@ -55,15 +55,6 @@ class ProductEquipamentController extends CrudController
                             $query->whereNull('deleted_at');
                         })
 
-                        // with('category')
-
-                        //--------------
-
-                        // withTrashed()
-                        // ->with(['category' => function ($query) {
-                        //     $query->withTrashed();
-                        // }])
-
                         ->whereIn('fk_category_id', $categoryUser)
                         ->where('name', 'like', '%' . $request->input('name') . '%')
                         ->orderBy('fk_category_id', 'asc')
@@ -92,10 +83,12 @@ class ProductEquipamentController extends CrudController
 
                         return [
                             'id' => $product->id,
+                            
                             // 'name-category' => $product->category ? $product->category->name : null,
                             'name-category' => $product->category && $product->category->trashed()
                                 ? $product->category->name . ' (Deletado)'
                                 : $product->category->name ?? null,
+                                
                             'name' => $product && $product->trashed()
                                 ? $product->name . ' (Deletado)'
                                 : $product->name ?? null,
@@ -245,10 +238,12 @@ class ProductEquipamentController extends CrudController
 
                     return [
                         'id' => $product->id,
+                        
                         // 'name-category' => $product->category->name ?? null,
                         'name-category' => $product->category && $product->category->trashed()
                             ? $product->category->name . ' (Deletado)'
                             : $product->category->name ?? null,
+                            
                         'name' => $product && $product->trashed()
                             ? $product->name . ' (Deletado)'
                             : $product->name ?? null,
@@ -352,14 +347,10 @@ class ProductEquipamentController extends CrudController
                     }
                 }
 
-                // $productEquipamentUser = ProductEquipament::with('category')
-                //     ->whereIn('fk_category_id', $categoryUser)->where('id', $id)
-                //     ->get()
-
                 $productEquipamentUser = ProductEquipament::with('category')
                     ->whereIn('fk_category_id', $categoryUser)
                     ->where('id', $id)
-                    ->withTrashed() // Inclui registros soft-deleted
+                    ->withTrashed()
                     ->get()
                     ->map(function ($product) {
 

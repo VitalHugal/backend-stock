@@ -43,12 +43,6 @@ class InputsController extends CrudController
 
             // Verifica o nível de acesso e filtra as saídas
             if ($level == 'user') {
-                // $inputs = Inputs::with(['productEquipament.category', 'user'])
-                //     ->whereHas('productEquipament', function ($query) use ($categoryUser) {
-                //         $query->whereIn('fk_category_id', $categoryUser);
-                //     })
-                //     ->orderBy('created_at', 'desc')
-                //     ->paginate(10);
 
                 $inputs = Inputs::with(['productEquipament.category' => function ($query) {
                     $query->withTrashed();
@@ -71,23 +65,24 @@ class InputsController extends CrudController
                         'product_name' => $input->productEquipament && $input->productEquipament->trashed()
                             ? $input->productEquipament->name . ' (Deletado)'
                             : $input->productEquipament->name ?? null,
-
                         'id_product' => $input->productEquipament
                             ? ($input->productEquipament->trashed()
                                 ? $input->productEquipament->id
                                 : $input->productEquipament->id)
                             : null,
 
+                        // 'category_name' => $input->productEquipament->category->name ?? null,
                         'category_name' => $input->productEquipament->category->trashed()
                             ? $input->productEquipament->category->name . ' (Deletado)'
                             : $input->productEquipament->category->name ?? null,
-                        // 'category_name' => $input->productEquipament->category->name ?? null,
 
                         'fk_user_id' => $input->fk_user_id ?? null,
+                        
                         // 'name_user_input' => $input->user->name ?? null,
                         'name_user_input' => $input->user->trashed()
                             ? $input->user->name . ' (Deletado)'
                             : $input->user->name ?? null,
+
                         'created_at' => $this->input->getFormattedDate($input, 'created_at') ?? null,
                         'updated_at' => $this->input->getFormattedDate($input, 'updated_at') ?? null,
                     ];
@@ -134,15 +129,13 @@ class InputsController extends CrudController
                         ? $input->productEquipament->category->name . ' (Deletado)' // Se deletado (Deletado)
                         : $input->productEquipament->category->name ?? null,
 
-                    // 'category_name' => $input->productEquipament->category->trashed()
-                    //     ? $input->productEquipament->category->name . ' (Deletado)' // Se deletado (Deletado)
-                    //     : $input->productEquipament->category->name ?? null,
-
                     'fk_user_id' => $input->fk_user_id ?? null,
+                    
                     // 'name_user_input' => $input->user->name ?? null,
                     'name_user_input' => $input->user->trashed()
                         ? $input->user->name . ' (Deletado)'
                         : $input->user->name ?? null,
+                        
                     'created_at' => $this->input->getFormattedDate($input, 'created_at') ?? null,
                     'updated_at' => $this->input->getFormattedDate($input, 'updated_at') ?? null,
                 ];
@@ -196,11 +189,6 @@ class InputsController extends CrudController
             }
             // Verifica o nível de acesso e filtra as saídas
             if ($level == 'user') {
-                // $inputs = Inputs::with(['productEquipament.category', 'user'])->where('id', $id)
-                //     ->whereHas('productEquipament', function ($query) use ($categoryUser) {
-                //         $query->whereIn('fk_category_id', $categoryUser);
-                //     })
-                //     ->get()
 
                 $inputs = Inputs::withTrashed()
                     ->with([
@@ -231,15 +219,19 @@ class InputsController extends CrudController
                                     ? $input->productEquipament->id
                                     : $input->productEquipament->id)
                                 : null,
+                                
                             // 'category_name' => $input->productEquipament->category->name ?? null,
                             'category_name' => $input->productEquipament->category->trashed()
-                                ? $input->productEquipament->category->name . ' (Deletado)' // Se deletado(Deletado)
+                                ? $input->productEquipament->category->name . ' (Deletado)'
                                 : $input->productEquipament->category->name ?? null,
+                                
                             'fk_user_id' => $input->fk_user_id ?? null,
+                            
                             // 'name_user_input' => $input->user->name ?? null,
                             'name_user_input' => $input->user->trashed()
                                 ? $input->user->name . ' (Deletado)'
                                 : $input->user->name ?? null,
+                                
                             'created_at' => $this->input->getFormattedDate($input, 'created_at') ?? null,
                             'updated_at' => $this->input->getFormattedDate($input, 'updated_at') ?? null,
 
@@ -252,12 +244,6 @@ class InputsController extends CrudController
                     'data' => $inputs,
                 ]);
             }
-
-            // $inputsAdmin = Inputs::with(['productEquipament.category', 'user'])->where('id', $id)
-            //     ->whereHas('productEquipament', function ($query) use ($categoryUser) {
-            //         // $query->whereIn('fk_category_id', $categoryUser);
-            //     })
-            //     ->get()
 
             $inputsAdmin = Inputs::withTrashed()
                 ->with([
@@ -287,15 +273,19 @@ class InputsController extends CrudController
                                 ? $input->productEquipament->id
                                 : $input->productEquipament->id)
                             : null,
+                            
                         // 'category_name' => $input->productEquipament->category->name ?? null,
                         'category_name' => $input->productEquipament->category->trashed()
-                            ? $input->productEquipament->category->name . ' (Deletado)' // Se deletado(Deletado)
+                            ? $input->productEquipament->category->name . ' (Deletado)'
                             : $input->productEquipament->category->name ?? null,
+                            
                         'fk_user_id' => $input->fk_user_id ?? null,
+                        
                         // 'name_user_input' => $input->user->name ?? null,
                         'name_user_input' => $input->user->trashed()
                             ? $input->user->name . ' (Deletado)'
                             : $input->user->name ?? null,
+                            
                         'created_at' => $this->input->getFormattedDate($input, 'created_at') ?? null,
                         'updated_at' => $this->input->getFormattedDate($input, 'updated_at') ?? null,
                     ];

@@ -57,13 +57,6 @@ class ReservationController extends CrudController
                     ]);
                 }
 
-                // $reservations = Reservation::with(['productEquipament.category', 'user', 'userFinished'])
-                //     ->whereHas('productEquipament', function ($query) use ($categoryUser) {
-                //         $query->whereIn('fk_category_id', $categoryUser);
-                //     })
-                //     ->orderBy('created_at', 'desc')
-                //     ->paginate(10);
-
                 $reservations = Reservation::with([
                     'productEquipament' => function ($query) {
                         $query->withTrashed();
@@ -99,6 +92,7 @@ class ReservationController extends CrudController
                     return [
                         'id' => $reservation->id,
                         'fk_user_id_create' => $reservation->fk_user_id,
+                        
                         // 'name_user_create' => $reservation->user->name ?? null,
                         'name_user_create' => $reservation->user->trashed()
                             ? $reservation->user->name . ' (Deletado)'
@@ -159,10 +153,6 @@ class ReservationController extends CrudController
                     ]);
                 }
 
-                // $reservationsAdmin = Reservation::with(['productEquipament.category', 'user', 'userFinished'])
-                //     ->orderBy('created_at', 'desc')
-                //     ->paginate(10);
-
                 $reservationsAdmin = Reservation::with([
                     'productEquipament' => function ($query) {
                         $query->withTrashed();
@@ -194,6 +184,7 @@ class ReservationController extends CrudController
                     return [
                         'id' => $reservation->id,
                         'fk_user_id_create' => $reservation->fk_user_id,
+                        
                         // 'name_user_create' => $reservation->user->name ?? null,
                         'name_user_create' => $reservation->user->trashed()
                             ? $reservation->user->name . ' (Deletado)'
@@ -316,10 +307,12 @@ class ReservationController extends CrudController
                 $reservationData = [
                     'id' => $reservation->id,
                     'fk_user_id_create' => $reservation->fk_user_id,
+                    
                     // 'name_user_create' => $reservation->user->name ?? null,
                     'name_user_create' => $reservation->user->trashed()
                         ? $reservation->user->name . ' (Deletado)'
                         : $reservation->user->name ?? null,
+                        
                     'reason_project' => $reservation->reason_project,
                     'observation' => $reservation->observation,
                     'quantity' => $reservation->quantity,
@@ -341,10 +334,12 @@ class ReservationController extends CrudController
                             ? $reservation->productEquipament->id
                             : $reservation->productEquipament->id)
                         : null,
+                        
                     // 'category_name' => $reservation->productEquipament->category->name ?? null,
                     'category_name' => $reservation->productEquipament->category->trashed()
-                        ? $reservation->productEquipament->category->name . ' (Deletado)' // Se deletado(Deletado)
+                        ? $reservation->productEquipament->category->name . ' (Deletado)'
                         : $reservation->productEquipament->category->name ?? null,
+                        
                     'created_at' => $this->reservation->getFormattedDate($reservation, $created_at),
                     'updated_at' => $this->reservation->getFormattedDate($reservation, $updated_at),
                 ];
@@ -392,10 +387,12 @@ class ReservationController extends CrudController
                 $reservationDataAdmin = [
                     'id' => $reservation->id,
                     'fk_user_id_create' => $reservation->fk_user_id,
+                    
                     // 'name_user_create' => $reservation->user->name ?? null,
                     'name_user_create' => $reservation->user->trashed()
                         ? $reservation->user->name . ' (Deletado)'
                         : $reservation->user->name ?? null,
+                        
                     'reason_project' => $reservation->reason_project,
                     'observation' => $reservation->observation,
                     'quantity' => $reservation->quantity,
@@ -417,10 +414,12 @@ class ReservationController extends CrudController
                             ? $reservation->productEquipament->id
                             : $reservation->productEquipament->id)
                         : null,
+                        
                     // 'category_name' => $reservation->productEquipament->category->name ?? null,
                     'category_name' => $reservation->productEquipament->category->trashed()
-                        ? $reservation->productEquipament->category->name . ' (Deletado)' // Se deletado(Deletado)
+                        ? $reservation->productEquipament->category->name . ' (Deletado)'
                         : $reservation->productEquipament->category->name ?? null,
+                        
                     'created_at' => $this->reservation->getFormattedDate($reservation, 'created_at'),
                     'updated_at' => $this->reservation->getFormattedDate($reservation, 'updated_at'),
                 ];
@@ -808,11 +807,6 @@ class ReservationController extends CrudController
         try {
             $user = $request->user();
             $idUserRequest = $user->id;
-
-            // $categoryUser = DB::table('category_user')
-            //     ->where('fk_user_id', $idUserRequest)
-            //     ->pluck('fk_category_id')
-            //     ->toArray();
 
             if ($user->level == 'admin' || ($user->level == 'user' && $user->reservation_enabled === 1)) {
 

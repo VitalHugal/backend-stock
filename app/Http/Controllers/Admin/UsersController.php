@@ -169,18 +169,6 @@ class UsersController extends CrudController
                 ]);
             }
 
-            // $emailExistsDeleted = User::withTrashed()
-            //     ->where('email', $email)
-            //     ->whereNotNull('deleted_at')
-            //     ->first();
-
-            // if ($emailExistsDeleted) {
-            //     return response()->json([
-            //         'success' => false,
-            //         'message' => 'Este e-mail já está indisponível.',
-            //     ]);
-            // }
-
             $create = $request->validate($this->user->rulesCreateUser(), $this->user->feedbackCreateUser());
 
             $create = $this->user->create([
@@ -210,12 +198,6 @@ class UsersController extends CrudController
                 ]);
             }
         }
-        // catch (\Illuminate\Validation\ValidationException $e) {
-        //     return response()->json([
-        //         'success' => false,
-        //         'message' => 'Error: ' . $e->validator->errors()->all(),
-        //     ]);
-        // } 
         catch (QueryException $qe) {
             DB::rollBack();
             return response()->json([
@@ -413,10 +395,6 @@ class UsersController extends CrudController
             $originalData = $user->getOriginal();
 
             $user->categories()->sync($validatedData['responsible_category']);
-
-            // if ($user) {
-            //     User::where('id', $id)->update(['responsible_category' => $request->input('responsible_category')]);
-            // }
 
             if ($user) {
 
