@@ -63,7 +63,10 @@ class ExitsController extends CrudController
                     return [
                         'id' => $exit->id ?? null,
                         'fk_user_id' => $exit->fk_user_id ?? null,
-                        'name_user_exits' => $exit->user->name ?? null,
+                        // 'name_user_exits' => $exit->user->name ?? null,
+                        'name_user_exits' => $exit->user->trashed()
+                            ? $exit->user->name . ' (Deletado)'
+                            : $exit->user->name ?? null,
                         'reason_project' => $exit->reason_project ?? null,
                         'observation' => $exit->observation ?? null,
                         'quantity' => $exit->quantity ?? null,
@@ -134,7 +137,10 @@ class ExitsController extends CrudController
                 return [
                     'id' => $exit->id ?? null,
                     'fk_user_id' => $exit->fk_user_id ?? null,
-                    'name_user_exits' => $exit->user->name ?? null,
+                    // 'name_user_exits' => $exit->user->name ?? null,
+                    'name_user_exits' => $exit->user->trashed()
+                        ? $exit->user->name . ' (Deletado)'
+                        : $exit->user->name ?? null,
                     'reason_project' => $exit->reason_project ?? null,
                     'observation' => $exit->observation ?? null,
                     'quantity' => $exit->quantity ?? null,

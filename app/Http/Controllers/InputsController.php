@@ -84,7 +84,10 @@ class InputsController extends CrudController
                         // 'category_name' => $input->productEquipament->category->name ?? null,
 
                         'fk_user_id' => $input->fk_user_id ?? null,
-                        'name_user_input' => $input->user->name ?? null,
+                        // 'name_user_input' => $input->user->name ?? null,
+                        'name_user_input' => $input->user->trashed()
+                            ? $input->user->name . ' (Deletado)'
+                            : $input->user->name ?? null,
                         'created_at' => $this->input->getFormattedDate($input, 'created_at') ?? null,
                         'updated_at' => $this->input->getFormattedDate($input, 'updated_at') ?? null,
                     ];
@@ -233,7 +236,10 @@ class InputsController extends CrudController
                                 ? $input->productEquipament->category->name . ' (Deletado)' // Se deletado(Deletado)
                                 : $input->productEquipament->category->name ?? null,
                             'fk_user_id' => $input->fk_user_id ?? null,
-                            'name_user_input' => $input->user->name ?? null,
+                            // 'name_user_input' => $input->user->name ?? null,
+                            'name_user_input' => $input->user->trashed()
+                                ? $input->user->name . ' (Deletado)'
+                                : $input->user->name ?? null,
                             'created_at' => $this->input->getFormattedDate($input, 'created_at') ?? null,
                             'updated_at' => $this->input->getFormattedDate($input, 'updated_at') ?? null,
 
@@ -286,7 +292,10 @@ class InputsController extends CrudController
                             ? $input->productEquipament->category->name . ' (Deletado)' // Se deletado(Deletado)
                             : $input->productEquipament->category->name ?? null,
                         'fk_user_id' => $input->fk_user_id ?? null,
-                        'name_user_input' => $input->user->name ?? null,
+                        // 'name_user_input' => $input->user->name ?? null,
+                        'name_user_input' => $input->user->trashed()
+                            ? $input->user->name . ' (Deletado)'
+                            : $input->user->name ?? null,
                         'created_at' => $this->input->getFormattedDate($input, 'created_at') ?? null,
                         'updated_at' => $this->input->getFormattedDate($input, 'updated_at') ?? null,
                     ];
