@@ -50,7 +50,7 @@ class Category extends Model
     {
         $query = self::query();
 
-        // Se o parâmetro projeto_id existir, filtra pelos IDs informados
+        // Se o parâmetro category existir, filtra pelos Id ou Ids informados
         if ($request->has('category')) {
 
             $filter = $request->input('category');
