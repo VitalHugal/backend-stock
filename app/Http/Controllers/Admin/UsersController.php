@@ -58,6 +58,9 @@ class UsersController extends CrudController
                     'reservation_enabled' => $user->reservation_enabled,
                     'created_at' => $this->user->getFormattedDate($user, 'created_at'),
                     'updated_at' => $this->user->getFormattedDate($user, 'updated_at'),
+                    'deleted_at' => $user->deleted_at
+                        ? $this->user->getFormattedDate($user, 'deleted_at')
+                        : null,
                 ];
             });
 
@@ -117,6 +120,9 @@ class UsersController extends CrudController
                     'reservation_enabled' => $user->reservation_enabled,
                     'created_at' => $this->user->getFormattedDate($user, 'created_at'),
                     'updated_at' => $this->user->getFormattedDate($user, 'updated_at'),
+                    'deleted_at' => $user->deleted_at
+                        ? $this->user->getFormattedDate($user, 'deleted_at')
+                        : null,
                 ];
             });
 
@@ -385,15 +391,14 @@ class UsersController extends CrudController
                     'message' => 'Nenhum resultado encontrado.',
                 ]);
             }
-            
             if ($user->deleted_at == false) {
-                
+
                 return response()->json([
                     'success' => true,
                     'message' => 'Não foi possível executar essa ação, usuário não pertence aos deletados.',
                 ]);
             }
-            
+
             $user->restore();
 
             SystemLog::create([

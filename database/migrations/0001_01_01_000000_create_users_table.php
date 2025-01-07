@@ -43,7 +43,7 @@ return new class extends Migration
 
         DB::table('users')->insert([
             'name' => 'admin-bizsys',
-            'email' => 'logdevteam@bizsys.com.br',
+            'email' => 'ti.dataenter@bizsys.com.br',
             'password' => Hash::make('r4bhvp2h372020'),
             'level' => 'admin',
             'reservation_enabled' => 1,
