@@ -398,7 +398,7 @@ class UsersController extends CrudController
 
             SystemLog::create([
                 'fk_user_id' => $idUser,
-                'action' => 'Atualizou',
+                'action' => 'Restaurou',
                 'table_name' => 'users',
                 'record_id' => $id,
                 'description' => 'Retornou usuário deletado aos ativos.',
