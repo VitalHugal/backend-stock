@@ -52,8 +52,8 @@ return new class extends Migration
         ]);
         
         DB::table('users')->insert([
-            'name' => 'victor',
-            'email' => 'v@v.com',
+            'name' => 'dev',
+            'email' => 'dev@dev.com',
             'password' => Hash::make('123456789'),
             'level' => 'admin',
             'reservation_enabled' => 1,
