@@ -89,6 +89,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/get-all-user', [UsersController::class, 'getAll']);
     Route::get('/get-user/{id}', [UsersController::class, 'getId']);
     Route::get('/view-category-user/{id}', [UsersController::class, 'viewCategoryUser']);
+    Route::post('/reverse-deleted-user/{id}', [UsersController::class, 'reverseDeletedUser']);
     
     //CATEGORYS
     Route::post('/category', [CategorysController::class, 'store']);

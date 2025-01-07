@@ -40,7 +40,7 @@ class UsersController extends CrudController
                 $getAllUser = User::all();
             } elseif ($request->has('active') && $request->input('active') == 'false') {
                 $getAllUser = User::withTrashed()->whereNotNull('deleted_at')->get();
-            } else { 
+            } else {
                 $getAllUser = User::withTrashed()->get();
             }
 
@@ -197,8 +197,7 @@ class UsersController extends CrudController
                     'data' => $create,
                 ]);
             }
-        }
-        catch (QueryException $qe) {
+        } catch (QueryException $qe) {
             DB::rollBack();
             return response()->json([
                 'success' => false,
@@ -355,6 +354,73 @@ class UsersController extends CrudController
                 'message' => "Error DB: " . $qe->getMessage(),
             ]);
         } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => "Error: " . $e->getMessage(),
+            ]);
+        }
+    }
+
+    public function reverseDeletedUser(Request $request, $id)
+    {
+        DB::beginTransaction();
+        try {
+
+            $user = $request->user();
+            $level = $user->level;
+            $idUser = $user->id;
+
+            if ($level == 'user') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Você não tem permissão de acesso para seguir adiante.',
+                ]);
+            }
+
+            $user = User::withTrashed()->find($id);
+
+            if (!$user) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Nenhum resultado encontrado.',
+                ]);
+            }
+            
+            if ($user->deleted_at == false) {
+                
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Não foi possível executar essa ação, usuário não pertence aos deletados.',
+                ]);
+            }
+            
+            $user->restore();
+
+            SystemLog::create([
+                'fk_user_id' => $idUser,
+                'action' => 'Atualizou',
+                'table_name' => 'users',
+                'record_id' => $id,
+                'description' => 'Retornou usuário deletado aos ativos.',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Usuário retornou aos ativos.',
+                'data' => $user
+            ]);
+        } catch (QueryException $qe) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => "Error DB: " . $qe->getMessage(),
+            ]);
+        } catch (Exception $e) {
+            DB::rollBack();
             return response()->json([
                 'success' => false,
                 'message' => "Error: " . $e->getMessage(),
