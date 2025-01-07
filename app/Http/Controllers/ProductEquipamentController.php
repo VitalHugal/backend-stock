@@ -11,6 +11,7 @@ use App\Models\SystemLog;
 use Exception;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 
 use function PHPUnit\Framework\isEmpty;
@@ -83,12 +84,12 @@ class ProductEquipamentController extends CrudController
 
                         return [
                             'id' => $product->id,
-                            
+
                             // 'name-category' => $product->category ? $product->category->name : null,
                             'name-category' => $product->category && $product->category->trashed()
                                 ? $product->category->name . ' (Deletado)'
                                 : $product->category->name ?? null,
-                                
+
                             'name' => $product && $product->trashed()
                                 ? $product->name . ' (Deletado)'
                                 : $product->name ?? null,
@@ -119,7 +120,7 @@ class ProductEquipamentController extends CrudController
                         ->paginate(10)
                         ->appends(['active' => $request->input('active')]);
                 } elseif ($request->has('active') && $request->input('active') == 'false') {
-                    $productAllAdmin = ProductEquipament::with(['category' => function ($query) {
+                    $productEquipamentUser = ProductEquipament::with(['category' => function ($query) {
                         $query->withTrashed();
                     }])
                         ->withTrashed()
@@ -136,6 +137,7 @@ class ProductEquipamentController extends CrudController
                         ->orderBy('fk_category_id', 'asc')
                         ->paginate(10);
                 }
+
 
                 $productEquipamentUser->getCollection()->transform(function ($product) {
 
@@ -173,6 +175,7 @@ class ProductEquipamentController extends CrudController
                 ]);
             }
 
+            // filtro para buscar todos os produtos ativos
             if ($request->has('active') && $request->input('active') == 'true') {
                 $productAllAdmin = ProductEquipament::with(['category' => function ($query) {
                     $query->whereNull('deleted_at');
@@ -183,7 +186,10 @@ class ProductEquipamentController extends CrudController
                     ->orderBy('fk_category_id', 'asc')
                     ->paginate(10)
                     ->appends(['active' => $request->input('active')]);
-            } elseif ($request->has('active') && $request->input('active') == 'false') {
+            } 
+            
+            //filtro para buscar todos os produtos deletados
+            elseif ($request->has('active') && $request->input('active') == 'false') {
                 $productAllAdmin = ProductEquipament::with(['category' => function ($query) {
                     $query->withTrashed();
                 }])
@@ -192,13 +198,77 @@ class ProductEquipamentController extends CrudController
                     ->orderBy('fk_category_id', 'asc')
                     ->paginate(10)
                     ->appends(['active' => request()->input('active')]);
-            } else {
+            } 
+            
+            // filtro para buscar todos os produtos incluindo deltados
+            else {
                 $productAllAdmin = ProductEquipament::with(['category' => function ($query) {
                     $query->withTrashed();
                 }])
                     ->withTrashed()
                     ->orderBy('fk_category_id', 'asc')
                     ->paginate(10);
+            }
+
+            // filto para buscar todos os produtos ativos e que estão em alerta no estoque
+            if ($request->has('active') && $request->input('active') == 'true' && $request->has('products_alert') && $request->input('products_alert') == 'true') {
+                $productAllAdmin = ProductEquipament::with(['category' => function ($query) {
+                    $query->whereNull('deleted_at');
+                }])
+                    ->whereHas('category', function ($query) {
+                        $query->whereNull('deleted_at');
+                    })
+                    ->orderBy('fk_category_id', 'asc')
+                    ->paginate(10)
+                    ->appends(['active' => $request->input('active')]);
+
+                $filteredCollectionAdmin = $productAllAdmin->getCollection()->transform(function ($product) {
+                    $productEquipamentId = $product->id;
+
+                    // Calcula as quantidades totais
+                    $quantityTotalInputs = Inputs::where('fk_product_equipament_id', $productEquipamentId)->sum('quantity');
+                    $quantityTotalExits = Exits::where('fk_product_equipament_id', $productEquipamentId)->sum('quantity');
+                    $quantityReserveNotFinished = Reservation::where('fk_product_equipament_id', $productEquipamentId)
+                        ->where('reservation_finished', false)
+                        ->whereNull('date_finished')
+                        ->whereNull('fk_user_id_finished')
+                        ->sum('quantity');
+
+                    $quantityTotalProduct = $quantityTotalInputs - ($quantityTotalExits + $quantityReserveNotFinished);
+
+                    if ($quantityTotalProduct <= $product->quantity_min) {
+                        return [
+                            'id' => $product->id,
+                            'name-category' => $product->category && $product->category->trashed()
+                                ? $product->category->name . ' (Deletado)'
+                                : $product->category->name ?? null,
+                            'name' => $product && $product->trashed()
+                                ? $product->name . ' (Deletado)'
+                                : $product->name ?? null,
+                            'quantity_stock' => $quantityTotalProduct,
+                            'quantity_min' => $product->quantity_min,
+                            'fk_category_id' => $product->fk_category_id,
+                            'created_at' => $this->productEquipaments->getFormattedDate($product, 'created_at'),
+                            'updated_at' => $this->productEquipaments->getFormattedDate($product, 'updated_at'),
+                        ];
+                    }
+                    return null;
+                })->filter()->values();
+
+                // Recria a paginação
+                $paginatedAdmin = new LengthAwarePaginator(
+                    $filteredCollectionAdmin, // Coleção filtrada
+                    $productAllAdmin->total(), // Total de itens antes do filtro (para manter a paginação correta)
+                    $productAllAdmin->perPage(), // Itens por página
+                    $productAllAdmin->currentPage(), // Página atual
+                    ['path' => request()->url(), 'query' => request()->query()] // Mantém a URL e query string
+                );
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Produto(s)/Equipamento(s) em alerta recuperado com sucesso.',
+                    'data' => $paginatedAdmin,
+                ]);
             }
 
             if ($request->has('name') && $request->input('name') != '' && $request->has('active') &&  $request->input('active') == 'true') {
@@ -238,12 +308,9 @@ class ProductEquipamentController extends CrudController
 
                     return [
                         'id' => $product->id,
-                        
-                        // 'name-category' => $product->category->name ?? null,
                         'name-category' => $product->category && $product->category->trashed()
                             ? $product->category->name . ' (Deletado)'
                             : $product->category->name ?? null,
-                            
                         'name' => $product && $product->trashed()
                             ? $product->name . ' (Deletado)'
                             : $product->name ?? null,
@@ -285,7 +352,6 @@ class ProductEquipamentController extends CrudController
                     'name-category' => $product->category && $product->category->trashed()
                         ? $product->category->name . ' (Deletado)'
                         : $product->category->name ?? null,
-                    // 'name' => $product->name,
                     'name' => $product && $product->trashed()
                         ? $product->name . ' (Deletado)'
                         : $product->name ?? null,
