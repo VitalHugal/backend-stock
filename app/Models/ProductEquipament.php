@@ -39,11 +39,50 @@ class ProductEquipament extends Model
             'observation' => 'max:50000',
             'expiration_date' => 'required|boolean:0,1',
             'is_grup' => 'required|boolean:0,1',
-            'list_products_id' => 'exists:products_equipaments,id'
+            'list_products_id' => 'exists:products_equipaments,id|nullable'
         ];
     }
 
     public function feedbackProductEquipaments()
+    {
+        return [
+            'name.required' => 'Campo nome é obrigatório.',
+            'name.max' => 'O campo nome deve ter no máximo 255 caracteres.',
+            'name.min' => 'O campo nome deve ter no mínimo 2 caracteres.',
+
+            'quantity_min.required' => 'Campo qtd. mínima é obrigatório.',
+            'quantity_min.integer' => 'Válido apenas números inteiros.',
+            'quantity_min.max' => 'O campo qtd. mínima deve ter no máximo 10.000.',
+            'quantity_min.min' => 'O campo qtd. mínima deve ter no mínimo 1.',
+
+            'fk_category_id.required' => 'Campo setor é obrigatório.',
+            'fk_category_id.exists' => 'Categoria não encontrada, verifique.',
+
+            'observation.max' => 'O campo observação deve ter no máximo 50.000 caracteres.',
+
+            'expiration_date.required' => 'O campo data de validade é obrigatório.',
+            'expiration_date.boolean' => 'Válido apenas 0 ou 1 nesse campo.',
+
+            'is_grup.required' => 'O campo "é grupo" é obrigatório.',
+            'is_grup.boolean' => 'Válido apenas 0 ou 1 nesse campo.',
+
+            'list_products_id.exists' => "Produto(s) não encontrado(s)."
+        ];
+    }
+    public function rulesProductEquipamentsIsGrup()
+    {
+        return [
+            'name' => 'required|max:255|min:2',
+            'quantity_min' => 'nullable|integer|max:10000|',
+            'fk_category_id' => 'required|exists:category,id',
+            'observation' => 'max:50000',
+            'expiration_date' => 'boolean:0,1',
+            'is_grup' => 'required|boolean:0,1',
+            'list_products_id' => 'exists:products_equipaments,id|nullable'
+        ];
+    }
+
+    public function feedbackProductEquipamentsIsGrup()
     {
         return [
             'name.required' => 'Campo nome é obrigatório.',

@@ -650,15 +650,32 @@ class ProductEquipamentController extends CrudController
             $fk_category_id = $request->fk_category_id;
             $observation = $request->observation;
             $expiration_date = $request->expiration_date;
-            $expiration_date = $request->expiration_date;
+            $is_grup = $request->is_grup;
+            $list_products_id = $request->list_products_id;
+
+            if ($is_grup == 0) {
+
+                $createProductEquipaments = $this->productEquipaments->create([
+                    'name' => $name,
+                    'quantity_min' => $quantity_min,
+                    'fk_category_id' => $fk_category_id,
+                    'observation' => $observation,
+                    'expiration_date' => $expiration_date,
+                    'is_grup' => 0,
+                    'list_products_id' => null,
+                ]);
+            }
 
             $createProductEquipaments = $this->productEquipaments->create([
                 'name' => $name,
-                'quantity_min' => $quantity_min,
+                'quantity_min' => null,
                 'fk_category_id' => $fk_category_id,
                 'observation' => $observation,
-                'expiration_date' => $expiration_date,
+                'expiration_date' => 0,
+                'is_grup' => 1,
+                'list_products_id' => $list_products_id,
             ]);
+
 
             if ($createProductEquipaments) {
 

@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -15,6 +16,8 @@ return new class extends Migration
             $table->boolean('is_grup')->default(0);
             $table->text('list_products_id')->nullable();
         });
+
+        DB::statement("ALTER TABLE products_equipaments CHANGE COLUMN quantity_min quantity_min INT NULL");
     }
 
     /**
@@ -28,5 +31,7 @@ return new class extends Migration
                 'list_products_id'
             ]);
         });
+
+        DB::statement("ALTER TABLE products_equipaments CHANGE COLUMN quantity_min quantity_min INT ");
     }
 };
