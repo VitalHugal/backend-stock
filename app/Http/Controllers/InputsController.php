@@ -223,9 +223,9 @@ class InputsController extends CrudController
                         ? $this->input->getFormatteDateofManufactureOrExpiration($input, 'expiration_date')
                         : null,
                     'alert' => $input->alert ?? null,
-                    // 'storage_locations_id' => $input->storage_location->trashed()
-                    //     ? $input->storage_location->id . ' (Deletado)'
-                    //     : $input->storage_location->id ?? null,
+                    'storage_locations_id' => $input->storage_location->trashed()
+                        ? $input->storage_location->id . ' (Deletado)'
+                        : $input->storage_location->id ?? null,
                     'storage_locations_name' => $input->storage_location->trashed()
                         ? $input->storage_location->name . ' (Deletado)'
                         : $input->storage_location->name ?? null,
