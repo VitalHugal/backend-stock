@@ -661,8 +661,8 @@ class ProductEquipamentController extends CrudController
                     'fk_category_id' => $fk_category_id,
                     'observation' => $observation,
                     'expiration_date' => $expiration_date,
-                    'is_grup' => 0,
-                    'list_products_id' => null,
+                    'is_grup' => $is_grup,
+                    'list_products_id' => $list_products_id,
                 ]);
             }
 
@@ -671,8 +671,8 @@ class ProductEquipamentController extends CrudController
                 'quantity_min' => null,
                 'fk_category_id' => $fk_category_id,
                 'observation' => $observation,
-                'expiration_date' => 0,
-                'is_grup' => 1,
+                'expiration_date' => $expiration_date,
+                'is_grup' => $is_grup,
                 'list_products_id' => $list_products_id,
             ]);
 
