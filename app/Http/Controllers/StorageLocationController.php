@@ -1,113 +1,26 @@
 <?php
 
-namespace App\Http\Controllers\Admin;
+namespace App\Http\Controllers;
 
-use App\Http\Controllers\CrudController;
-use App\Models\Category;
+use App\Models\StorageLocation;
 use App\Models\SystemLog;
 use Exception;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-use function PHPUnit\Framework\isEmpty;
-
-class CategorysController extends CrudController
+class StorageLocationController extends CrudController
 {
-    protected $category;
+    protected $storage_location;
 
-    public function __construct(Category $category)
+    public function __construct(StorageLocation $storage_location)
     {
-        parent::__construct($category);
-        $this->category = $category;
-    }
-
-    public function getAllCategorys(Request $request)
-    {
-        try {
-            $user = $request->user();
-            $level = $user->level;
-
-            if ($level == 'user') {
-
-                $categoryUser = DB::table('category_user')
-                    ->where('fk_user_id', $user->id)
-                    ->pluck('fk_category_id')
-                    ->toArray();
-
-                if ($categoryUser == null) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'Você não tem permissão de acesso para seguir adiante.',
-                    ]);
-                }
-
-                $categoryAccessUser = Category::whereIn('id', $categoryUser)
-                    ->orderBy('id', 'asc')
-                    ->get();
-
-                $categoryAccessUser->transform(function ($category) {
-
-                    return [
-                        'id' => $category->id,
-                        'name' => $category->trashed()
-                            ? $category->name . ' (Deletado)'
-                            : $category->name,
-                        'description' => $category->description,
-                        'created_at' => $this->category->getFormattedDate($category, 'created_at'),
-                        'updated_at' => $this->category->getFormattedDate($category, 'updated_at'),
-                    ];
-                });
-
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Categorias de usuário recuperadas com sucesso.',
-                    'data' => $categoryAccessUser,
-                ]);
-            }
-
-            //ADMIN OU MANAGER
-
-            if ($user->level == 'admin' || $user->level == 'manager') {
-
-                // $getAllCategorys = Category::withTrashed()->get();
-
-                $getAllCategorys = Category::all();
-
-                $categories = $getAllCategorys->map(function ($category) {
-                    return [
-                        'id' => $category->id,
-                        'name' => $category->trashed()
-                            ? $category->name . ' (Deletado)'
-                            : $category->name,
-                        'description' => $category->description,
-                        'created_at' => $this->category->getFormattedDate($category, 'created_at'),
-                        'updated_at' => $this->category->getFormattedDate($category, 'updated_at'),
-                    ];
-                });
-
-                if ($categories) {
-                    return response()->json([
-                        'success' => true,
-                        'message' => 'Categorias recuperadas com sucesso.',
-                        'data' => $categories,
-                    ]);
-                }
-            }
-        } catch (QueryException $qe) {
-            return response()->json([
-                'success' => false,
-                'message' => "Error DB: " . $qe->getMessage(),
-            ]);
-        } catch (Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => "Error: " . $e->getMessage(),
-            ]);
+        parent::__construct($storage_location); {
+            $this->storage_location = $storage_location;
         }
     }
 
-    public function getId(Request $request, $id)
+    public function getAllStorageLocation(Request $request)
     {
         try {
             $user = $request->user();
@@ -120,19 +33,94 @@ class CategorysController extends CrudController
                 ]);
             }
 
-            $getIdcategory = Category::where('id', $id)->first();
+            if ($request->has('active') && $request->input('active') == 'true') {
+                $getAllStorageLocation = StorageLocation::paginate(10)
+                    ->appends(['active' => 'true']);
+            } elseif ($request->has('active') && $request->input('active') == 'false') {
+                $getAllStorageLocation = StorageLocation::withTrashed()
+                    ->whereNotNull('deleted_at')
+                    ->paginate(10)
+                    ->appends(['active' => 'false']);
+            } else {
+                $getAllStorageLocation = StorageLocation::withTrashed()->paginate(10);
+            }
 
-            if (!$getIdcategory) {
+            $getAllStorageLocation->getCollection()->transform(function ($location) {
+                return [
+                    'id' => $location->id,
+                    'name' => $location->trashed()
+                        ? $location->name . ' (Deletado)'
+                        : $location->name ?? null,
+                    'observation' => $location->observation,
+                    'created_at' => $this->storage_location->getFormattedDate($location, 'created_at'),
+                    'updated_at' => $this->storage_location->getFormattedDate($location, 'updated_at'),
+                    'deleted_at' => $location->deleted_at
+                        ? $this->storage_location->getFormattedDate($location, 'deleted_at')
+                        : null,
+                ];
+            });
+
+            if ($getAllStorageLocation) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Locais de armazenamento recuperados com sucesso.',
+                    'data' => $getAllStorageLocation,
+                ]);
+            }
+        } catch (QueryException $qe) {
+            return response()->json([
+                'success' => false,
+                'message' => "Error DB: " . $qe->getMessage(),
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => "Error: " . $e->getMessage(),
+            ]);
+        }
+    }
+
+    public function getIdStorageLocation(Request $request, $id)
+    {
+        try {
+            $user = $request->user();
+            $level = $user->level;
+
+            if ($level == 'user') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Você não tem permissão de acesso para seguir adiante.',
+                ]);
+            }
+
+            $getIdStorageLocation = StorageLocation::where('id', $id)->get();
+
+            if ($getIdStorageLocation->isEmpty()) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Nenhum resultado encontrado.',
                 ]);
             }
 
+            $getIdStorageLocation = $getIdStorageLocation->transform(function ($location) {
+                return [
+                    'id' => $location->id,
+                    'name' => $location->trashed()
+                        ? $location->name . ' (Deletado)'
+                        : $location->name ?? null,
+                    'observation' => $location->observation,
+                    'created_at' => $this->storage_location->getFormattedDate($location, 'created_at'),
+                    'updated_at' => $this->storage_location->getFormattedDate($location, 'updated_at'),
+                    'deleted_at' => $location->deleted_at
+                        ? $this->storage_location->getFormattedDate($location, 'deleted_at')
+                        : null,
+                ];
+            });
+
             return response()->json([
                 'success' => true,
-                'message' => 'Categoria recuperado com sucesso.',
-                'data' => $getIdcategory,
+                'message' => 'Local de armazenamento recuperado com sucesso.',
+                'data' => $getIdStorageLocation
             ]);
         } catch (QueryException $qe) {
             return response()->json([
@@ -147,11 +135,12 @@ class CategorysController extends CrudController
         }
     }
 
-    public function store(Request $request)
+    public function storageLocation(Request $request)
     {
         DB::beginTransaction();
 
         try {
+
             $user = $request->user();
             $level = $user->level;
             $idUser = $user->id;
@@ -162,39 +151,38 @@ class CategorysController extends CrudController
                     'message' => 'Você não tem permissão de acesso para seguir adiante.',
                 ]);
             }
-
             $validatedData = $request->validate(
-                $this->category->rulesCategory(),
-                $this->category->feedbackCategory(),
+                $this->storage_location->rules(),
+                $this->storage_location->feedback(),
             );
 
             $name = $request->name;
-            $description = $request->description;
+            $observation = $request->observation;
 
-            $createCategory = $validatedData;
+            $createStorageLocation = $validatedData;
 
-            $categoryExists = Category::where('name', $name)->first();
+            $storageLocationExist = StorageLocation::where('name', $name)->first();
 
-            if ($categoryExists) {
+            if ($storageLocationExist) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Já existe um setor cadastrado com o nome informado, tente novamente com outro nome.',
+                    'message' => 'Um local de armazenamento com esse nome já existe.',
                 ]);
             }
 
-            $createCategory = $this->category->create([
+            $createStorageLocation = $this->storage_location->create([
                 'name' => $name,
-                'description' => $description,
+                'observation' => $observation,
             ]);
 
-            if ($createCategory) {
+            if ($createStorageLocation) {
 
                 SystemLog::create([
                     'fk_user_id' => $idUser,
                     'action' => 'Adicionou',
-                    'table_name' => 'category',
-                    'record_id' => $createCategory->id,
-                    'description' => 'Adicionou um setor.',
+                    'table_name' => 'stoarge_location',
+                    'record_id' => $createStorageLocation->id,
+                    'description' => 'Adicionou um novo local de armazenamento.',
                     'created_at' => now(),
                     'updated_at' => now(),
                 ]);
@@ -203,8 +191,8 @@ class CategorysController extends CrudController
 
                 return response()->json([
                     'success' => true,
-                    'message' => 'Setor criado com sucesso.',
-                    'data' => $createCategory,
+                    'message' => 'Local de armazenamento criado com sucesso.',
+                    'data' => $createStorageLocation,
                 ]);
             }
         } catch (QueryException $qe) {
@@ -222,10 +210,9 @@ class CategorysController extends CrudController
         }
     }
 
-    public function update(Request $request, $id)
+    public function updateStorageLocation(Request $request, $id)
     {
         DB::beginTransaction();
-
         try {
 
             $user = $request->user();
@@ -239,27 +226,27 @@ class CategorysController extends CrudController
                 ]);
             }
 
-            $category = $this->category->find($id);
+            $updateStorageLocation = $this->storage_location->find($id);
 
-            if (!$category) {
+            if (!$updateStorageLocation) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Nenhum resultado encontrado.',
+                    'message' => "Nenhum resultado encontrado.",
                 ]);
             }
 
-            $originalData = $category->getOriginal();
+            $originalData = $updateStorageLocation->getOriginal();
 
-            $validatedData = $request->validate(
-                $this->category->rulesCategory(),
-                $this->category->feedbackCategory(),
+            $validateData = $request->validate(
+                $this->storage_location->rules(),
+                $this->storage_location->feedback()
             );
 
-            $category->fill($validatedData);
-            $category->save();
+            $updateStorageLocation->fill($validateData);
+            $updateStorageLocation->save();
 
-            // Verificando a mudanças e criando a string de log
-            $changes = $category->getChanges(); // Retorna apenas os campos que foram alterados
+            // Verificando as mudanças e criando a string de log
+            $changes = $updateStorageLocation->getChanges(); // Retorna apenas os campos que foram alterados
             $logDescription = '';
 
             foreach ($changes as $key => $newValue) {
@@ -274,22 +261,20 @@ class CategorysController extends CrudController
             SystemLog::create([
                 'fk_user_id' => $idUser,
                 'action' => 'Atualizou',
-                'table_name' => 'category',
+                'table_name' => 'storage_location',
                 'record_id' => $id,
-                'description' => 'Atualizou um setor. Dados alterados: ' . $logDescription,
+                'description' => 'Atualizou um local de armazenamento. Dados alterados: ' . $logDescription,
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
 
             DB::commit();
 
-            if ($category) {
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Setor atualizado com sucesso.',
-                    'data' => $category,
-                ]);
-            }
+            return response()->json([
+                'success' => true,
+                'message' => 'Local de armazenamento atualizado com sucesso.',
+                'data' => $updateStorageLocation,
+            ]);
         } catch (QueryException $qe) {
             DB::rollBack();
             return response()->json([
@@ -307,7 +292,9 @@ class CategorysController extends CrudController
 
     public function delete(Request $request, $id)
     {
+        DB::beginTransaction();
         try {
+
             $user = $request->user();
             $level = $user->level;
             $idUser = $user->id;
@@ -319,45 +306,44 @@ class CategorysController extends CrudController
                 ]);
             }
 
-            $deleteCategory = $this->category->find($id);
+            $deleteStorageLocation = $this->storage_location->find($id);
 
-            if (!$deleteCategory) {
+            if (!$deleteStorageLocation) {
                 return response()->json([
                     'success' => false,
                     'message' => "Nenhum resultado encontrado.",
                 ]);
             }
 
-            $deleteCategory->delete();
+            $deleteStorageLocation->delete();
 
-            if ($deleteCategory) {
-                $data = DB::table('category_user')->where('fk_category_id', $id)->get();
-
-                if (!$data == null) {
-                    DB::table('category_user')->where('fk_category_id', $id)->delete();
-                }
+            if ($deleteStorageLocation) {
 
                 SystemLog::create([
                     'fk_user_id' => $idUser,
                     'action' => 'Excluiu',
-                    'table_name' => 'category',
+                    'table_name' => 'storage_location',
                     'record_id' => $id,
-                    'description' => 'Excluiu um setor.',
+                    'description' => 'Excluiu um local de armazenamento.',
                     'created_at' => now(),
                     'updated_at' => now(),
                 ]);
 
+                DB::commit();
+
                 return response()->json([
                     'success' => true,
-                    'message' => 'Setor removido com sucesso.',
+                    'message' => 'Local de armazenamento removido com sucesso.',
                 ]);
             }
         } catch (QueryException $qe) {
+            DB::rollBack();
             return response()->json([
                 'success' => false,
                 'message' => "Error DB: " . $qe->getMessage(),
             ]);
         } catch (Exception $e) {
+            DB::rollBack();
             return response()->json([
                 'success' => false,
                 'message' => "Error: " . $e->getMessage(),
@@ -365,7 +351,7 @@ class CategorysController extends CrudController
         }
     }
 
-    public function reverseDeletedCategory(Request $request, $id)
+    public function reverseDeletedStorageLocation(Request $request, $id)
     {
         DB::beginTransaction();
         try {
@@ -380,16 +366,16 @@ class CategorysController extends CrudController
                     'message' => 'Você não tem permissão de acesso para seguir adiante.',
                 ]);
             }
-            $category = Category::withTrashed()->find($id);
+            $storage_locations = StorageLocation::withTrashed()->find($id);
 
-            if (!$category) {
+            if (!$storage_locations) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Nenhum resultado encontrado.',
                 ]);
             }
 
-            if ($category->deleted_at == false) {
+            if ($storage_locations->deleted_at == false) {
 
                 return response()->json([
                     'success' => true,
@@ -397,12 +383,12 @@ class CategorysController extends CrudController
                 ]);
             }
 
-            $category->restore();
+            $storage_locations->restore();
 
             SystemLog::create([
                 'fk_user_id' => $idUser,
                 'action' => 'Restaurou',
-                'table_name' => 'category',
+                'table_name' => 'storage_locations',
                 'record_id' => $id,
                 'description' => 'Retornou setor deletado aos ativos.',
                 'created_at' => now(),
@@ -413,8 +399,8 @@ class CategorysController extends CrudController
 
             return response()->json([
                 'success' => true,
-                'message' => 'Setor retornou aos ativos.',
-                'data' => $category
+                'message' => 'Local de armazenamento retornou aos ativos.',
+                'data' => $storage_locations
             ]);
         } catch (QueryException $qe) {
             DB::rollBack();

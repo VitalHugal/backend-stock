@@ -43,7 +43,7 @@ class PDFBuyProductsOnAlertController extends CrudController
                 ]);
             }
 
-            if ($user->level == 'admin') {
+            if ($user->level == 'admin' || $user->level == 'manager') {
 
                 if ($request->has('category') && $request->input('category') != '') {
                     $categoryList = Category::listCategorys($request);

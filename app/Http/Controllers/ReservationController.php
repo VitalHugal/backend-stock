@@ -86,13 +86,16 @@ class ReservationController extends CrudController
 
                     if ($reservation->return_date < now() && (int)$reservation->reservation_finished === 0) {
                         $status = 'Delayed';
-                        Reservation::where('id', $reservation->id)->update(['status' => $status]);
+                        // Reservation::where('id', $reservation->id)->update(['status' => $status]);
+
+                        $reservation->status = $status;
+                        $reservation->save();
                     }
 
                     return [
                         'id' => $reservation->id,
                         'fk_user_id_create' => $reservation->fk_user_id,
-                        
+
                         // 'name_user_create' => $reservation->user->name ?? null,
                         'name_user_create' => $reservation->user->trashed()
                             ? $reservation->user->name . ' (Deletado)'
@@ -140,7 +143,7 @@ class ReservationController extends CrudController
                 ]);
             }
 
-            if ($user->level == 'admin') {
+            if ($user->level == 'admin' || $user->level == 'manager') {
 
                 if ($request->has('reservation_finished') && $request->input('reservation_finished') != '') {
 
@@ -178,13 +181,17 @@ class ReservationController extends CrudController
 
                     if ($reservation->return_date < now() && (int)$reservation->reservation_finished === 0) {
                         $status = 'Delayed';
-                        Reservation::where('id', $reservation->id)->update(['status' => $status]);
+
+                        // Reservation::where('id', $reservation->id)->update(['status' => $status]);
+
+                        $reservation->status = $status;
+                        $reservation->save();
                     }
 
                     return [
                         'id' => $reservation->id,
                         'fk_user_id_create' => $reservation->fk_user_id,
-                        
+
                         // 'name_user_create' => $reservation->user->name ?? null,
                         'name_user_create' => $reservation->user->trashed()
                             ? $reservation->user->name . ' (Deletado)'
@@ -301,18 +308,22 @@ class ReservationController extends CrudController
 
                 if ($reservation->return_date < now() && (int)$reservation->reservation_finished === 0) {
                     $status = 'Delayed';
-                    Reservation::where('id', $reservation->id)->update(['status' => $status]);
+
+                    // Reservation::where('id', $reservation->id)->update(['status' => $status]);
+
+                    $reservation->status = $status;
+                    $reservation->save();
                 }
 
                 $reservationData = [
                     'id' => $reservation->id,
                     'fk_user_id_create' => $reservation->fk_user_id,
-                    
+
                     // 'name_user_create' => $reservation->user->name ?? null,
                     'name_user_create' => $reservation->user->trashed()
                         ? $reservation->user->name . ' (Deletado)'
                         : $reservation->user->name ?? null,
-                        
+
                     'reason_project' => $reservation->reason_project,
                     'observation' => $reservation->observation,
                     'quantity' => $reservation->quantity,
@@ -334,12 +345,12 @@ class ReservationController extends CrudController
                             ? $reservation->productEquipament->id
                             : $reservation->productEquipament->id)
                         : null,
-                        
+
                     // 'category_name' => $reservation->productEquipament->category->name ?? null,
                     'category_name' => $reservation->productEquipament->category->trashed()
                         ? $reservation->productEquipament->category->name . ' (Deletado)'
                         : $reservation->productEquipament->category->name ?? null,
-                        
+
                     'created_at' => $this->reservation->getFormattedDate($reservation, $created_at),
                     'updated_at' => $this->reservation->getFormattedDate($reservation, $updated_at),
                 ];
@@ -358,7 +369,7 @@ class ReservationController extends CrudController
                 ]);
             }
 
-            if ($user->level == 'admin') {
+            if ($user->level == 'admin' || $user->level == 'manager') {
 
                 $reservation = Reservation::with(['productEquipament.category', 'user'])
                     ->where('id', $id)
@@ -381,18 +392,22 @@ class ReservationController extends CrudController
 
                 if ($reservation->return_date < now() && (int)$reservation->reservation_finished === 0) {
                     $status = 'Delayed';
-                    Reservation::where('id', $reservation->id)->update(['status' => $status]);
+
+                    // Reservation::where('id', $reservation->id)->update(['status' => $status]);
+
+                    $reservation->status = $status;
+                    $reservation->save();
                 }
 
                 $reservationDataAdmin = [
                     'id' => $reservation->id,
                     'fk_user_id_create' => $reservation->fk_user_id,
-                    
+
                     // 'name_user_create' => $reservation->user->name ?? null,
                     'name_user_create' => $reservation->user->trashed()
                         ? $reservation->user->name . ' (Deletado)'
                         : $reservation->user->name ?? null,
-                        
+
                     'reason_project' => $reservation->reason_project,
                     'observation' => $reservation->observation,
                     'quantity' => $reservation->quantity,
@@ -414,12 +429,12 @@ class ReservationController extends CrudController
                             ? $reservation->productEquipament->id
                             : $reservation->productEquipament->id)
                         : null,
-                        
+
                     // 'category_name' => $reservation->productEquipament->category->name ?? null,
                     'category_name' => $reservation->productEquipament->category->trashed()
                         ? $reservation->productEquipament->category->name . ' (Deletado)'
                         : $reservation->productEquipament->category->name ?? null,
-                        
+
                     'created_at' => $this->reservation->getFormattedDate($reservation, 'created_at'),
                     'updated_at' => $this->reservation->getFormattedDate($reservation, 'updated_at'),
                 ];
@@ -559,7 +574,7 @@ class ReservationController extends CrudController
                 }
             }
 
-            if ($user->level == 'admin') {
+            if ($user->level == 'admin' || $user->level == 'manager') {
 
                 $productEquipamentAdmin = ProductEquipament::where('id', $request->fk_product_equipament_id)->first();
 
@@ -672,7 +687,7 @@ class ReservationController extends CrudController
                 ->pluck('fk_category_id')
                 ->toArray();
 
-            if ($user->level == 'admin' || ($user->level == 'user' && $user->reservation_enabled === 1)) {
+            if ($user->level == 'admin' || $user->level == 'manager' || ($user->level == 'user' && $user->reservation_enabled === 1)) {
                 $updateReservation = $this->reservation->find($id);
 
                 if (!$updateReservation) {
@@ -755,7 +770,7 @@ class ReservationController extends CrudController
 
                 foreach ($changes as $key => $newValue) {
                     $oldValue = $originalData[$key] ?? 'N/A';
-                    $logDescription .= "{$key}: {$oldValue} -> {$newValue} .";
+                    $logDescription .= "{$key}: {$oldValue} -> {$newValue} #";
                 }
 
                 if ($logDescription == null) {
@@ -808,7 +823,7 @@ class ReservationController extends CrudController
             $user = $request->user();
             $idUserRequest = $user->id;
 
-            if ($user->level == 'admin' || ($user->level == 'user' && $user->reservation_enabled === 1)) {
+            if ($user->level == 'admin' || $user->level == 'manager' || ($user->level == 'user' && $user->reservation_enabled === 1)) {
 
                 $reserveAll = Reservation::where('return_date', '<', now())
                     ->where('reservation_finished', false)
@@ -816,7 +831,11 @@ class ReservationController extends CrudController
 
                 foreach ($reserveAll as $reservation) {
                     $status = 'Delayed';
-                    $reservation->update(['status' => $status]);
+
+                    // $reservation->update(['status' => $status]);
+
+                    $reservation->status = $status;
+                    $reservation->save();
                 }
 
                 $reservations = Reservation::with('productEquipament', 'category')
@@ -868,7 +887,7 @@ class ReservationController extends CrudController
             $level = $user->level;
             $idUser = $user->id;
 
-            if ($level == 'user') {
+            if ($level == 'user' || $level == 'manager') {
                 return response()->json([
                     'success' => false,
                     'message' => 'Você não tem permissão de acesso para seguir adiante.',
@@ -927,7 +946,7 @@ class ReservationController extends CrudController
                 ->pluck('fk_category_id')
                 ->toArray();
 
-            if ($user->level == 'admin' || ($user->level == 'user' && $user->reservation_enabled === 1)) {
+            if ($user->level == 'admin' || $user->level == 'manager' || ($user->level == 'user' && $user->reservation_enabled === 1)) {
                 $reservation = $this->reservation->find($id);
 
                 if (!$reservation) {
@@ -961,7 +980,6 @@ class ReservationController extends CrudController
                 $reservation->fk_user_id_finished = $idUserRequest;
                 $reservation->date_finished = now();
                 $reservation->status = 'Finished';
-
                 $reservation->save();
 
                 SystemLog::create([
@@ -1045,20 +1063,28 @@ class ReservationController extends CrudController
 
                 if ($reservation->return_date < now()) {
                     $status = 'Delayed';
-                    Reservation::where('id', $reservation->id)->update(['status' => $status]);
+
+                    // Reservation::where('id', $reservation->id)->update(['status' => $status]);
+
+                    $reservation->status = $status;
+                    $reservation->save();
                 } else {
                     $status = 'In progress';
-                    Reservation::where('id', $reservation->id)->update(['status' => $status]);
+
+                    // Reservation::where('id', $reservation->id)->update(['status' => $status]);
+
+                    $reservation->status = $status;
+                    $reservation->save();
                 }
 
                 $reservation->save();
 
                 SystemLog::create([
                     'fk_user_id' => $idUserRequest,
-                    'action' => 'Desfez a finalização',
+                    'action' => 'Reverteu',
                     'table_name' => 'reservations',
                     'record_id' => $id,
-                    'description' => 'Desfez a finalização de uma reserva.',
+                    'description' => 'Reverteu a finalização de uma reserva.',
                     'created_at' => now(),
                     'updated_at' => now(),
                 ]);

@@ -157,6 +157,10 @@
         text-transform: uppercase;
     }
 
+    .abcd {
+        color: transparent;
+    }
+
     /* #notFound{
         text-align: center;
         text-transform: uppercase;
@@ -172,7 +176,8 @@
         </div>
         <div id="info-date-name">
             <h1 id="title">Produtos em alerta</h1>
-            <p id="paragrafh">{{ $name }} em {{ $date }}</p>
+            <p id="paragrafh">{{ $name }} <span class="abcd">-</span>em<span class="abcd">-</span>
+                {{ $date }}</p>
         </div>
     </header>
 

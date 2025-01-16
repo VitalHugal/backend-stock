@@ -140,7 +140,7 @@ class User extends Authenticatable
     public function rulesUpdateLevelUser()
     {
         return [
-            'level' => 'required|in:admin,user',
+            'level' => 'required|in:admin,user,manager',
         ];
     }
 
@@ -148,7 +148,7 @@ class User extends Authenticatable
     {
         return [
             'level.required' => 'Campo obrigatório.',
-            'level.in' => 'Valido apenas admin ou user para esse campo.',
+            'level.in' => 'Valido apenas admin, manager ou user para esse campo.',
         ];
     }
 

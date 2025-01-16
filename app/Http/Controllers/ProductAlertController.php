@@ -79,12 +79,13 @@ class ProductAlertController extends CrudController
                 // Recria a paginação
                 $paginated = new LengthAwarePaginator(
                     $filteredCollection, // Coleção filtrada
-                    $productAlertUser->total(), // Total de itens antes do filtro (para manter a paginação correta)
+                    count($filteredCollection), // Total de itens antes do filtro (para manter a paginação correta)
                     $productAlertUser->perPage(), // Itens por página
                     $productAlertUser->currentPage(), // Página atual
                     ['path' => request()->url(), 'query' => request()->query()] // Mantém a URL e query string
                 );
 
+                // dd($productAlertUser->perPage());
                 return response()->json([
                     'success' => true,
                     'message' => 'Produto(s)/Equipamento(s) em alerta recuperado com sucesso.',
@@ -92,7 +93,7 @@ class ProductAlertController extends CrudController
                 ]);
             }
 
-            if ($user->level == 'admin') {
+            if ($user->level == 'admin' || $user->level == 'manager') {
 
                 $productAllAdmin = ProductEquipament::with(['category' => function ($query) {
                     $query->whereNull('deleted_at');
@@ -116,7 +117,7 @@ class ProductAlertController extends CrudController
                         ->sum('quantity');
 
                     $quantityTotalProduct = $quantityTotalInputs - ($quantityTotalExits + $quantityReserveNotFinished);
-                    
+
                     if ($quantityTotalProduct <= $product->quantity_min) {
                         return [
                             'id' => $product->id,
@@ -134,12 +135,13 @@ class ProductAlertController extends CrudController
                 // Recria a paginação
                 $paginatedAdmin = new LengthAwarePaginator(
                     $filteredCollectionAdmin, // Coleção filtrada
-                    $productAllAdmin->total(), // Total de itens antes do filtro (para manter a paginação correta)
+                    count($filteredCollectionAdmin), // Total de itens antes do filtro (para manter a paginação correta)
                     $productAllAdmin->perPage(), // Itens por página
                     $productAllAdmin->currentPage(), // Página atual
                     ['path' => request()->url(), 'query' => request()->query()] // Mantém a URL e query string
                 );
-                
+
+
                 return response()->json([
                     'success' => true,
                     'message' => 'Produto(s)/Equipamento(s) em alerta recuperado com sucesso.',

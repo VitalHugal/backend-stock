@@ -14,8 +14,6 @@ use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 
-use function PHPUnit\Framework\isEmpty;
-
 class ProductEquipamentController extends CrudController
 {
     protected $productEquipaments;
@@ -38,7 +36,7 @@ class ProductEquipamentController extends CrudController
                 ->pluck('fk_category_id')
                 ->toArray();
 
-            if ($user->level !== 'admin' && $categoryUser == null) {
+            if ($user->level !== 'admin' && $user->level !== 'manager' && $categoryUser == null) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Você não tem permissão de acesso para seguir adiante.',
@@ -84,8 +82,6 @@ class ProductEquipamentController extends CrudController
 
                         return [
                             'id' => $product->id,
-
-                            // 'name-category' => $product->category ? $product->category->name : null,
                             'name-category' => $product->category && $product->category->trashed()
                                 ? $product->category->name . ' (Deletado)'
                                 : $product->category->name ?? null,
@@ -94,10 +90,15 @@ class ProductEquipamentController extends CrudController
                                 ? $product->name . ' (Deletado)'
                                 : $product->name ?? null,
                             'quantity_stock' => $quantityTotalProduct,
+                            'expiration_date' => $product->expiration_date,
+                            'observation' => $product->observation,
                             'quantity_min' => $product->quantity_min,
                             'fk_category_id' => $product->fk_category_id,
                             'created_at' => $this->productEquipaments->getFormattedDate($product, 'created_at'),
                             'updated_at' => $this->productEquipaments->getFormattedDate($product, 'updated_at'),
+                            'deleted_at' => $product && $product->trashed()
+                                ? $this->productEquipaments->getFormattedDate($product, 'deleted_at')
+                                : $product->deleted_at ?? null,
                         ];
                     });
 
@@ -177,9 +178,14 @@ class ProductEquipamentController extends CrudController
                                     : $product->name ?? null,
                                 'quantity_stock' => $quantityTotalProduct,
                                 'quantity_min' => $product->quantity_min,
+                                'expiration_date' => $product->expiration_date,
+                                'observation' => $product->observation,
                                 'fk_category_id' => $product->fk_category_id,
                                 'created_at' => $this->productEquipaments->getFormattedDate($product, 'created_at'),
                                 'updated_at' => $this->productEquipaments->getFormattedDate($product, 'updated_at'),
+                                'deleted_at' => $product && $product->trashed()
+                                    ? $this->productEquipaments->getFormattedDate($product, 'deleted_at')
+                                    : $product->deleted_at ?? null,
                             ];
                         }
                         return null;
@@ -224,9 +230,14 @@ class ProductEquipamentController extends CrudController
                             : $product->name ?? null,
                         'quantity_stock' => $quantityTotalProduct,
                         'quantity_min' => $product->quantity_min,
+                        'expiration_date' => $product->expiration_date,
+                        'observation' => $product->observation,
                         'fk_category_id' => $product->fk_category_id,
                         'created_at' => $this->productEquipaments->getFormattedDate($product, 'created_at'),
                         'updated_at' => $this->productEquipaments->getFormattedDate($product, 'updated_at'),
+                        'deleted_at' => $product && $product->trashed()
+                            ? $this->productEquipaments->getFormattedDate($product, 'deleted_at')
+                            : $product->deleted_at ?? null,
                     ];
                 });
 
@@ -236,6 +247,8 @@ class ProductEquipamentController extends CrudController
                     'data' => $productEquipamentUser,
                 ]);
             }
+
+            //ADMIN OR MANAGER
 
             // filtro para buscar todos os produtos ativos
             if ($request->has('active') && $request->input('active') == 'true') {
@@ -309,9 +322,14 @@ class ProductEquipamentController extends CrudController
                                 : $product->name ?? null,
                             'quantity_stock' => $quantityTotalProduct,
                             'quantity_min' => $product->quantity_min,
+                            'expiration_date' => $product->expiration_date,
+                            'observation' => $product->observation,
                             'fk_category_id' => $product->fk_category_id,
                             'created_at' => $this->productEquipaments->getFormattedDate($product, 'created_at'),
                             'updated_at' => $this->productEquipaments->getFormattedDate($product, 'updated_at'),
+                            'deleted_at' => $product && $product->trashed()
+                                ? $this->productEquipaments->getFormattedDate($product, 'deleted_at')
+                                : $product->deleted_at ?? null,
                         ];
                     }
                     return null;
@@ -378,9 +396,14 @@ class ProductEquipamentController extends CrudController
                             : $product->name ?? null,
                         'quantity_stock' => $quantityTotalProduct,
                         'quantity_min' => $product->quantity_min,
+                        'expiration_date' => $product->expiration_date,
+                        'observation' => $product->observation,
                         'fk_category_id' => $product->fk_category_id,
                         'created_at' => $this->productEquipaments->getFormattedDate($product, 'created_at'),
                         'updated_at' => $this->productEquipaments->getFormattedDate($product, 'updated_at'),
+                        'deleted_at' => $product && $product->trashed()
+                            ? $this->productEquipaments->getFormattedDate($product, 'deleted_at')
+                            : $product->deleted_at ?? null,
                     ];
                 });
 
@@ -419,9 +442,14 @@ class ProductEquipamentController extends CrudController
                         : $product->name ?? null,
                     'quantity_stock' => $quantityTotalProduct,
                     'quantity_min' => $product->quantity_min,
+                    'expiration_date' => $product->expiration_date,
+                    'observation' => $product->observation,
                     'fk_category_id' => $product->fk_category_id,
                     'created_at' => $this->productEquipaments->getFormattedDate($product, 'created_at'),
                     'updated_at' => $this->productEquipaments->getFormattedDate($product, 'updated_at'),
+                    'deleted_at' => $product && $product->trashed()
+                        ? $this->productEquipaments->getFormattedDate($product, 'deleted_at')
+                        : $product->deleted_at ?? null,
                 ];
             });
 
@@ -454,7 +482,7 @@ class ProductEquipamentController extends CrudController
                 ->pluck('fk_category_id')
                 ->toArray();
 
-            if ($user->level !== 'admin' && $categoryUser == null) {
+            if ($user->level !== 'admin' && $user->level !== 'manager' && $categoryUser == null) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Você não tem permissão de acesso para seguir adiante.',
@@ -495,13 +523,23 @@ class ProductEquipamentController extends CrudController
 
                         return [
                             'id' => $product->id,
-                            'name-category' => $product->category ? $product->category->name : null,
-                            'name' => $product->name,
+                            'name-category' => $product->category && $product->category->trashed()
+                                ? $product->category->name . ' (Deletado)'
+                                : $product->category->name ?? null,
+
+                            'name' => $product && $product->trashed()
+                                ? $product->name . ' (Deletado)'
+                                : $product->name ?? null,
                             'quantity_stock' => $quantityTotalProduct,
                             'quantity_min' => $product->quantity_min,
+                            'expiration_date' => $product->expiration_date,
+                            'observation' => $product->observation,
                             'fk_category_id' => $product->fk_category_id,
                             'created_at' => $this->productEquipaments->getFormattedDate($product, 'created_at'),
                             'updated_at' => $this->productEquipaments->getFormattedDate($product, 'updated_at'),
+                            'deleted_at' => $product && $product->trashed()
+                                ? $this->productEquipaments->getFormattedDate($product, 'deleted_at')
+                                : $product->deleted_at ?? null,
                         ];
                     });
 
@@ -518,6 +556,8 @@ class ProductEquipamentController extends CrudController
                     'data' => $productEquipamentUser,
                 ]);
             }
+
+            //ADMIN OR MANAGER
 
             $productAdmin = ProductEquipament::with('category')
                 ->where('id', $id)
@@ -536,14 +576,24 @@ class ProductEquipamentController extends CrudController
                     $quantityTotalProduct = $quantityTotalInputs - ($quantityTotalExits + $quantityReserveNotFinished);
 
                     return [
-                        'name-category' => $product->category ? $product->category->name : null,
                         'id' => $product->id,
-                        'name' => $product->name,
+                        'name-category' => $product->category && $product->category->trashed()
+                            ? $product->category->name . ' (Deletado)'
+                            : $product->category->name ?? null,
+
+                        'name' => $product && $product->trashed()
+                            ? $product->name . ' (Deletado)'
+                            : $product->name ?? null,
                         'quantity_stock' => $quantityTotalProduct,
                         'quantity_min' => $product->quantity_min,
+                        'expiration_date' => $product->expiration_date,
+                        'observation' => $product->observation,
                         'fk_category_id' => $product->fk_category_id,
                         'created_at' => $this->productEquipaments->getFormattedDate($product, 'created_at'),
                         'updated_at' => $this->productEquipaments->getFormattedDate($product, 'updated_at'),
+                        'deleted_at' => $product && $product->trashed()
+                            ? $this->productEquipaments->getFormattedDate($product, 'deleted_at')
+                            : $product->deleted_at ?? null,
                     ];
                 });
 
@@ -583,7 +633,7 @@ class ProductEquipamentController extends CrudController
                 ->where('fk_user_id', $idUser)
                 ->pluck('fk_category_id');
 
-            if ($user->level !== 'admin' && $categoryUser == null) {
+            if ($user->level !== 'admin' && $user->level !== 'manager' && $categoryUser == null) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Você não tem permissão de acesso para seguir adiante.',
@@ -598,11 +648,15 @@ class ProductEquipamentController extends CrudController
             $name = $request->name;
             $quantity_min = $request->quantity_min;
             $fk_category_id = $request->fk_category_id;
+            $observation = $request->observation;
+            $expiration_date = $request->expiration_date;
 
             $createProductEquipaments = $this->productEquipaments->create([
                 'name' => $name,
                 'quantity_min' => $quantity_min,
                 'fk_category_id' => $fk_category_id,
+                'observation' => $observation,
+                'expiration_date' => $expiration_date,
             ]);
 
             if ($createProductEquipaments) {
@@ -621,7 +675,7 @@ class ProductEquipamentController extends CrudController
 
                 return response()->json([
                     'success' => true,
-                    'message' => "Cadastrado com sucesso.",
+                    'message' => "Produto cadastrado com sucesso.",
                     'data' => $createProductEquipaments,
                 ]);
             }
@@ -651,7 +705,7 @@ class ProductEquipamentController extends CrudController
                 ->where('fk_user_id', $idUser)
                 ->pluck('fk_category_id');
 
-            if ($user->level !== 'admin' && $categoryUser == null) {
+            if ($user->level !== 'admin' && $user->level !== 'manager' && $categoryUser == null) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Você não tem permissão de acesso para seguir adiante.',
@@ -683,7 +737,7 @@ class ProductEquipamentController extends CrudController
 
             foreach ($changes as $key => $newValue) {
                 $oldValue = $originalData[$key] ?? 'N/A'; // Valor antigo
-                $logDescription .= "{$key}: {$oldValue} -> {$newValue} .";
+                $logDescription .= "{$key}: {$oldValue} -> {$newValue} #";
             }
 
             if ($logDescription == null) {
@@ -729,7 +783,7 @@ class ProductEquipamentController extends CrudController
             $level = $user->level;
             $idUser = $user->id;
 
-            if ($level == 'user') {
+            if ($level == 'user' || $level == 'manager') {
                 return response()->json([
                     'success' => false,
                     'message' => 'Você não tem permissão de acesso para seguir adiante.',
@@ -767,6 +821,72 @@ class ProductEquipamentController extends CrudController
                 'message' => "Error DB: " . $qe->getMessage(),
             ]);
         } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => "Error: " . $e->getMessage(),
+            ]);
+        }
+    }
+
+    public function reverseDeletedProduct(Request $request, $id)
+    {
+        DB::beginTransaction();
+        try {
+
+            $user = $request->user();
+            $level = $user->level;
+            $idUser = $user->id;
+
+            if ($level == 'user' || $level == 'manager') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Você não tem permissão de acesso para seguir adiante.',
+                ]);
+            }
+
+            $product = ProductEquipament::withTrashed()->find($id);
+
+            if (!$product) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Nenhum resultado encontrado.',
+                ]);
+            }
+            if ($product->deleted_at == false) {
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Não foi possível executar essa ação, produto não pertence aos deletados.',
+                ]);
+            }
+
+            $product->restore();
+
+            SystemLog::create([
+                'fk_user_id' => $idUser,
+                'action' => 'Restaurou',
+                'table_name' => 'product_equipaments',
+                'record_id' => $id,
+                'description' => 'Retornou um produto deletado aos ativos.',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Produto retornou aos ativos.',
+                'data' => $product
+            ]);
+        } catch (QueryException $qe) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => "Error DB: " . $qe->getMessage(),
+            ]);
+        } catch (Exception $e) {
+            DB::rollBack();
             return response()->json([
                 'success' => false,
                 'message' => "Error: " . $e->getMessage(),

@@ -2,23 +2,28 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Exits;
 use App\Models\Inputs;
 use App\Models\SystemLog;
+use App\Services\InputService;
 use Exception;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Symfony\Component\Console\Input\Input;
 
 class InputsController extends CrudController
 {
     protected $input;
+    protected $input_service;
 
-    public function __construct(Inputs $inputs)
+    public function __construct(Inputs $inputs, InputService $inputService)
     {
-        parent::__construct($inputs);
+        parent::__construct($inputs, $inputService);
 
         $this->input = $inputs;
+        $this->input_service = $inputService;
     }
 
     public function getAllInputs(Request $request)
@@ -34,19 +39,21 @@ class InputsController extends CrudController
                 ->pluck('fk_category_id')
                 ->toArray();
 
-            if ($user->level !== 'admin' && empty($categoryUser)) {
+            if ($user->level !== 'admin' && $user->level !== 'manager' && empty($categoryUser)) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Você não tem permissão de acesso para seguir adiante.',
                 ]);
             }
 
-            // Verifica o nível de acesso e filtra as saídas
+            // Verifica o nível de acesso e filtra as entradas
             if ($level == 'user') {
 
                 $inputs = Inputs::with(['productEquipament.category' => function ($query) {
                     $query->withTrashed();
                 }, 'user' => function ($query) {
+                    $query->withTrashed();
+                }, 'storage_location' => function ($query) {
                     $query->withTrashed();
                 }])
                     ->whereHas('productEquipament', function ($query) use ($categoryUser) {
@@ -58,11 +65,38 @@ class InputsController extends CrudController
 
                 $inputs->getCollection()->transform(function ($input) {
 
+                    if ($input->expiration_date && $input->alert) {
+
+                        $expiration_date_for_updating = $this->input->getFormatteDateofManufactureOrExpiration($input, 'expiration_date');
+
+                        $daysRemaining = $this->input->daysUntilDate($expiration_date_for_updating);
+
+                        if (!empty($input->alert)) {
+                            $days_for_alerts = $daysRemaining - $input->alert;
+                        }
+
+                        if ($daysRemaining >= 1 && $days_for_alerts >= 1) {
+                            $status = 'Válido';
+                        } elseif ($daysRemaining < 1 && $days_for_alerts < 1) {
+                            $status = 'Vencido';
+                        } else {
+                            $status = 'Em alerta';
+                        }
+
+                        $input->status = $status;
+                        $input->save();
+                    }
+
+                    if ($input->expiration_date == null && $input->alert == null) {
+                        $days_for_alerts = null;
+                        $daysRemaining = null;
+                    }
+
                     return [
                         'id' => $input->id ?? null,
                         'quantity' => $input->quantity ?? null,
-
-                        'product_name' => $input->productEquipament && $input->productEquipament->trashed()
+                        'quantity_active' => $input->quantity_active ?? null,
+                        'product_name' => $input->productEquipament->trashed()
                             ? $input->productEquipament->name . ' (Deletado)'
                             : $input->productEquipament->name ?? null,
                         'id_product' => $input->productEquipament
@@ -70,21 +104,38 @@ class InputsController extends CrudController
                                 ? $input->productEquipament->id
                                 : $input->productEquipament->id)
                             : null,
-
-                        // 'category_name' => $input->productEquipament->category->name ?? null,
                         'category_name' => $input->productEquipament->category->trashed()
-                            ? $input->productEquipament->category->name . ' (Deletado)'
+                            ? $input->productEquipament->category->name . ' (Deletado)' // Se deletado (Deletado)
                             : $input->productEquipament->category->name ?? null,
-
                         'fk_user_id' => $input->fk_user_id ?? null,
-                        
-                        // 'name_user_input' => $input->user->name ?? null,
                         'name_user_input' => $input->user->trashed()
                             ? $input->user->name . ' (Deletado)'
                             : $input->user->name ?? null,
 
+                        'date_of_manufacture' => $input->date_of_manufacture
+                            ? $this->input->getFormatteDateofManufactureOrExpiration($input, 'date_of_manufacture')
+                            : null ?? null,
+                        'expiration_date' => $input->expiration_date
+                            ? $this->input->getFormatteDateofManufactureOrExpiration($input, 'expiration_date')
+                            : null  ?? null,
+                        'alert' => $input->alert ?? null,
+                        'storage_locations_id' => $input->storage_location->trashed()
+                            ? $input->storage_location->id . ' (Deletado)'
+                            : $input->storage_location->id ?? null,
+                        'storage_locations_name' => $input->storage_location->trashed()
+                            ? $input->storage_location->name . ' (Deletado)'
+                            : $input->storage_location->name ?? null,
+                        // 'date_of_alert' => $input->date_of_alert
+                        //     ? $this->input->getFormatteDateofManufactureOrExpiration($input, 'date_of_alert')
+                        //     : null,
+                        'status' => $input->status ?? null,
+                        'days_for_alerts' => $days_for_alerts = $days_for_alerts < 0 ? 0 : $days_for_alerts ?? null,
+                        'days_remaining' => $daysRemaining ?? null,
                         'created_at' => $this->input->getFormattedDate($input, 'created_at') ?? null,
                         'updated_at' => $this->input->getFormattedDate($input, 'updated_at') ?? null,
+                        'deleted_at' => $input && $input->trashed()
+                            ? $this->input->getFormattedDate($input, 'deleted_at')
+                            : $input->deleted_at ?? null,
                     ];
                 });
 
@@ -94,6 +145,8 @@ class InputsController extends CrudController
                     'data' => $inputs,
                 ]);
             }
+
+            //ADMIN OR MANAGER
 
             $inputsAdmin = Inputs::with([
                 'productEquipament' => function ($query) {
@@ -105,42 +158,88 @@ class InputsController extends CrudController
                 'user' => function ($query) {
                     $query->withTrashed();
                 },
+                'storage_location' => function ($query) {
+                    $query->withTrashed();
+                },
             ])
                 ->orderBy('created_at', 'desc')
                 ->paginate(10);
 
             $inputsAdmin->getCollection()->transform(function ($input) {
 
+                if ($input->expiration_date && $input->alert) {
+
+                    $expiration_date_for_updating = $this->input->getFormatteDateofManufactureOrExpiration($input, 'expiration_date');
+
+                    $daysRemaining = $this->input->daysUntilDate($expiration_date_for_updating);
+
+                    if (!empty($input->alert)) {
+                        $days_for_alerts = $daysRemaining - $input->alert;
+                    }
+
+                    if ($daysRemaining >= 1 && $days_for_alerts >= 1) {
+                        $status = 'Válido';
+                    } elseif ($daysRemaining < 1 && $days_for_alerts < 1) {
+                        $status = 'Vencido';
+                    } else {
+                        $status = 'Em alerta';
+                    }
+
+                    $input->status = $status;
+                    $input->save();
+                }
+
+                if ($input->expiration_date == null && $input->alert == null) {
+                    $days_for_alerts = null;
+                    $daysRemaining = null;
+                }
+
                 return [
                     'id' => $input->id ?? null,
                     'quantity' => $input->quantity ?? null,
+                    'quantity_active' => $input->quantity_active ?? null,
                     'product_name' => $input->productEquipament->trashed()
                         ? $input->productEquipament->name . ' (Deletado)'
                         : $input->productEquipament->name ?? null,
-
                     'id_product' => $input->productEquipament
                         ? ($input->productEquipament->trashed()
                             ? $input->productEquipament->id
                             : $input->productEquipament->id)
                         : null,
-
-                    // 'category_name' => $input->productEquipament->category->name ?? null,
                     'category_name' => $input->productEquipament->category->trashed()
                         ? $input->productEquipament->category->name . ' (Deletado)' // Se deletado (Deletado)
                         : $input->productEquipament->category->name ?? null,
-
                     'fk_user_id' => $input->fk_user_id ?? null,
-                    
-                    // 'name_user_input' => $input->user->name ?? null,
                     'name_user_input' => $input->user->trashed()
                         ? $input->user->name . ' (Deletado)'
                         : $input->user->name ?? null,
-                        
+
+                    'date_of_manufacture' => $input->date_of_manufacture ?? null
+                        ? $this->input->getFormatteDateofManufactureOrExpiration($input, 'date_of_manufacture')
+                        : null,
+                    'expiration_date' => $input->expiration_date
+                        ? $this->input->getFormatteDateofManufactureOrExpiration($input, 'expiration_date')
+                        : null,
+                    'alert' => $input->alert ?? null,
+                    'storage_locations_id' => $input->storage_location->trashed()
+                        ? $input->storage_location->id . ' (Deletado)'
+                        : $input->storage_location->id ?? null,
+                    'storage_locations_name' => $input->storage_location->trashed()
+                        ? $input->storage_location->name . ' (Deletado)'
+                        : $input->storage_location->name ?? null,
+                    // 'date_of_alert' => $input->date_of_alert
+                    //     ? $this->input->getFormatteDateofManufactureOrExpiration($input, 'date_of_alert')
+                    //     : null,
+                    'status' => $input->status ?? null,
+                    'days_for_alerts' => $days_for_alerts = $days_for_alerts < 0 ? 0 : $days_for_alerts ?? null,
+                    'days_remaining' => $daysRemaining ?? null,
                     'created_at' => $this->input->getFormattedDate($input, 'created_at') ?? null,
                     'updated_at' => $this->input->getFormattedDate($input, 'updated_at') ?? null,
+                    'deleted_at' => $input && $input->trashed()
+                        ? $this->input->getFormattedDate($input, 'deleted_at')
+                        : $input->deleted_at ?? null,
                 ];
             });
-
             return response()->json([
                 'success' => true,
                 'message' => 'Entradas recuperadas com sucesso.',
@@ -172,7 +271,7 @@ class InputsController extends CrudController
                 ->pluck('fk_category_id')
                 ->toArray();
 
-            if ($user->level !== 'admin' && empty($categoryUser)) {
+            if ($user->level !== 'admin' && $user->level !== 'manager' && empty($categoryUser)) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Você não tem permissão de acesso para seguir adiante.',
@@ -187,7 +286,7 @@ class InputsController extends CrudController
                     'message' => 'Nenhuma entrada encontrada.',
                 ]);
             }
-            // Verifica o nível de acesso e filtra as saídas
+            // Verifica o nível de acesso e filtra as entradas
             if ($level == 'user') {
 
                 $inputs = Inputs::withTrashed()
@@ -196,6 +295,12 @@ class InputsController extends CrudController
                             $query->withTrashed();
                         },
                         'user' => function ($query) {
+                            $query->withTrashed();
+                        },
+                        'storage_location' => function ($query) {
+                            $query->withTrashed();
+                        },
+                        'productEquipament' => function ($query) {
                             $query->withTrashed();
                         },
                     ])
@@ -207,34 +312,58 @@ class InputsController extends CrudController
                     ->get()
                     ->map(function ($input) {
 
+                        if ($input->expiration_date && $input->alert) {
+                        }
+
+                        if ($input->expiration_date == null && $input->alert == null) {
+                            $days_for_alerts = null;
+                            $daysRemaining = null;
+                        }
+
                         return [
                             'id' => $input->id ?? null,
                             'quantity' => $input->quantity ?? null,
+                            'quantity_active' => $input->quantity_active ?? null,
                             'product_name' => $input->productEquipament->trashed()
                                 ? $input->productEquipament->name . ' (Deletado)'
                                 : $input->productEquipament->name ?? null,
-
                             'id_product' => $input->productEquipament
                                 ? ($input->productEquipament->trashed()
                                     ? $input->productEquipament->id
                                     : $input->productEquipament->id)
                                 : null,
-                                
-                            // 'category_name' => $input->productEquipament->category->name ?? null,
                             'category_name' => $input->productEquipament->category->trashed()
-                                ? $input->productEquipament->category->name . ' (Deletado)'
+                                ? $input->productEquipament->category->name . ' (Deletado)' // Se deletado (Deletado)
                                 : $input->productEquipament->category->name ?? null,
-                                
                             'fk_user_id' => $input->fk_user_id ?? null,
-                            
-                            // 'name_user_input' => $input->user->name ?? null,
                             'name_user_input' => $input->user->trashed()
                                 ? $input->user->name . ' (Deletado)'
                                 : $input->user->name ?? null,
-                                
+
+                            'date_of_manufacture' => $input->date_of_manufacture
+                                ? $this->input->getFormatteDateofManufactureOrExpiration($input, 'date_of_manufacture')
+                                : null,
+                            'expiration_date' => $input->expiration_date
+                                ? $this->input->getFormatteDateofManufactureOrExpiration($input, 'expiration_date')
+                                : null,
+                            'alert' => $input->alert,
+                            'storage_locations_id' => $input->storage_location->trashed()
+                                ? $input->storage_location->id . ' (Deletado)'
+                                : $input->storage_location->id ?? null,
+                            'storage_locations_name' => $input->storage_location->trashed()
+                                ? $input->storage_location->name . ' (Deletado)'
+                                : $input->storage_location->name ?? null,
+                            // 'date_of_alert' => $input->date_of_alert
+                            //     ? $this->input->getFormatteDateofManufactureOrExpiration($input, 'date_of_alert')
+                            //     : null,
+                            'status' => $input->status,
+                            'days_for_alerts' => $days_for_alerts = $days_for_alerts < 0 ? 0 : $days_for_alerts,
+                            'days_remaining' => $daysRemaining,
                             'created_at' => $this->input->getFormattedDate($input, 'created_at') ?? null,
                             'updated_at' => $this->input->getFormattedDate($input, 'updated_at') ?? null,
-
+                            'deleted_at' => $input && $input->trashed()
+                                ? $this->input->getFormattedDate($input, 'deleted_at')
+                                : $input->deleted_at ?? null,
                         ];
                     });
 
@@ -245,6 +374,8 @@ class InputsController extends CrudController
                 ]);
             }
 
+            //ADMIN OR MANAGER
+
             $inputsAdmin = Inputs::withTrashed()
                 ->with([
                     'productEquipament.category' => function ($query) {
@@ -253,41 +384,74 @@ class InputsController extends CrudController
                     'user' => function ($query) {
                         $query->withTrashed();
                     },
+                    'storage_location' => function ($query) {
+                        $query->withTrashed();
+                    },
+                    'productEquipament' => function ($query) {
+                        $query->withTrashed();
+                    },
                 ])
                 ->where('id', $id)
-                ->whereHas('productEquipament', function ($query) use ($categoryUser) {
-                    // $query->whereIn('fk_category_id', $categoryUser);
-                })
+                // ->whereHas('productEquipament', function ($query) use ($categoryUser) {
+                //     // $query->whereIn('fk_category_id', $categoryUser);
+                // })
                 ->get()
                 ->map(function ($input) {
+
+                    if ($input->expiration_date && $input->alert) {
+
+                        $this->input_service->updateStatusInput($input);
+                    }
+
+                    if ($input->expiration_date == null && $input->alert == null) {
+                        $days_for_alerts = null;
+                        $daysRemaining = null;
+                    }
 
                     return [
                         'id' => $input->id ?? null,
                         'quantity' => $input->quantity ?? null,
+                        'quantity_active' => $input->quantity_active ?? null,
                         'product_name' => $input->productEquipament->trashed()
                             ? $input->productEquipament->name . ' (Deletado)'
                             : $input->productEquipament->name ?? null,
-
                         'id_product' => $input->productEquipament
                             ? ($input->productEquipament->trashed()
                                 ? $input->productEquipament->id
                                 : $input->productEquipament->id)
                             : null,
-                            
-                        // 'category_name' => $input->productEquipament->category->name ?? null,
                         'category_name' => $input->productEquipament->category->trashed()
-                            ? $input->productEquipament->category->name . ' (Deletado)'
+                            ? $input->productEquipament->category->name . ' (Deletado)' // Se deletado (Deletado)
                             : $input->productEquipament->category->name ?? null,
-                            
                         'fk_user_id' => $input->fk_user_id ?? null,
-                        
-                        // 'name_user_input' => $input->user->name ?? null,
                         'name_user_input' => $input->user->trashed()
                             ? $input->user->name . ' (Deletado)'
                             : $input->user->name ?? null,
-                            
+
+                        'date_of_manufacture' => $input->date_of_manufacture
+                            ? $this->input->getFormatteDateofManufactureOrExpiration($input, 'date_of_manufacture')
+                            : null,
+                        'expiration_date' => $input->expiration_date
+                            ? $this->input->getFormatteDateofManufactureOrExpiration($input, 'expiration_date')
+                            : null,
+                        'alert' => $input->alert,
+                        'storage_locations_id' => $input->storage_location->trashed()
+                            ? $input->storage_location->id . ' (Deletado)'
+                            : $input->storage_location->id ?? null,
+                        'storage_locations_name' => $input->storage_location->trashed()
+                            ? $input->storage_location->name . ' (Deletado)'
+                            : $input->storage_location->name ?? null,
+                        // 'date_of_alert' => $input->date_of_alert
+                        //     ? $this->input->getFormatteDateofManufactureOrExpiration($input, 'date_of_alert')
+                        //     : null,
+                        'status' => $input->status,
+                        'days_for_alerts' => $days_for_alerts = $days_for_alerts < 0 ? 0 : $days_for_alerts,
+                        'days_remaining' => $daysRemaining,
                         'created_at' => $this->input->getFormattedDate($input, 'created_at') ?? null,
                         'updated_at' => $this->input->getFormattedDate($input, 'updated_at') ?? null,
+                        'deleted_at' => $input && $input->trashed()
+                            ? $this->input->getFormattedDate($input, 'deleted_at')
+                            : $input->deleted_at ?? null,
                     ];
                 });
 
@@ -317,16 +481,36 @@ class InputsController extends CrudController
             $user = $request->user();
             $idUser = $user->id;
 
-            $validatedData = $request->validate(
-                $this->input->rulesInputs(),
-                $this->input->feedbackInputs()
-            );
+            if (empty($request->date_of_manufacture) && empty($request->expiration_date)) {
+                // dd('aqui 1');
+                $validatedData = $request->validate(
+                    $this->input->rulesInputs(),
+                    $this->input->feedbackInputs()
+                );
+            } elseif (!empty($request->date_of_manufacture) && empty($request->expiration_date)) {
+                // dd('aqui 2');
+                $validatedData = $request->validate(
+                    $this->input->rulesInputsDateOfManufacture(),
+                    $this->input->feedbackInputsDateOfManufacture()
+                );
+            } else {
+                // dd('aqui 3');
+                $validatedData = $request->validate(
+                    $this->input->rulesInputsExpirationDate(),
+                    $this->input->feedbackInputsExpirationDate()
+                );
+            }
 
             if ($validatedData) {
                 $input = $this->input->create([
                     'fk_product_equipament_id' => $request->fk_product_equipament_id,
                     'quantity' => $request->quantity,
                     'fk_user_id' => $user->id,
+                    'fk_storage_locations_id' => $request->fk_storage_locations_id,
+                    'date_of_manufacture' => $request->date_of_manufacture,
+                    'expiration_date' => $request->expiration_date,
+                    'alert' => $request->alert,
+                    'quantity_active' => $request->quantity,
                 ]);
             }
 
@@ -384,15 +568,33 @@ class InputsController extends CrudController
 
             $originalData = $updateInput->getOriginal();
 
-            $validatedData = [
-                'fk_product_equipament_id' => $request->fk_product_equipament_id,
-                'quantity' => $request->quantity,
-            ];
+            if (empty($request->date_of_manufacture) && empty($request->expiration_date)) {
+                // dd('aqui 1');
+                $validatedData = $request->validate(
+                    $this->input->rulesInputs(),
+                    $this->input->feedbackInputs()
+                );
+            } elseif (!empty($request->date_of_manufacture) && empty($request->expiration_date)) {
+                // dd('aqui 2');
+                $validatedData = $request->validate(
+                    $this->input->rulesInputsDateOfManufacture(),
+                    $this->input->feedbackInputsDateOfManufacture()
+                );
+            } else {
+                // dd('aqui 3');
+                $validatedData = $request->validate(
+                    $this->input->rulesInputsExpirationDate(),
+                    $this->input->feedbackInputsExpirationDate()
+                );
+            }
 
-            $validatedData = $request->validate(
-                $this->input->rulesInputs(),
-                $this->input->feedbackInputs()
-            );
+            $sum = Exits::where('fk_inputs_id', $id)->where('fk_product_equipament_id', $updateInput->fk_product_equipament_id)->sum('quantity');
+
+            dd('realizar validação do updateInput que não pode ser um valor maior que a quantidade que já saiu.');
+
+            if ($request->quantity != $updateInput->quantity) {
+                $updateInput->quantity_active = $request->quantity;
+            }
 
             $updateInput->fill($validatedData);
             $updateInput->save();
@@ -403,7 +605,7 @@ class InputsController extends CrudController
 
             foreach ($changes as $key => $newValue) {
                 $oldValue = $originalData[$key] ?? 'N/A'; // Valor antigo
-                $logDescription .= "{$key}: {$oldValue} -> {$newValue} .";
+                $logDescription .= "{$key}: {$oldValue} -> {$newValue} #";
             }
 
             if ($logDescription == null) {
@@ -454,7 +656,7 @@ class InputsController extends CrudController
             $level = $user->level;
             $idUser = $user->id;
 
-            if ($level == 'user') {
+            if ($level == 'user' || $level == 'manager') {
                 return response()->json([
                     'success' => false,
                     'message' => 'Você não tem permissão de acesso para seguir adiante.',
@@ -499,5 +701,140 @@ class InputsController extends CrudController
                 'message' => "Error: " . $e->getMessage(),
             ]);
         }
+    }
+
+    public function inputsInAlerts(Request $request)
+    {
+        try {
+            $user = $request->user();
+            $level = $user->level;
+            $idUser = $user->id;
+
+            if ($level == 'user') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Você não tem permissão de acesso para seguir adiante.',
+                ]);
+            }
+
+            $getAllInputsForUpdating = Inputs::with([
+                'productEquipament' => function ($query) {
+                    $query->withTrashed();
+                },
+                'productEquipament.category' => function ($query) {
+                    $query->withTrashed();
+                },
+                'user' => function ($query) {
+                    $query->withTrashed();
+                },
+                'storage_location' => function ($query) {
+                    $query->withTrashed();
+                },
+            ])
+                ->orderBy('created_at', 'desc')
+                ->paginate(10);
+
+            $getAllInputsForUpdating->getCollection()->transform(function ($input) {
+
+                if ($input->expiration_date && $input->alert) {
+
+                    $this->input_service->updateStatusInput($input);
+                }
+            });
+
+            $inputsInAlerts = Inputs::withTrashed()
+                ->with([
+                    'productEquipament.category' => function ($query) {
+                        $query->withTrashed();
+                    },
+                    'user' => function ($query) {
+                        $query->withTrashed();
+                    },
+                    'storage_location' => function ($query) {
+                        $query->withTrashed();
+                    },
+                ])
+                ->where('status', 'Em alerta')
+                ->select('*', DB::raw('DATEDIFF(expiration_date, NOW()) AS days_remaining')) // Calcule os dias restantes
+                ->orderBy('days_remaining', 'asc') // Ordene pelos dias restantes em ordem crescente
+                ->get()
+                ->map(function ($input) {
+                    if ($input->expiration_date && $input->alert) {
+
+                        $this->input_service->updateStatusInput($input);
+                    }
+
+                    if ($input->expiration_date == null && $input->alert == null) {
+                        $days_for_alerts = null;
+                        $daysRemaining = null;
+                    }
+
+                    return [
+                        'id' => $input->id ?? null,
+                        'quantity' => $input->quantity ?? null,
+                        'quantity_active' => $input->quantity_active ?? null,
+                        'product_name' => $input->productEquipament->trashed()
+                            ? $input->productEquipament->name . ' (Deletado)'
+                            : $input->productEquipament->name ?? null,
+                        'id_product' => $input->productEquipament
+                            ? ($input->productEquipament->trashed()
+                                ? $input->productEquipament->id
+                                : $input->productEquipament->id)
+                            : null,
+                        'category_name' => $input->productEquipament->category->trashed()
+                            ? $input->productEquipament->category->name . ' (Deletado)' // Se deletado (Deletado)
+                            : $input->productEquipament->category->name ?? null,
+                        'fk_user_id' => $input->fk_user_id ?? null,
+                        'name_user_input' => $input->user->trashed()
+                            ? $input->user->name . ' (Deletado)'
+                            : $input->user->name ?? null,
+
+                        'date_of_manufacture' => $input->date_of_manufacture
+                            ? $this->input->getFormatteDateofManufactureOrExpiration($input, 'date_of_manufacture')
+                            : null,
+                        'expiration_date' => $input->expiration_date
+                            ? $this->input->getFormatteDateofManufactureOrExpiration($input, 'expiration_date')
+                            : null,
+                        'alert' => $input->alert,
+                        'storage_locations_id' => $input->storage_location->trashed()
+                            ? $input->storage_location->id . ' (Deletado)'
+                            : $input->storage_location->id ?? null,
+                        'storage_locations_name' => $input->storage_location->trashed()
+                            ? $input->storage_location->name . ' (Deletado)'
+                            : $input->storage_location->name ?? null,
+                        // 'date_of_alert' => $input->date_of_alert
+                        //     ? $this->input->getFormatteDateofManufactureOrExpiration($input, 'date_of_alert')
+                        //     : null,
+                        'status' => $input->status,
+                        'days_for_alerts' => $days_for_alerts = $days_for_alerts < 0 ? 0 : $days_for_alerts,
+                        'days_remaining' => $daysRemaining,
+                        'created_at' => $this->input->getFormattedDate($input, 'created_at') ?? null,
+                        'updated_at' => $this->input->getFormattedDate($input, 'updated_at') ?? null,
+                    ];
+                });
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Entrada(s) em alerta recuperada(s) com sucesso.',
+                'data' => $inputsInAlerts,
+            ]);
+        } catch (QueryException $qe) {
+            return response()->json([
+                'success' => false,
+                'message' => "Error DB: " . $qe->getMessage(),
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => "Error: " . $e->getMessage(),
+            ]);
+        }
+    }
+
+    public function getInputsWithOrderByExpirationDate(Request $request, $id)
+    {
+        $inputService = $this->input_service->getInputsWithOrderByExpirationDate($request, $id);
+
+        return $inputService;
     }
 }

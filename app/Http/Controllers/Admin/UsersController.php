@@ -29,7 +29,7 @@ class UsersController extends CrudController
             $user = $request->user();
             $level = $user->level;
 
-            if ($level == 'user') {
+            if ($level == 'user' || $level == 'manager') {
                 return response()->json([
                     'success' => false,
                     'message' => 'Você não tem permissão de acesso para seguir adiante.',
@@ -64,6 +64,13 @@ class UsersController extends CrudController
                 ];
             });
 
+            if ($getAllUser->isEmpty()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Nenhum resultado encontrado.',
+                ]);
+            }
+
             if ($getAllUser) {
                 return response()->json([
                     'success' => true,
@@ -90,7 +97,7 @@ class UsersController extends CrudController
 
             $level = $user->level;
 
-            if ($level == 'user') {
+            if ($level == 'user' || $level == 'manager') {
                 return response()->json([
                     'success' => false,
                     'message' => 'Você não tem permissão de acesso para seguir adiante.',
@@ -155,7 +162,7 @@ class UsersController extends CrudController
             $idUser = $user->id;
 
 
-            if ($level == 'user') {
+            if ($level == 'user' || $level == 'manager') {
                 return response()->json([
                     'success' => false,
                     'message' => 'Você não tem permissão de acesso para seguir adiante.',
@@ -227,7 +234,7 @@ class UsersController extends CrudController
             $level = $user->level;
             $idUser = $user->id;
 
-            if ($level == 'user') {
+            if ($level == 'user' || $level == 'manager') {
                 return response()->json([
                     'success' => false,
                     'message' => 'Você não tem permissão de acesso para seguir adiante.',
@@ -269,7 +276,7 @@ class UsersController extends CrudController
 
             foreach ($changes as $key => $newValue) {
                 $oldValue = $originalData[$key] ?? 'N/A'; // Valor antigo
-                $logDescription .= "{$key}: {$oldValue} -> {$newValue} .";
+                $logDescription .= "{$key}: {$oldValue} -> {$newValue} #";
             }
 
             if ($logDescription == null) {
@@ -310,13 +317,14 @@ class UsersController extends CrudController
 
     public function delete(Request $request, $id)
     {
+        DB::beginTransaction();
         try {
 
             $user = $request->user();
             $level = $user->level;
             $idUser = $user->id;
 
-            if ($level == 'user') {
+            if ($level == 'user' || $level == 'manager') {
                 return response()->json([
                     'success' => false,
                     'message' => 'Você não tem permissão de acesso para seguir adiante.',
@@ -349,17 +357,21 @@ class UsersController extends CrudController
                     'updated_at' => now(),
                 ]);
 
+                DB::commit();
+
                 return response()->json([
                     'success' => true,
                     'message' => 'Usuário removido com sucesso.',
                 ]);
             }
         } catch (QueryException $qe) {
+            DB::rollBack();
             return response()->json([
                 'success' => false,
                 'message' => "Error DB: " . $qe->getMessage(),
             ]);
         } catch (Exception $e) {
+            DB::rollBack();
             return response()->json([
                 'success' => false,
                 'message' => "Error: " . $e->getMessage(),
@@ -376,7 +388,7 @@ class UsersController extends CrudController
             $level = $user->level;
             $idUser = $user->id;
 
-            if ($level == 'user') {
+            if ($level == 'user' || $level == 'manager') {
                 return response()->json([
                     'success' => false,
                     'message' => 'Você não tem permissão de acesso para seguir adiante.',
@@ -442,7 +454,7 @@ class UsersController extends CrudController
             $level = $user->level;
             $idUser = $user->id;
 
-            if ($level == 'user') {
+            if ($level == 'user' || $level == 'manager') {
                 return response()->json([
                     'success' => false,
                     'message' => 'Você não tem permissão de acesso para seguir adiante.',
@@ -487,7 +499,7 @@ class UsersController extends CrudController
                     'action' => 'Atualizou',
                     'table_name' => 'category_user',
                     'record_id' => $id,
-                    'description' => 'Atualizou a categoria do usuário. Dados alterados: ' . $logDescription,
+                    'description' => 'Atualizou o(s) setor(es) de acesso do usuário. Dados alterados: ' . $logDescription,
                     'created_at' => now(),
                     'updated_at' => now(),
                 ]);
@@ -524,7 +536,7 @@ class UsersController extends CrudController
             $level = $user->level;
             $idUser = $user->id;
 
-            if ($level == 'user') {
+            if ($level == 'user' || $level == 'manager') {
                 return response()->json([
                     'success' => false,
                     'message' => 'Você não tem permissão de acesso para seguir adiante.',
@@ -611,7 +623,7 @@ class UsersController extends CrudController
             $level = $user->level;
             $idUser = $user->id;
 
-            if ($level == 'user') {
+            if ($level == 'user' || $level == 'manager') {
                 return response()->json([
                     'success' => false,
                     'message' => 'Você não tem permissão de acesso para seguir adiante.',
@@ -789,7 +801,7 @@ class UsersController extends CrudController
             $level = $user->level;
             $idUser = $user->id;
 
-            if ($level == 'user') {
+            if ($level == 'user' || $level == 'manager') {
                 return response()->json([
                     'success' => false,
                     'message' => 'Você não tem permissão de acesso para seguir adiante.',
@@ -853,7 +865,7 @@ class UsersController extends CrudController
             $user = $request->user();
             $level = $user->level;
 
-            if ($level == 'user') {
+            if ($level == 'user' || $level == 'manager') {
                 return response()->json([
                     'success' => false,
                     'message' => 'Você não tem permissão de acesso para seguir adiante.',

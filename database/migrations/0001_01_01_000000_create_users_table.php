@@ -50,10 +50,20 @@ return new class extends Migration
             'created_at' => now(),
             'updated_at' => now(),
         ]);
-        
+
         DB::table('users')->insert([
             'name' => 'dev',
             'email' => 'dev@dev.com',
+            'password' => Hash::make('123456789'),
+            'level' => 'admin',
+            'reservation_enabled' => 1,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        DB::table('users')->insert([
+            'name' => 'Lucas',
+            'email' => 'lucas@bizsys.com.br',
             'password' => Hash::make('123456789'),
             'level' => 'admin',
             'reservation_enabled' => 1,
