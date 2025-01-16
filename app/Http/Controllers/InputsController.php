@@ -139,7 +139,7 @@ class InputsController extends CrudController
                     ];
                 });
 
-                header('Access-Control-Allow-Origin: *');
+                header('Access-Control-Allow-Origin: ');
 
                 return response()->json([
                     'success' => true,
