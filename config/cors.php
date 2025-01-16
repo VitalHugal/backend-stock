@@ -23,7 +23,7 @@ return [
 
     'allowed_origins_patterns' => [],
 
-    // 'Access-Control-Allow-Origin' => ['*'],
+    'Access-Control-Allow-Origin' => ['*'],
 
     'allowed_headers' => ['*'],
 
