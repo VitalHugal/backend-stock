@@ -15,7 +15,9 @@ class ProductEquipament extends Model
         'fk_category_id',
         'quantity_min',
         'observation',
-        'expiration_date'
+        'expiration_date',
+        'is_grup',
+        'list_products_id',
     ];
     protected $table = 'products_equipaments';
     protected $dates = ['deleted_at'];
@@ -36,6 +38,8 @@ class ProductEquipament extends Model
             'fk_category_id' => 'required|exists:category,id',
             'observation' => 'max:50000',
             'expiration_date' => 'required|boolean:0,1',
+            'is_grup' => 'required|boolean:0,1',
+            'list_products_id' => 'exists:products_equipaments,id'
         ];
     }
 
@@ -58,6 +62,11 @@ class ProductEquipament extends Model
 
             'expiration_date.required' => 'O campo data de validade é obrigatório.',
             'expiration_date.boolean' => 'Válido apenas 0 ou 1 nesse campo.',
+
+            'is_grup.required' => 'O campo "é grupo" é obrigatório.',
+            'is_grup.boolean' => 'Válido apenas 0 ou 1 nesse campo.',
+
+            'list_products_id.exists' => "Produto(s) não encontrado(s)."
         ];
     }
 

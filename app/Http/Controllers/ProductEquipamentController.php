@@ -650,6 +650,7 @@ class ProductEquipamentController extends CrudController
             $fk_category_id = $request->fk_category_id;
             $observation = $request->observation;
             $expiration_date = $request->expiration_date;
+            $expiration_date = $request->expiration_date;
 
             $createProductEquipaments = $this->productEquipaments->create([
                 'name' => $name,

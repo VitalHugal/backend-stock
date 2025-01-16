@@ -459,6 +459,13 @@ class ExitsController extends CrudController
 
                 $data = $inputIdOrderExpirationDateFirst->original['data'];
 
+                if ($data['fk_storage_locations_id'] == null) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Não é possivel realizar essa saída, entrada não informa local de armazenamento.',
+                    ]);
+                }
+
                 if ($data['status'] == 'Finalizado' || $data['status'] == 'Vencido') {
                     return response()->json([
                         'success' => false,
