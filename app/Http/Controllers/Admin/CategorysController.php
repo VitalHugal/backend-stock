@@ -56,6 +56,9 @@ class CategorysController extends CrudController
                         'description' => $category->description,
                         'created_at' => $this->category->getFormattedDate($category, 'created_at'),
                         'updated_at' => $this->category->getFormattedDate($category, 'updated_at'),
+                        'deleted_at' => $category->deleted_at
+                            ? $this->category->getFormattedDate($category, 'deleted_at')
+                            : null,
                     ];
                 });
 
