@@ -815,12 +815,12 @@ class ProductEquipamentController extends CrudController
                 $createProductEquipamentsIsGrup = $validatedDataIsGrup;
 
                 $createProductEquipamentsIsGrup = $this->productEquipaments->create([
-                    'name' => $validatedDataIsGrup['name'],
+                    'name' => $request->name,
                     'quantity_min' => null,
-                    'fk_category_id' => $validatedDataIsGrup['fk_category_id'],
-                    'observation' => $validatedDataIsGrup['observation'],
+                    'fk_category_id' => $request->fk_category_id,
+                    'observation' => $request->observation,
                     'expiration_date' => 0,
-                    'is_group' => $validatedDataIsGrup['is_group'],
+                    'is_group' => $request->is_group,
                     'list_products' => $validatedDataIsGrup['list_products'] ?? [],
                 ]);
 
