@@ -835,7 +835,7 @@ class ProductEquipamentController extends CrudController
             }
 
 
-            if ($createProductEquipaments || $createProductEquipamentsIsGrup) {
+            if ($createProductEquipamentsIsGrup) {
 
                 SystemLog::create([
                     'fk_user_id' => $idUser,
