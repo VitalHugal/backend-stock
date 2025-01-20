@@ -133,6 +133,7 @@ class ProductEquipamentController extends CrudController
                         ->when($request->has('expiration_date') && in_array($request->input('expiration_date'), ['0', '1']), function ($query) use ($request) {
                             $query->where('expiration_date', $request->input('expiration_date'));
                         })
+                        ->where('is_group', 0)
                         ->orderBy('fk_category_id', 'asc')
                         ->paginate(10)
                         ->appends(['category' => $request->input('category'), 'active' => $request->input('active')]);
