@@ -93,7 +93,7 @@ class ProductEquipamentController extends CrudController
                             'expiration_date' => $product->expiration_date,
                             'observation' => $product->observation,
                             'quantity_min' => $product->quantity_min,
-                            'is_grup' => $product->is_grup,
+                            'is_group' => $product->is_group,
                             'fk_category_id' => $product->fk_category_id,
                             'created_at' => $this->productEquipaments->getFormattedDate($product, 'created_at'),
                             'updated_at' => $this->productEquipaments->getFormattedDate($product, 'updated_at'),
@@ -162,7 +162,7 @@ class ProductEquipamentController extends CrudController
                             'expiration_date' => $product->expiration_date,
                             'observation' => $product->observation,
                             'quantity_min' => $product->quantity_min,
-                            'is_grup' => $product->is_grup,
+                            'is_group' => $product->is_group,
                             'fk_category_id' => $product->fk_category_id,
                             'created_at' => $this->productEquipaments->getFormattedDate($product, 'created_at'),
                             'updated_at' => $this->productEquipaments->getFormattedDate($product, 'updated_at'),
@@ -248,7 +248,7 @@ class ProductEquipamentController extends CrudController
                                     : $product->name ?? null,
                                 'quantity_stock' => $quantityTotalProduct,
                                 'quantity_min' => $product->quantity_min,
-                                'is_grup' => $product->is_grup,
+                                'is_group' => $product->is_group,
                                 'expiration_date' => $product->expiration_date,
                                 'observation' => $product->observation,
                                 'fk_category_id' => $product->fk_category_id,
@@ -301,7 +301,7 @@ class ProductEquipamentController extends CrudController
                             : $product->name ?? null,
                         'quantity_stock' => $quantityTotalProduct,
                         'quantity_min' => $product->quantity_min,
-                        'is_grup' => $product->is_grup,
+                        'is_group' => $product->is_group,
                         'expiration_date' => $product->expiration_date,
                         'observation' => $product->observation,
                         'fk_category_id' => $product->fk_category_id,
@@ -374,7 +374,7 @@ class ProductEquipamentController extends CrudController
                         'expiration_date' => $product->expiration_date,
                         'observation' => $product->observation,
                         'quantity_min' => $product->quantity_min,
-                        'is_grup' => $product->is_grup,
+                        'is_group' => $product->is_group,
                         'fk_category_id' => $product->fk_category_id,
                         'created_at' => $this->productEquipaments->getFormattedDate($product, 'created_at'),
                         'updated_at' => $this->productEquipaments->getFormattedDate($product, 'updated_at'),
@@ -463,7 +463,7 @@ class ProductEquipamentController extends CrudController
                                 : $product->name ?? null,
                             'quantity_stock' => $quantityTotalProduct,
                             'quantity_min' => $product->quantity_min,
-                            'is_grup' => $product->is_grup,
+                            'is_group' => $product->is_group,
                             'expiration_date' => $product->expiration_date,
                             'observation' => $product->observation,
                             'fk_category_id' => $product->fk_category_id,
@@ -538,7 +538,7 @@ class ProductEquipamentController extends CrudController
                             : $product->name ?? null,
                         'quantity_stock' => $quantityTotalProduct,
                         'quantity_min' => $product->quantity_min,
-                        'is_grup' => $product->is_grup,
+                        'is_group' => $product->is_group,
                         'expiration_date' => $product->expiration_date,
                         'observation' => $product->observation,
                         'fk_category_id' => $product->fk_category_id,
@@ -585,7 +585,7 @@ class ProductEquipamentController extends CrudController
                         : $product->name ?? null,
                     'quantity_stock' => $quantityTotalProduct,
                     'quantity_min' => $product->quantity_min,
-                    'is_grup' => $product->is_grup,
+                    'is_group' => $product->is_group,
                     'expiration_date' => $product->expiration_date,
                     'observation' => $product->observation,
                     'fk_category_id' => $product->fk_category_id,
@@ -676,7 +676,7 @@ class ProductEquipamentController extends CrudController
                                 : $product->name ?? null,
                             'quantity_stock' => $quantityTotalProduct,
                             'quantity_min' => $product->quantity_min,
-                            'is_grup' => $product->is_grup,
+                            'is_group' => $product->is_group,
                             'expiration_date' => $product->expiration_date,
                             'observation' => $product->observation,
                             'fk_category_id' => $product->fk_category_id,
@@ -731,7 +731,7 @@ class ProductEquipamentController extends CrudController
                             : $product->name ?? null,
                         'quantity_stock' => $quantityTotalProduct,
                         'quantity_min' => $product->quantity_min,
-                        'is_grup' => $product->is_grup,
+                        'is_group' => $product->is_group,
                         'expiration_date' => $product->expiration_date,
                         'observation' => $product->observation,
                         'fk_category_id' => $product->fk_category_id,
@@ -799,7 +799,7 @@ class ProductEquipamentController extends CrudController
 
             $listProducts = $validatedDataIsGrup['list_products'] ?? []; // Garante que seja um array vazio se não existir
 
-            if ($request->is_grup == 0) {
+            if ($request->is_group == 0) {
                 // Para produtos sem grupo, cria normalmente
                 $createProductEquipaments = $this->productEquipaments->create([
                     'name' => $request->name,
@@ -807,7 +807,7 @@ class ProductEquipamentController extends CrudController
                     'fk_category_id' => $request->fk_category_id,
                     'observation' => $request->observation,
                     'expiration_date' => $request->expiration_date,
-                    'is_grup' => $request->is_grup,
+                    'is_group' => $request->is_group,
                 ]);
             } else {
                 // Cria o produto de grupo
@@ -817,7 +817,7 @@ class ProductEquipamentController extends CrudController
                     'fk_category_id' => $request->fk_category_id,
                     'observation' => $request->observation,
                     'expiration_date' => $request->expiration_date,
-                    'is_grup' => $request->is_grup,
+                    'is_group' => $request->is_group,
                     'list_products' => $listProducts,
                 ]);
 
@@ -825,7 +825,7 @@ class ProductEquipamentController extends CrudController
                 $groupProductId = is_object($createProductEquipamentsIsGrup) ? $createProductEquipamentsIsGrup->id : $createProductEquipamentsIsGrup['id'];
 
                 // Relaciona os produtos ao grupo, caso seja um produto de grupo
-                if ($request->is_grup == 1 && !empty($listProducts)) {
+                if ($request->is_group == 1 && !empty($listProducts)) {
                     foreach ($listProducts as $componentId) {
                         DB::table('product_groups')->insert([
                             'group_product_id' => $groupProductId,
