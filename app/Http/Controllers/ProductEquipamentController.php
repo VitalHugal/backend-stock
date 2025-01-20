@@ -798,8 +798,6 @@ class ProductEquipamentController extends CrudController
                 $this->productEquipaments->feedbackProductEquipamentsIsGrup()
             );
 
-            $createProductEquipamentsIsGrup = $validatedDataIsGrup;
-
             $listProducts = $validatedDataIsGrup['list_products'] ?? []; // Garante que seja um array vazio se não existir
 
             if ($request->is_grup == 0) {
@@ -826,9 +824,10 @@ class ProductEquipamentController extends CrudController
 
                 // Relacionar os produtos ao grupo
                 if ($request->is_grup == 1 && !empty($listProducts)) {
+                    // Agora trata $createProductEquipamentsIsGrup como um objeto
                     foreach ($listProducts as $componentId) {
                         DB::table('product_groups')->insert([
-                            'group_product_id' => $createProductEquipamentsIsGrup->id,
+                            'group_product_id' => $createProductEquipamentsIsGrup->id, // Acessa o id como objeto
                             'component_product_id' => $componentId,
                         ]);
                     }
