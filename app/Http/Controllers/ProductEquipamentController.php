@@ -821,7 +821,7 @@ class ProductEquipamentController extends CrudController
                     'observation' => $validatedDataIsGrup['observation'],
                     'expiration_date' => 0,
                     'is_group' => $validatedDataIsGrup['is_group'],
-                    'list_products' => $listProducts,
+                    'list_products' => $validatedDataIsGrup['list_products'] ?? [],
                 ]);
 
                 // Verifica se o retorno foi um objeto ou array e acessa o ID corretamente
