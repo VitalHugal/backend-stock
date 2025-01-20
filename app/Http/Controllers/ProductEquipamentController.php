@@ -794,8 +794,8 @@ class ProductEquipamentController extends CrudController
             $createProductEquipaments = $validatedData;
             
             $validatedDataIsGrup = $request->validate(
-                $this->productEquipaments->rulesProductEquipamentosIsGrup(),
-                $this->productEquipaments->feedbackProductEquipamentosIsGrup()
+                $this->productEquipaments->rulesProductEquipamentsIsGrup(),
+                $this->productEquipaments->feedbackProductEquipamentsIsGrup()
             );
             
             $createProductEquipamentsIsGrup = $validatedDataIsGrup;
