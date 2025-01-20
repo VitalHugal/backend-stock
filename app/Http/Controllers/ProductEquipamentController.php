@@ -817,7 +817,7 @@ class ProductEquipamentController extends CrudController
                     'observation' => $request->observation,
                     'expiration_date' => 0,
                     'is_group' => $request->is_group,
-                    'list_products' => $$listProducts,
+                    'list_products' => $listProducts,
                 ]);
 
                 dd($request->is_group == 1 && !empty($listProducts));
