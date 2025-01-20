@@ -29,7 +29,7 @@ class ProductEquipament extends Model
         return $formatedDateWithdrawalDate[2] . '/' . $formatedDateWithdrawalDate[1] . '/' . $formatedDateWithdrawalDate[0] . ' ' . $formatedHoursWithdrawalDate;
     }
 
-    public function rulesProductEquipamentos()
+    public function rulesProductEquipaments()
     {
         return [
             'name' => 'required|max:255|min:2',
