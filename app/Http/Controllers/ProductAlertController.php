@@ -101,6 +101,7 @@ class ProductAlertController extends CrudController
                     ->whereHas('category', function ($query) {
                         $query->whereNull('deleted_at');
                     })
+                    ->where('is_group', 1)
                     ->orderBy('fk_category_id', 'asc')
                     ->paginate(10);
 

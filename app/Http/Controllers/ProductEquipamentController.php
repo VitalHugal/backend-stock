@@ -979,15 +979,14 @@ class ProductEquipamentController extends CrudController
 
             $originalData = $updateProductEquipaments->getOriginal();
 
-            // dd($updateProductEquipaments->is_group == 1);
-            if ($updateProductEquipaments->is_group == 1) {
+            if ($updateProductEquipaments->is_group == '1') {
                 $validatedData = $request->validate(
                     $this->productEquipaments->rulesProductEquipamentsIsGrup(),
                     $this->productEquipaments->feedbackProductEquipamentsIsGrup(),
                 );
             } else {
                 $validatedData = $request->validate(
-                    $this->productEquipaments->rulesProductEquipamentos(),
+                    $this->productEquipaments->rulesProductEquipaments(),
                     $this->productEquipaments->feedbackProductEquipaments(),
                 );
             }
