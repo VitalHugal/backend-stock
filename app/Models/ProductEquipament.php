@@ -38,7 +38,7 @@ class ProductEquipament extends Model
             'observation' => 'max:50000',
             'expiration_date' => 'required|boolean:0,1',
             'is_grup' => 'required|boolean:0,1',
-            'list_products' => 'nullable|array|exists:products_equipaments,id',
+            // 'list_products' => 'nullable|array|exists:products_equipaments,id',
         ];
     }
 
@@ -65,8 +65,8 @@ class ProductEquipament extends Model
             'is_grup.required' => 'O campo "é grupo" é obrigatório.',
             'is_grup.boolean' => 'Válido apenas 0 ou 1 nesse campo.',
 
-            'list_products.array' => 'O campo lista de produtos precisa ser um array ex: [1,2,3]',
-            'list_products.exists' => 'Produto(s) não encontrado(s).',
+            // 'list_products.array' => 'O campo lista de produtos precisa ser um array ex: [1,2,3]',
+            // 'list_products.exists' => 'Produto(s) não encontrado(s).',
 
         ];
     }
@@ -79,6 +79,7 @@ class ProductEquipament extends Model
             'observation' => 'max:50000',
             'expiration_date' => 'required|boolean:0,1',
             'is_grup' => 'required|boolean:0,1',
+            'list_products' => 'nullable|exists:products_equipaments,id',
         ];
     }
 
@@ -104,6 +105,9 @@ class ProductEquipament extends Model
 
             'is_grup.required' => 'O campo "é grupo" é obrigatório.',
             'is_grup.boolean' => 'Válido apenas 0 ou 1 nesse campo.',
+
+            'list_products.array' => 'O campo lista de produtos precisa ser um array ex: [1,2,3]',
+            'list_products.exists' => 'Produto(s) não encontrado(s).',
         ];
     }
 
