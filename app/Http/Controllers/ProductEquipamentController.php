@@ -820,7 +820,6 @@ class ProductEquipamentController extends CrudController
                     'list_products' => $listProducts,
                 ]);
 
-                dd($request->is_group == 1 && !empty($listProducts));
                 // Relaciona os produtos ao grupo, caso seja um produto de grupo
                 if ($request->is_group == 1 && !empty($listProducts)) {
                     foreach ($listProducts as $componentId) {
