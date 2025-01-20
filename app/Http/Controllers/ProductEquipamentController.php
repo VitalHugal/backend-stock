@@ -824,10 +824,8 @@ class ProductEquipamentController extends CrudController
 
                 // dd($createProductEquipamentsIsGrup, $createProductEquipamentsIsGrup->id, $createProductEquipamentsIsGrup['id']);
                 if (is_object($createProductEquipamentsIsGrup)) {
-                    // Se for objeto, acessa com '->'
                     $groupProductId = $createProductEquipamentsIsGrup->id;
                 } else {
-                    // Se for array, acessa com '[ ]'
                     $groupProductId = $createProductEquipamentsIsGrup['id'];
                 }
 
@@ -835,7 +833,7 @@ class ProductEquipamentController extends CrudController
                 if ($request->is_grup == 1 && !empty($listProducts)) {
                     foreach ($listProducts as $componentId) {
                         DB::table('product_groups')->insert([
-                            'group_product_id' => $groupProductId, // Usando a variável correta
+                            'group_product_id' => $groupProductId,
                             'component_product_id' => $componentId,
                         ]);
                     }
