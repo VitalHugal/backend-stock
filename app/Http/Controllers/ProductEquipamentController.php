@@ -822,7 +822,7 @@ class ProductEquipamentController extends CrudController
                     'list_products' => $listProducts,
                 ]);
 
-                if (is_object($createProductEquipamentsIsGrup)) {
+                if ($createProductEquipamentsIsGrup) {
                     // Relacionar os produtos ao grupo
                     if ($request->is_grup == 1 && !empty($listProducts)) {
                         foreach ($listProducts as $componentId) {
