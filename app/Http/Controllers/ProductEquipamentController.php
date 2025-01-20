@@ -776,43 +776,48 @@ class ProductEquipamentController extends CrudController
                 ]);
             }
 
-            // Validação para os dados do produto
             $validatedData = $request->validate(
                 $this->productEquipaments->rulesProductEquipamentos(),
                 $this->productEquipaments->feedbackProductEquipaments()
             );
 
-            // Variável para armazenar os dados a serem criados
-            $createProductEquipamentsData = [
-                'name' => $request->name,
-                'quantity_min' => $request->quantity_min,
-                'fk_category_id' => $request->fk_category_id,
-                'observation' => $request->observation,
-                'expiration_date' => $request->expiration_date,
-                'is_grup' => $request->is_grup,
-            ];
+            $createProductEquipaments = $validatedData;
+            
+            $validatedDataIsGrup = $request->validate(
+                $this->productEquipaments->rulesProductEquipamentsIsGrup(),
+                $this->productEquipaments->feedbackProductEquipamentsIsGrup()
+            );
 
-            // Se for um grupo, valida dados adicionais
-            if ($request->is_grup == 1) {
-                $validatedDataIsGrup = $request->validate(
-                    $this->productEquipaments->rulesProductEquipamentosIsGrup(),
-                    $this->productEquipaments->feedbackProductEquipamentsIsGrup()
-                );
+            $createProductEquipaments = $validatedDataIsGrup;
 
-                $createProductEquipamentsData['list_products'] = $validatedDataIsGrup['list_products'];
-            }
+            if ($request->is_grup == 0) {
+                $createProductEquipaments = $this->productEquipaments->create([
+                    'name' => $request->name,
+                    'quantity_min' => $request->quantity_min,
+                    'fk_category_id' => $request->fk_category_id,
+                    'observation' => $request->observation,
+                    'expiration_date' => $request->expiration_date,
+                    'is_grup' => $request->is_grup,
+                ]);
+            } else {
+                $createProductEquipaments = $this->productEquipaments->create([
+                    'name' => $request->name,
+                    'quantity_min' => null,
+                    'fk_category_id' => $request->fk_category_id,
+                    'observation' => $request->observation,
+                    'expiration_date' => $request->expiration_date,
+                    'is_grup' => $request->is_grup,
+                    'list_products' => $validatedDataIsGrup['list_products'],
+                ]);
 
-            $createProductEquipaments = $this->productEquipaments->create([
-                $createProductEquipamentsData
-            ]);
-
-            // Se for um grupo, insere a relação com os componentes
-            if ($request->is_grup == 1 && !empty($validatedDataIsGrup['list_products'])) {
-                foreach ($validatedDataIsGrup['list_products'] as $componentId) {
-                    DB::table('product_groups')->insert([
-                        'group_product_id' => $createProductEquipaments->id,
-                        'component_product_id' => $componentId,
-                    ]);
+                // Relacionar os produtos ao grupo
+                if (!empty($validatedDataIsGrup['list_products'])) {
+                    foreach ($validatedDataIsGrup['list_products'] as $componentId) {
+                        DB::table('product_groups')->insert([
+                            'group_product_id' => $createProductEquipaments->id,
+                            'component_product_id' => $componentId,
+                        ]);
+                    }
                 }
             }
 
