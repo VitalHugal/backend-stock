@@ -326,6 +326,7 @@ class ProductEquipamentController extends CrudController
                     ->when($request->has('category'), function ($query) use ($request) {
                         $query->where('fk_category_id', $request->input('category'));
                     })
+                    ->where('expiration_date', 0)
                     ->orderBy('fk_category_id', 'asc')
                     ->paginate(10)
                     ->appends(['category' => $request->input('category'), 'active' => $request->input('active')]);
@@ -375,7 +376,7 @@ class ProductEquipamentController extends CrudController
 
                 return response()->json([
                     'success' => true,
-                    'message' => 'aqui',
+                    'message' => 'Produto(s)/Equipamento(s) em pesquisa por ativos e setor recuprados com sucesso.',
                     'data' => $productEquipamentAdminSearch,
                 ]);
             }
