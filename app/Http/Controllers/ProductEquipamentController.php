@@ -575,6 +575,14 @@ class ProductEquipamentController extends CrudController
                     ->whereNull('fk_user_id_finished')
                     ->sum('quantity');
 
+                $componentsGroup = $product->is_group == 1
+                    ? DB::table('product_groups')
+                    ->where('group_product_id', $product->id)
+                    ->join('product_equipaments', 'product_groups.component_product_id', '=', 'product_equipaments.id')
+                    ->select('product_equipaments.id', 'product_equipaments.name')
+                    ->get()
+                    : [];
+
                 return [
                     'id' => $product->id,
                     'name-category' => $product->category && $product->category->trashed()
@@ -586,6 +594,7 @@ class ProductEquipamentController extends CrudController
                     'quantity_stock' => $quantityTotalProduct,
                     'quantity_min' => $product->quantity_min,
                     'is_group' => $product->is_group,
+                    'components_group' => $componentsGroup,
                     'expiration_date' => $product->expiration_date,
                     'observation' => $product->observation,
                     'fk_category_id' => $product->fk_category_id,
@@ -797,8 +806,8 @@ class ProductEquipamentController extends CrudController
                 $this->productEquipaments->feedbackProductEquipamentsIsGrup()
             );
 
-            $listProducts = $validatedDataIsGrup['list_products'] ?? []; 
-            $createdProduct = null; 
+            $listProducts = $validatedDataIsGrup['list_products'] ?? [];
+            $createdProduct = null;
 
             if ($request->is_group == 0) {
                 $createdProduct = $this->productEquipaments->create([

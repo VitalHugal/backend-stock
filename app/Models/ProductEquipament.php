@@ -126,27 +126,8 @@ class ProductEquipament extends Model
         return $this->belongsTo(Inputs::class, 'fk_product_equipament_id');
     }
 
-    // Produtos que este grupo engloba
-    public function components()
+    public function product_groups()
     {
-        return $this->hasManyThrough(
-            ProductEquipament::class,
-            'product_groups',
-            'group_product_id', // Chave estrangeira para o grupo
-            'id', // Chave primária na tabela `products`
-            'id', // Chave primária no modelo atual
-            'component_product_id' // Chave estrangeira para os componentes
-        );
-    }
-
-    // O grupo ao qual este produto pertence
-    public function group()
-    {
-        return $this->belongsToMany(
-            ProductEquipament::class,
-            'product_groups',
-            'component_product_id', // Chave estrangeira para o componente
-            'group_product_id' // Chave estrangeira para o grupo
-        );
+        return $this->belongsToMany(ProductEquipament::class, 'product_groups', 'group_product_id', 'component_product_id');
     }
 }
