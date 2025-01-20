@@ -787,7 +787,7 @@ class ProductEquipamentController extends CrudController
             }
 
             $validatedData = $request->validate(
-                $this->productEquipaments->rulesProductEquipamentos(),
+                $this->productEquipaments->rulesProductEquipaments(),
                 $this->productEquipaments->feedbackProductEquipaments()
             );
             
