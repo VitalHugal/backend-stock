@@ -578,8 +578,8 @@ class ProductEquipamentController extends CrudController
                 $componentsGroup = $product->is_group == 1
                     ? DB::table('product_groups')
                     ->where('group_product_id', $product->id)
-                    ->join('product_equipaments', 'product_groups.component_product_id', '=', 'product_equipaments.id')
-                    ->select('product_equipaments.id', 'product_equipaments.name')
+                    ->join('products_equipaments', 'product_groups.component_product_id', '=', 'products_equipaments.id')
+                    ->select('products_equipaments.id', 'products_equipaments.name')
                     ->get()
                     : [];
 
