@@ -884,7 +884,7 @@ class ProductEquipamentController extends CrudController
             } else {
                 $createdProduct = $this->productEquipaments->create([
                     'name' => $validatedData['name'],
-                    'quantity_min' => null,
+                    'quantity_min' => $validatedDataIsGrup['quantity_min'],
                     'fk_category_id' => $validatedData['fk_category_id'],
                     'observation' => $request->observation,
                     'expiration_date' => 0,
@@ -961,10 +961,18 @@ class ProductEquipamentController extends CrudController
 
             $originalData = $updateProductEquipaments->getOriginal();
 
-            $validatedData = $request->validate(
-                $this->productEquipaments->rulesProductEquipamentos(),
-                $this->productEquipaments->feedbackProductEquipaments(),
-            );
+            // dd($updateProductEquipaments->is_group == 1);
+            if ($updateProductEquipaments->is_group == 1) {
+                $validatedData = $request->validate(
+                    $this->productEquipaments->rulesProductEquipamentsIsGrup(),
+                    $this->productEquipaments->feedbackProductEquipamentsIsGrup(),
+                );
+            } else {
+                $validatedData = $request->validate(
+                    $this->productEquipaments->rulesProductEquipamentos(),
+                    $this->productEquipaments->feedbackProductEquipaments(),
+                );
+            }
 
             $updateProductEquipaments->fill($validatedData);
             $updateProductEquipaments->save();

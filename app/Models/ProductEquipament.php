@@ -77,7 +77,7 @@ class ProductEquipament extends Model
             'quantity_min' => 'nullable|integer|max:10000|',
             'fk_category_id' => 'required|exists:category,id',
             'observation' => 'max:50000',
-            'expiration_date' => 'required|boolean:0,1',
+            'expiration_date' => '|boolean:0,1',
             'is_group' => 'required|boolean:0,1',
             'list_products' => 'nullable|exists:products_equipaments,id',
         ];
