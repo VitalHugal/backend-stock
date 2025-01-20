@@ -981,19 +981,19 @@ class ProductEquipamentController extends CrudController
 
             $originalData = $updateProductEquipaments->getOriginal();
 
-            if ($updateProductEquipaments->is_group == '1') {
-                $validatedData = $request->validate(
-                    $this->productEquipaments->rulesProductEquipamentsIsGrup(),
-                    $this->productEquipaments->feedbackProductEquipamentsIsGrup(),
-                );
-            } else {
-                $validatedData = $request->validate(
-                    $this->productEquipaments->rulesProductEquipaments(),
-                    $this->productEquipaments->feedbackProductEquipaments(),
-                );
-            }
+            // if ($updateProductEquipaments->is_group == '1') {
+            //     $validatedData = $request->validate(
+            //         $this->productEquipaments->rulesProductEquipamentsIsGrup(),
+            //         $this->productEquipaments->feedbackProductEquipamentsIsGrup(),
+            //     );
+            // } else {
+            //     $validatedData = $request->validate(
+            //         $this->productEquipaments->rulesProductEquipaments(),
+            //         $this->productEquipaments->feedbackProductEquipaments(),
+            //     );
+            // }
 
-            $currentProducts = $updateProductEquipaments->list_products;
+            $currentProducts = DB::table('product_groups')->where('group_product_id', $id)->get('component_product_id');
 
             $newProductIds = $request->input('list_products', []);
 
