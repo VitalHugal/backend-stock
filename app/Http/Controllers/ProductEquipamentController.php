@@ -830,7 +830,7 @@ class ProductEquipamentController extends CrudController
                 }
 
                 // Relacionar os produtos ao grupo
-                if ($request->is_grup == 1 && !empty($listProducts)) {
+                if ($request->is_grup == 1) {
                     foreach ($listProducts as $componentId) {
                         DB::table('product_groups')->insert([
                             'group_product_id' => $groupProductId,
