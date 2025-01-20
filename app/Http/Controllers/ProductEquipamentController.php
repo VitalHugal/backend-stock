@@ -119,7 +119,7 @@ class ProductEquipamentController extends CrudController
                         })
 
                         ->whereIn('fk_category_id', $categoryUser)
-                        ->where('fk_category_id', 'like', '%' . $request->input('category') . '%')
+                        ->whereIn('fk_category_id', 'like', '%' . $request->input('category') . '%')
                         ->orderBy('fk_category_id', 'asc')
                         ->paginate(10)
                         ->appends(['category' => $request->input('category'), 'active' => $request->input('active')]);
