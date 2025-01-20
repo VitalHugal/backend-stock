@@ -814,7 +814,7 @@ class ProductEquipamentController extends CrudController
                     'name' => $validatedData['name'],
                     'quantity_min' => null,
                     'fk_category_id' => $validatedData['fk_category_id'],
-                    'observation' => $validatedData['observation'],
+                    'observation' => $request->observation,
                     'expiration_date' => 0,
                     'is_group' => $validatedData['is_group'],
                     'list_products' => $listProducts,
