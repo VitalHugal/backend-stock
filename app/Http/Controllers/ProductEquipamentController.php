@@ -790,7 +790,7 @@ class ProductEquipamentController extends CrudController
                 $this->productEquipaments->rulesProductEquipaments(),
                 $this->productEquipaments->feedbackProductEquipaments()
             );
-            
+
             $validatedDataIsGrup = $request->validate(
                 $this->productEquipaments->rulesProductEquipamentsIsGrup(),
                 $this->productEquipaments->feedbackProductEquipamentsIsGrup()
@@ -799,9 +799,9 @@ class ProductEquipamentController extends CrudController
             $listProducts = $validatedDataIsGrup['list_products'] ?? []; // Garante que seja um array vazio se não existir
 
             if ($request->is_group == 0) {
-                
+
                 $createProductEquipaments = $validatedData;
-                
+
                 $createProductEquipaments = $this->productEquipaments->create([
                     'name' => $request->name,
                     'quantity_min' => $request->quantity_min,
@@ -811,16 +811,16 @@ class ProductEquipamentController extends CrudController
                     'is_group' => $request->is_group,
                 ]);
             } else {
-                
+
                 $createProductEquipamentsIsGrup = $validatedDataIsGrup;
 
                 $createProductEquipamentsIsGrup = $this->productEquipaments->create([
-                    'name' => $request->name,
+                    'name' => $validatedDataIsGrup['name'],
                     'quantity_min' => null,
-                    'fk_category_id' => $request->fk_category_id,
-                    'observation' => $request->observation,
-                    'expiration_date' => $request->expiration_date,
-                    'is_group' => $request->is_group,
+                    'fk_category_id' => $validatedDataIsGrup['fk_category_id'],
+                    'observation' => $validatedDataIsGrup['observation'],
+                    'expiration_date' => 0,
+                    'is_group' => $validatedDataIsGrup['is_group'],
                     'list_products' => $listProducts,
                 ]);
 
