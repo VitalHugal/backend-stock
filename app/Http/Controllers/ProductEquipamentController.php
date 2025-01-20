@@ -737,6 +737,14 @@ class ProductEquipamentController extends CrudController
 
                         $quantityTotalProduct = $quantityTotalInputs - ($quantityTotalExits + $quantityReserveNotFinished);
 
+                        $componentsGroup = $product->is_group == 1
+                            ? DB::table('product_groups')
+                            ->where('group_product_id', $product->id)
+                            ->join('products_equipaments', 'product_groups.component_product_id', '=', 'products_equipaments.id')
+                            ->select('products_equipaments.id', 'products_equipaments.name')
+                            ->get()
+                            : [];
+
                         return [
                             'id' => $product->id,
                             'name-category' => $product->category && $product->category->trashed()
@@ -749,6 +757,7 @@ class ProductEquipamentController extends CrudController
                             'quantity_stock' => $quantityTotalProduct,
                             'quantity_min' => $product->quantity_min,
                             'is_group' => $product->is_group,
+                            'components_group' => $componentsGroup,
                             'expiration_date' => $product->expiration_date,
                             'observation' => $product->observation,
                             'fk_category_id' => $product->fk_category_id,
@@ -792,6 +801,14 @@ class ProductEquipamentController extends CrudController
 
                     $quantityTotalProduct = $quantityTotalInputs - ($quantityTotalExits + $quantityReserveNotFinished);
 
+                    $componentsGroup = $product->is_group == 1
+                        ? DB::table('product_groups')
+                        ->where('group_product_id', $product->id)
+                        ->join('products_equipaments', 'product_groups.component_product_id', '=', 'products_equipaments.id')
+                        ->select('products_equipaments.id', 'products_equipaments.name')
+                        ->get()
+                        : [];
+
                     return [
                         'id' => $product->id,
                         'name-category' => $product->category && $product->category->trashed()
@@ -804,6 +821,7 @@ class ProductEquipamentController extends CrudController
                         'quantity_stock' => $quantityTotalProduct,
                         'quantity_min' => $product->quantity_min,
                         'is_group' => $product->is_group,
+                        'components_group' => $componentsGroup,
                         'expiration_date' => $product->expiration_date,
                         'observation' => $product->observation,
                         'fk_category_id' => $product->fk_category_id,
