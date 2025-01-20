@@ -786,6 +786,7 @@ class ProductEquipamentController extends CrudController
                 ]);
             }
 
+            // Validações
             $validatedData = $request->validate(
                 $this->productEquipaments->rulesProductEquipaments(),
                 $this->productEquipaments->feedbackProductEquipaments()
@@ -796,62 +797,54 @@ class ProductEquipamentController extends CrudController
                 $this->productEquipaments->feedbackProductEquipamentsIsGrup()
             );
 
-            $listProducts = $validatedDataIsGrup['list_products'] ?? []; // Garante que seja um array vazio se não existir
+            $listProducts = $validatedDataIsGrup['list_products'] ?? []; 
+            $createdProduct = null; 
 
             if ($request->is_group == 0) {
-
-                $createProductEquipaments = $this->productEquipaments->create([
-                    'name' => $request->name,
-                    'quantity_min' => $request->quantity_min,
-                    'fk_category_id' => $request->fk_category_id,
-                    'observation' => $request->observation,
-                    'expiration_date' => $request->expiration_date,
-                    'is_group' => $request->is_group,
+                $createdProduct = $this->productEquipaments->create([
+                    'name' => $validatedData['name'],
+                    'quantity_min' => $validatedData['quantity_min'],
+                    'fk_category_id' => $validatedData['fk_category_id'],
+                    'observation' => $validatedData['observation'],
+                    'expiration_date' => $validatedData['expiration_date'],
+                    'is_group' => $validatedData['is_group'],
                 ]);
             } else {
-
-                $createProductEquipamentsIsGrup = $this->productEquipaments->create([
-                    'name' => $request->name,
+                $createdProduct = $this->productEquipaments->create([
+                    'name' => $validatedData['name'],
                     'quantity_min' => null,
-                    'fk_category_id' => $request->fk_category_id,
-                    'observation' => $request->observation,
+                    'fk_category_id' => $validatedData['fk_category_id'],
+                    'observation' => $validatedData['observation'],
                     'expiration_date' => 0,
-                    'is_group' => $request->is_group,
+                    'is_group' => $validatedData['is_group'],
                     'list_products' => $listProducts,
                 ]);
 
-                // Relaciona os produtos ao grupo, caso seja um produto de grupo
-                if ($request->is_group == 1 && !empty($listProducts)) {
-                    foreach ($listProducts as $componentId) {
-                        DB::table('product_groups')->insert([
-                            'group_product_id' => $createProductEquipamentsIsGrup->id,
-                            'component_product_id' => $componentId,
-                        ]);
-                    }
+                foreach ($listProducts as $componentId) {
+                    DB::table('product_groups')->insert([
+                        'group_product_id' => $createdProduct->id,
+                        'component_product_id' => $componentId,
+                    ]);
                 }
             }
 
+            SystemLog::create([
+                'fk_user_id' => $idUser,
+                'action' => 'Adicionou',
+                'table_name' => 'products_equipaments',
+                'record_id' => $createdProduct->id,
+                'description' => 'Adicionou um produto.',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
 
-            if ($createProductEquipaments || $createProductEquipamentsIsGrup) {
+            DB::commit();
 
-                SystemLog::create([
-                    'fk_user_id' => $idUser,
-                    'action' => 'Adicionou',
-                    'table_name' => 'products_equipaments',
-                    'record_id' => $createProductEquipaments->id,
-                    'description' => 'Adicionou um produto.',
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]);
-
-                DB::commit();
-
-                return response()->json([
-                    'success' => true,
-                    'message' => "Produto cadastrado com sucesso.",
-                    'data' => $createProductEquipaments,
-                ]);
-            }
+            return response()->json([
+                'success' => true,
+                'message' => "Produto cadastrado com sucesso.",
+                'data' => $createdProduct,
+            ]);
         } catch (QueryException $qe) {
             DB::rollBack();
             return response()->json([
