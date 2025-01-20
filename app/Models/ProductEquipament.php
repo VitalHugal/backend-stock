@@ -90,7 +90,7 @@ class ProductEquipament extends Model
             'name.max' => 'O campo nome deve ter no máximo 255 caracteres.',
             'name.min' => 'O campo nome deve ter no mínimo 2 caracteres.',
 
-            'quantity_min.required' => 'Campo qtd. mínima é obrigatório.',
+            // 'quantity_min.required' => 'Campo qtd. mínima é obrigatório.',
             'quantity_min.integer' => 'Válido apenas números inteiros.',
             'quantity_min.max' => 'O campo qtd. mínima deve ter no máximo 10.000.',
             'quantity_min.min' => 'O campo qtd. mínima deve ter no mínimo 1.',

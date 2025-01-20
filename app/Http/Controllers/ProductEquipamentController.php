@@ -790,8 +790,7 @@ class ProductEquipamentController extends CrudController
                 $this->productEquipaments->rulesProductEquipaments(),
                 $this->productEquipaments->feedbackProductEquipaments()
             );
-
-            // Validação para produtos de grupo
+            
             $validatedDataIsGrup = $request->validate(
                 $this->productEquipaments->rulesProductEquipamentsIsGrup(),
                 $this->productEquipaments->feedbackProductEquipamentsIsGrup()
@@ -800,7 +799,9 @@ class ProductEquipamentController extends CrudController
             $listProducts = $validatedDataIsGrup['list_products'] ?? []; // Garante que seja um array vazio se não existir
 
             if ($request->is_group == 0) {
-                // Para produtos sem grupo, cria normalmente
+                
+                $createProductEquipaments = $validatedData;
+                
                 $createProductEquipaments = $this->productEquipaments->create([
                     'name' => $request->name,
                     'quantity_min' => $request->quantity_min,
@@ -810,7 +811,9 @@ class ProductEquipamentController extends CrudController
                     'is_group' => $request->is_group,
                 ]);
             } else {
-                // Cria o produto de grupo
+                
+                $createProductEquipamentsIsGrup = $validatedDataIsGrup;
+
                 $createProductEquipamentsIsGrup = $this->productEquipaments->create([
                     'name' => $request->name,
                     'quantity_min' => null,
