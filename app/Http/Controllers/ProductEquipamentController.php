@@ -315,7 +315,7 @@ class ProductEquipamentController extends CrudController
 
             //ADMIN OR MANAGER
 
-            if ($request->has('expiration_date') && $request->input('expiration_date') && $request->has('category') && $request->input('category') != '' && $request->has('active') && $request->input('active') == 'true') {
+            if ($request->has('expiration_date') && $request->input('expiration_date') == '1' || $request->input('expiration_date') == '0' && $request->has('category') && $request->input('category') != '' && $request->has('active') && $request->input('active') == 'true') {
 
                 dd($request->input('expiration_date'));
 
