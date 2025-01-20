@@ -800,8 +800,6 @@ class ProductEquipamentController extends CrudController
 
             if ($request->is_group == 0) {
 
-                $createProductEquipaments = $validatedData;
-
                 $createProductEquipaments = $this->productEquipaments->create([
                     'name' => $request->name,
                     'quantity_min' => $request->quantity_min,
@@ -811,8 +809,6 @@ class ProductEquipamentController extends CrudController
                     'is_group' => $request->is_group,
                 ]);
             } else {
-
-                $createProductEquipamentsIsGrup = $validatedDataIsGrup;
 
                 $createProductEquipamentsIsGrup = $this->productEquipaments->create([
                     'name' => $request->name,
