@@ -317,18 +317,6 @@ class ProductEquipamentController extends CrudController
 
             if ($request->has('expiration_date') && $request->input('expiration_date') && $request->has('category') && $request->input('category') != '' && $request->has('active') && $request->input('active') == 'true') {
 
-                $result = '';
-
-                if ($request->input('expiration_date') != '') {
-                    // Pega o valor de expiration_date da requisição
-                    $expirationDate = $request->input('expiration_date');
-                
-                    // Verifica o valor e atribui ao resultado
-                    if ($expirationDate == '0' || $expirationDate == '1') {
-                        $result = $expirationDate;
-                    }
-                }
-
                 $productEquipamentAdminSearch = ProductEquipament::with(['category' => function ($query) {
                     $query->whereNull('deleted_at');
                 }])
@@ -338,7 +326,7 @@ class ProductEquipamentController extends CrudController
                     ->when($request->has('category'), function ($query) use ($request) {
                         $query->where('fk_category_id', $request->input('category'));
                     })
-                    ->where('expiration_date', $result)
+                    ->where('expiration_date', $request->input('expiration_date'))
                     ->orderBy('fk_category_id', 'asc')
                     ->paginate(10)
                     ->appends(['category' => $request->input('category'), 'active' => $request->input('active')]);
