@@ -14,7 +14,6 @@ return new class extends Migration
     {
         Schema::table('products_equipaments', function (Blueprint $table) {
             $table->boolean('is_grup')->default(0);
-            $table->text('list_products_id')->nullable();
         });
 
         DB::statement("ALTER TABLE products_equipaments CHANGE COLUMN quantity_min quantity_min INT NULL");
@@ -28,7 +27,6 @@ return new class extends Migration
         Schema::table('products_equipaments', function (Blueprint $table) {
             $table->dropColumn([
                 'is_grup',
-                'list_products_id'
             ]);
         });
 

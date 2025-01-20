@@ -640,42 +640,43 @@ class ProductEquipamentController extends CrudController
                 ]);
             }
 
-            $createProductEquipaments = $request->validate(
+            $validatedData = $request->validate(
                 $this->productEquipaments->rulesProductEquipamentos(),
                 $this->productEquipaments->feedbackProductEquipaments()
             );
 
-            $name = $request->name;
-            $quantity_min = $request->quantity_min;
-            $fk_category_id = $request->fk_category_id;
-            $observation = $request->observation;
-            $expiration_date = $request->expiration_date;
-            $is_grup = $request->is_grup;
-            $list_products_id = $request->list_products_id;
-
-            if ($is_grup == 0) {
-
+            // Verificar se o produto é um grupo
+            if ($validatedData['is_grup'] == 0) {
+                // Criar um produto individual
                 $createProductEquipaments = $this->productEquipaments->create([
-                    'name' => $name,
-                    'quantity_min' => $quantity_min,
-                    'fk_category_id' => $fk_category_id,
-                    'observation' => $observation,
-                    'expiration_date' => $expiration_date,
-                    'is_grup' => $is_grup,
-                    'list_products_id' => $list_products_id,
+                    'name' => $request->name,
+                    'quantity_min' => $request->quantity_min,
+                    'fk_category_id' => $request->fk_category_id,
+                    'observation' => $request->observation,
+                    'expiration_date' => $request->expiration_date,
+                    'is_grup' => $request->is_grup,
                 ]);
+            } else {
+                // Criar um produto do tipo grupo
+                $createProductEquipaments = $this->productEquipaments->create([
+                    'name' => $validatedData['name'],
+                    'quantity_min' => null, // Grupos não têm quantidade mínima
+                    'fk_category_id' => $validatedData['fk_category_id'],
+                    'observation' => $validatedData['observation'],
+                    'expiration_date' => $validatedData['expiration_date'],
+                    'is_grup' => $validatedData['is_grup'],
+                ]);
+
+                // Relacionar os produtos ao grupo
+                if (!empty($validatedData['list_products'])) {
+                    foreach ($validatedData['list_products'] as $componentId) {
+                        DB::table('product_groups')->insert([
+                            'group_product_id' => $createProductEquipaments->id,
+                            'component_product_id' => $componentId,
+                        ]);
+                    }
+                }
             }
-
-            $createProductEquipaments = $this->productEquipaments->create([
-                'name' => $name,
-                'quantity_min' => null,
-                'fk_category_id' => $fk_category_id,
-                'observation' => $observation,
-                'expiration_date' => $expiration_date,
-                'is_grup' => $is_grup,
-                'list_products_id' => $list_products_id,
-            ]);
-
 
             if ($createProductEquipaments) {
 

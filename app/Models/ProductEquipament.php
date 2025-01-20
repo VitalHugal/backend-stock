@@ -17,7 +17,6 @@ class ProductEquipament extends Model
         'observation',
         'expiration_date',
         'is_grup',
-        'list_products_id',
     ];
     protected $table = 'products_equipaments';
     protected $dates = ['deleted_at'];
@@ -39,7 +38,7 @@ class ProductEquipament extends Model
             'observation' => 'max:50000',
             'expiration_date' => 'required|boolean:0,1',
             'is_grup' => 'required|boolean:0,1',
-            'list_products_id' => 'exists:products_equipaments,id|nullable'
+            'list_products' => 'nullable|array|exists:products_equipaments,id',
         ];
     }
 
@@ -66,7 +65,9 @@ class ProductEquipament extends Model
             'is_grup.required' => 'O campo "é grupo" é obrigatório.',
             'is_grup.boolean' => 'Válido apenas 0 ou 1 nesse campo.',
 
-            'list_products_id.exists' => "Produto(s) não encontrado(s)."
+            'list_products.array' => 'O campo lista de produtos precisa ser um array ex: [1,2,3]',
+            'list_products.exists' => 'Produto(s) não encontrado(s).',
+
         ];
     }
     public function rulesProductEquipamentsIsGrup()
@@ -78,7 +79,6 @@ class ProductEquipament extends Model
             'observation' => 'max:50000',
             'expiration_date' => 'required|boolean:0,1',
             'is_grup' => 'required|boolean:0,1',
-            'list_products_id' => 'exists:products_equipaments,id|nullable'
         ];
     }
 
@@ -104,8 +104,6 @@ class ProductEquipament extends Model
 
             'is_grup.required' => 'O campo "é grupo" é obrigatório.',
             'is_grup.boolean' => 'Válido apenas 0 ou 1 nesse campo.',
-
-            'list_products_id.exists' => "Produto(s) não encontrado(s)."
         ];
     }
 
@@ -122,5 +120,29 @@ class ProductEquipament extends Model
     public function inputs()
     {
         return $this->belongsTo(Inputs::class, 'fk_product_equipament_id');
+    }
+
+    // Produtos que este grupo engloba
+    public function components()
+    {
+        return $this->hasManyThrough(
+            ProductEquipament::class,
+            'product_groups',
+            'group_product_id', // Chave estrangeira para o grupo
+            'id', // Chave primária na tabela `products`
+            'id', // Chave primária no modelo atual
+            'component_product_id' // Chave estrangeira para os componentes
+        );
+    }
+
+    // O grupo ao qual este produto pertence
+    public function group()
+    {
+        return $this->belongsToMany(
+            ProductEquipament::class,
+            'product_groups',
+            'component_product_id', // Chave estrangeira para o componente
+            'group_product_id' // Chave estrangeira para o grupo
+        );
     }
 }
