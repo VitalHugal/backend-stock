@@ -825,13 +825,13 @@ class ProductEquipamentController extends CrudController
                 ]);
 
                 // Verifica se o retorno foi um objeto ou array e acessa o ID corretamente
-                $groupProductId = is_object($createProductEquipamentsIsGrup) ? $createProductEquipamentsIsGrup->id : $createProductEquipamentsIsGrup['id'];
+                // $groupProductId = is_object($createProductEquipamentsIsGrup) ? $createProductEquipamentsIsGrup->id : $createProductEquipamentsIsGrup['id'];
 
                 // Relaciona os produtos ao grupo, caso seja um produto de grupo
                 if ($request->is_group == 1 && !empty($listProducts)) {
                     foreach ($listProducts as $componentId) {
                         DB::table('product_groups')->insert([
-                            'group_product_id' => $groupProductId,
+                            'group_product_id' => $createProductEquipamentsIsGrup->id,
                             'component_product_id' => $componentId,
                         ]);
                     }
