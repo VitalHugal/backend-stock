@@ -822,13 +822,13 @@ class ProductEquipamentController extends CrudController
                     'list_products' => $listProducts,
                 ]);
 
-                dd($createProductEquipamentsIsGrup, $$createProductEquipamentsIsGrup->id);
+                // dd($createProductEquipamentsIsGrup, $$createProductEquipamentsIsGrup->id);
                 if ($createProductEquipamentsIsGrup) {
                     // Relacionar os produtos ao grupo
                     if ($request->is_grup == 1 && !empty($listProducts)) {
                         foreach ($listProducts as $componentId) {
                             DB::table('product_groups')->insert([
-                                'group_product_id' => $createProductEquipamentsIsGrup->id, // Acessa o id como objeto
+                                'group_product_id' => $createProductEquipamentsIsGrup['id'], // Acessa o id como objeto
                                 'component_product_id' => $componentId,
                             ]);
                         }
