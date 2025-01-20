@@ -791,8 +791,7 @@ class ProductEquipamentController extends CrudController
                 $this->productEquipaments->feedbackProductEquipaments()
             );
 
-            $createProductEquipaments = $validatedData;
-
+            // Validação para produtos de grupo
             $validatedDataIsGrup = $request->validate(
                 $this->productEquipaments->rulesProductEquipamentsIsGrup(),
                 $this->productEquipaments->feedbackProductEquipamentsIsGrup()
@@ -822,15 +821,11 @@ class ProductEquipamentController extends CrudController
                     'list_products' => $listProducts,
                 ]);
 
-                // dd($createProductEquipamentsIsGrup, $createProductEquipamentsIsGrup->id, $createProductEquipamentsIsGrup['id']);
-                if (is_object($createProductEquipamentsIsGrup)) {
-                    $groupProductId = $createProductEquipamentsIsGrup->id;
-                } else {
-                    $groupProductId = $createProductEquipamentsIsGrup['id'];
-                }
+                // Verifica se o retorno foi um objeto ou array e acessa o ID corretamente
+                $groupProductId = is_object($createProductEquipamentsIsGrup) ? $createProductEquipamentsIsGrup->id : $createProductEquipamentsIsGrup['id'];
 
-                // Relacionar os produtos ao grupo
-                if ($request->is_grup == 1) {
+                // Relaciona os produtos ao grupo, caso seja um produto de grupo
+                if ($request->is_grup == 1 && !empty($listProducts)) {
                     foreach ($listProducts as $componentId) {
                         DB::table('product_groups')->insert([
                             'group_product_id' => $groupProductId,
@@ -839,6 +834,7 @@ class ProductEquipamentController extends CrudController
                     }
                 }
             }
+
 
             if ($createProductEquipaments || $createProductEquipamentsIsGrup) {
 
