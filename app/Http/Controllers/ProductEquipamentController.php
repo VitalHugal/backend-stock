@@ -817,12 +817,10 @@ class ProductEquipamentController extends CrudController
                     'observation' => $request->observation,
                     'expiration_date' => 0,
                     'is_group' => $request->is_group,
-                    'list_products' => $validatedDataIsGrup['list_products'] ?? [],
+                    'list_products' => $$listProducts,
                 ]);
 
-                // Verifica se o retorno foi um objeto ou array e acessa o ID corretamente
-                // $groupProductId = is_object($createProductEquipamentsIsGrup) ? $createProductEquipamentsIsGrup->id : $createProductEquipamentsIsGrup['id'];
-
+                dd($request->is_group == 1 && !empty($listProducts));
                 // Relaciona os produtos ao grupo, caso seja um produto de grupo
                 if ($request->is_group == 1 && !empty($listProducts)) {
                     foreach ($listProducts as $componentId) {
@@ -835,7 +833,7 @@ class ProductEquipamentController extends CrudController
             }
 
 
-            if ($createProductEquipamentsIsGrup) {
+            if ($createProductEquipaments || $createProductEquipamentsIsGrup) {
 
                 SystemLog::create([
                     'fk_user_id' => $idUser,
