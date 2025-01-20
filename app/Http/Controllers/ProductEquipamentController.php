@@ -790,18 +790,20 @@ class ProductEquipamentController extends CrudController
                 $this->productEquipaments->rulesProductEquipaments(),
                 $this->productEquipaments->feedbackProductEquipaments()
             );
-            
+
             $createProductEquipaments = $validatedData;
-            
+
             $validatedDataIsGrup = $request->validate(
                 $this->productEquipaments->rulesProductEquipamentsIsGrup(),
                 $this->productEquipaments->feedbackProductEquipamentsIsGrup()
             );
-            
+
             $createProductEquipamentsIsGrup = $validatedDataIsGrup;
-            
+
+            $listProducts = $validatedDataIsGrup['list_products'] ?? []; // Garante que seja um array vazio se não existir
+
             if ($request->is_grup == 0) {
-                // Para produtos sem grupo, crie normalmente
+                // Para produtos sem grupo, cria normalmente
                 $createProductEquipaments = $this->productEquipaments->create([
                     'name' => $request->name,
                     'quantity_min' => $request->quantity_min,
@@ -811,7 +813,6 @@ class ProductEquipamentController extends CrudController
                     'is_grup' => $request->is_grup,
                 ]);
             } else {
-            
                 // Cria o produto de grupo
                 $createProductEquipamentsIsGrup = $this->productEquipaments->create([
                     'name' => $request->name,
@@ -820,12 +821,12 @@ class ProductEquipamentController extends CrudController
                     'observation' => $request->observation,
                     'expiration_date' => $request->expiration_date,
                     'is_grup' => $request->is_grup,
-                    'list_products' => $validatedDataIsGrup['list_products'],
+                    'list_products' => $listProducts,
                 ]);
-            
+
                 // Relacionar os produtos ao grupo
-                if ($request->is_grup == 1 && !empty($validatedDataIsGrup['list_products'])) {
-                    foreach ($validatedDataIsGrup['list_products'] as $componentId) {
+                if ($request->is_grup == 1 && !empty($listProducts)) {
+                    foreach ($listProducts as $componentId) {
                         DB::table('product_groups')->insert([
                             'group_product_id' => $createProductEquipamentsIsGrup->id,
                             'component_product_id' => $componentId,
