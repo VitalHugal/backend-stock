@@ -782,8 +782,6 @@ class ProductEquipamentController extends CrudController
                 $this->productEquipaments->feedbackProductEquipaments()
             );
 
-            $$createProductEquipamentsData = '';
-
             // Variável para armazenar os dados a serem criados
             $createProductEquipamentsData = [
                 'name' => $request->name,
@@ -804,7 +802,9 @@ class ProductEquipamentController extends CrudController
                 $createProductEquipamentsData['list_products'] = $validatedDataIsGrup['list_products'];
             }
 
-            $createProductEquipaments = $this->productEquipaments->create($createProductEquipmentsData);
+            $createProductEquipaments = $this->productEquipaments->create([
+                $createProductEquipamentsData
+            ]);
 
             // Se for um grupo, insere a relação com os componentes
             if ($request->is_grup == 1 && !empty($validatedDataIsGrup['list_products'])) {
