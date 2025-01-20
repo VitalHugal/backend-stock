@@ -109,6 +109,70 @@ class ProductEquipamentController extends CrudController
                     ]);
                 }
 
+                if ($request->has('category') && $request->input('category') != '' && $request->has('active') && $request->input('active') == 'true') {
+
+                    $productEquipamentUserSearch = ProductEquipament::with(['category' => function ($query) {
+                        $query->whereNull('deleted_at');
+                    }])
+                        ->whereHas('category', function ($query) {
+                            $query->whereNull('deleted_at');
+                        })
+
+                        ->whereIn('fk_category_id', $categoryUser)
+                        ->where('id', 'like', '%' . $request->input('category') . '%')
+                        ->orderBy('fk_category_id', 'asc')
+                        ->paginate(10)
+                        ->appends(['category' => $request->input('category'), 'active' => $request->input('active')]);
+
+                    if ($productEquipamentUserSearch->isEmpty()) {
+                        return response()->json([
+                            'success' => false,
+                            'message' => 'Nenhum produto encontrado com o nome informado.',
+                        ]);
+                    }
+
+                    $productEquipamentUserSearch->getCollection()->transform(function ($product) {
+
+                        $quantityTotalInputs = Inputs::where('fk_product_equipament_id', $product->id)->sum('quantity');
+                        $quantityTotalExits = Exits::where('fk_product_equipament_id', $product->id)->sum('quantity');
+
+                        $quantityReserveNotFinished = Reservation::where('fk_product_equipament_id', $product->id)
+                            ->where('reservation_finished', false)
+                            ->whereNull('date_finished')
+                            ->whereNull('fk_user_id_finished')
+                            ->sum('quantity');
+
+                        $quantityTotalProduct = $quantityTotalInputs - ($quantityTotalExits + $quantityReserveNotFinished);
+
+                        return [
+                            'id' => $product->id,
+                            'name-category' => $product->category && $product->category->trashed()
+                                ? $product->category->name . ' (Deletado)'
+                                : $product->category->name ?? null,
+
+                            'name' => $product && $product->trashed()
+                                ? $product->name . ' (Deletado)'
+                                : $product->name ?? null,
+                            'quantity_stock' => $quantityTotalProduct,
+                            'expiration_date' => $product->expiration_date,
+                            'observation' => $product->observation,
+                            'quantity_min' => $product->quantity_min,
+                            'fk_category_id' => $product->fk_category_id,
+                            'created_at' => $this->productEquipaments->getFormattedDate($product, 'created_at'),
+                            'updated_at' => $this->productEquipaments->getFormattedDate($product, 'updated_at'),
+                            'deleted_at' => $product && $product->trashed()
+                                ? $this->productEquipaments->getFormattedDate($product, 'deleted_at')
+                                : $product->deleted_at ?? null,
+                        ];
+                    });
+
+                    return response()->json([
+                        'success' => true,
+                        'message' => 'Produto(s)/Equipamento(s) pesquisado recuperados com sucesso.',
+                        'data' => $productEquipamentUserSearch,
+                    ]);
+                }
+
                 if ($request->has('active') && $request->input('active') == 'true') {
                     $productEquipamentUser = ProductEquipament::with(['category' => function ($query) {
                         $query->whereNull('deleted_at');
