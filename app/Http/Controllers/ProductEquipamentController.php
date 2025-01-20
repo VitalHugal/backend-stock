@@ -372,6 +372,7 @@ class ProductEquipamentController extends CrudController
                     ->when($request->has('expiration_date') && in_array($request->input('expiration_date'), ['0', '1']), function ($query) use ($request) {
                         $query->where('expiration_date', $request->input('expiration_date'));
                     })
+                    ->where('is_group', 0)
                     ->orderBy('fk_category_id', 'asc')
                     ->paginate(10)
                     ->appends(['category' => $request->input('category'), 'active' => $request->input('active')]);
@@ -991,7 +992,14 @@ class ProductEquipamentController extends CrudController
                 );
             }
 
-            $updateProductEquipaments->fill($validatedData);
+            $currentProducts = $updateProductEquipaments->list_products;
+
+            $newProductIds = $request->input('list_products', []);
+
+            // Atualize a lista (mesclando a lista existente com os novos IDs)
+            $updatedProducts = array_unique(array_merge($currentProducts, $newProductIds));
+
+            $updateProductEquipaments->list_products = $updatedProducts;
             $updateProductEquipaments->save();
 
             // Verificando as mudanças e criando a string de log
