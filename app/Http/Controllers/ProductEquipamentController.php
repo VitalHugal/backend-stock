@@ -109,7 +109,7 @@ class ProductEquipamentController extends CrudController
                     ]);
                 }
 
-                if ($request->has('category') && $request->input('category') != '' && $request->has('active') && $request->input('active') == 'true') {
+                if ($request->has('expiration_date') && $request->input('expiration_date') == '1' || $request->input('expiration_date') == '0' || $request->input('expiration_date') == '' && $request->has('category') && $request->input('category') != '' && $request->has('active') && $request->input('active') == 'true') {
 
                     $productEquipamentUserSearch = ProductEquipament::with(['category' => function ($query) {
                         $query->whereNull('deleted_at');
@@ -117,13 +117,16 @@ class ProductEquipamentController extends CrudController
                         ->whereHas('category', function ($query) {
                             $query->whereNull('deleted_at');
                         })
-                        ->whereIn('fk_category_id', $categoryUser) // Filtro para as categorias permitidas
                         ->when($request->has('category'), function ($query) use ($request) {
-                            $query->where('fk_category_id', $request->input('category')); // Filtro para categoria específica
+                            $query->where('fk_category_id', $request->input('category'));
+                        })
+                        ->when($request->has('expiration_date') && in_array($request->input('expiration_date'), ['0', '1']), function ($query) use ($request) {
+                            $query->where('expiration_date', $request->input('expiration_date'));
                         })
                         ->orderBy('fk_category_id', 'asc')
                         ->paginate(10)
                         ->appends(['category' => $request->input('category'), 'active' => $request->input('active')]);
+
 
                     if ($productEquipamentUserSearch->isEmpty()) {
                         return response()->json([
@@ -169,7 +172,7 @@ class ProductEquipamentController extends CrudController
 
                     return response()->json([
                         'success' => true,
-                        'message' => 'aqui',
+                        'message' => 'Produto(s)/Equipamento(s) em pesquisa por ativos e setor recuprados com sucesso.',
                         'data' => $productEquipamentUserSearch,
                     ]);
                 }
