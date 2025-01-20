@@ -125,7 +125,6 @@ class ProductEquipamentController extends CrudController
                         ->paginate(10)
                         ->appends(['category' => $request->input('category'), 'active' => $request->input('active')]);
 
-
                     if ($productEquipamentUserSearch->isEmpty()) {
                         return response()->json([
                             'success' => false,
