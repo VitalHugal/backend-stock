@@ -70,7 +70,7 @@ class Exits extends Model
 
             'fk_inputs_id.exists' => 'Entrada não encontrada, tente novamente.',
 
-            'discarded.required' => 'O campo "descarte" é obrigátorio.',
+            // 'discarded.required' => 'O campo "descarte" é obrigátorio.',
             'discarded.boolean' => 'Válido apenas 0 ou 1 nesse campo.',
         ];
     }
