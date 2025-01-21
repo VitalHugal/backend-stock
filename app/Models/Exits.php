@@ -43,7 +43,7 @@ class Exits extends Model
             'withdrawal_date' => '',
             'delivery_to' => 'required',
             'fk_inputs_id' => 'required|exists:inputs,id',
-            'discarded' => 'required|boolean:0,1',
+            'discarded' => '|boolean:0,1',
         ];
     }
 

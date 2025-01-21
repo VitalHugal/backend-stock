@@ -445,7 +445,7 @@ class ExitsController extends CrudController
                 ]);
             }
 
-            if ($productEquipamentUser->expiration_date == 1) {
+            if ($productEquipamentUser->expiration_date == 1 && $productEquipamentUser->discarded == 0) {
 
                 $fk_product_equipament_id = $request->fk_product_equipament_id;
                 $inputIdOrderExpirationDateFirst = $this->input_service->getInputsWithOrderByExpirationDate($request, $fk_product_equipament_id);
