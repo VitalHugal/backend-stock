@@ -26,11 +26,57 @@ class StorageLocationController extends CrudController
             $user = $request->user();
             $level = $user->level;
 
-            if ($level == 'user') {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Você não tem permissão de acesso para seguir adiante.',
-                ]);
+            // if ($level == 'user') {
+            //     return response()->json([
+            //         'success' => false,
+            //         'message' => 'Você não tem permissão de acesso para seguir adiante.',
+            //     ]);
+            // }
+
+            if ($request->has('active') && $request->input('active') != '' && $request->has('name') && $request->input('name') != '') {
+
+                if ($request->input('active') == 'true') {
+                    $getAllStorageLocationSearch = StorageLocation::where('name', 'like', '%' . $request->input('name') . '%')
+                        ->paginate(10)
+                        ->appends(['active' => $request->input('active'), 'name' => $request->input('name')]);
+                }
+
+                if ($request->input('active') == 'false') {
+                    $getAllStorageLocationSearch = StorageLocation::onlyTrashed()
+                        ->where('name', 'like', '%' . $request->input('name') . '%')
+                        ->paginate(10)
+                        ->appends(['active' => $request->input('active'), 'name' => $request->input('name')]);
+                }
+
+                if ($getAllStorageLocationSearch->isEmpty()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Nenhum resultado encontrado para pesquisa solicitada.',
+                    ]);
+                }
+
+                $getAllStorageLocationSearch->getCollection()->transform(function ($location) {
+                    return [
+                        'id' => $location->id,
+                        'name' => $location->trashed()
+                            ? $location->name . ' (Deletado)'
+                            : $location->name ?? null,
+                        'observation' => $location->observation,
+                        'created_at' => $this->storage_location->getFormattedDate($location, 'created_at'),
+                        'updated_at' => $this->storage_location->getFormattedDate($location, 'updated_at'),
+                        'deleted_at' => $location->deleted_at
+                            ? $this->storage_location->getFormattedDate($location, 'deleted_at')
+                            : null,
+                    ];
+                });
+
+                if ($getAllStorageLocationSearch) {
+                    return response()->json([
+                        'success' => true,
+                        'message' => 'Locais de armazenamento recuperados com sucesso para pesquisa solicitada.',
+                        'data' => $getAllStorageLocationSearch,
+                    ]);
+                }
             }
 
             if ($request->has('active') && $request->input('active') == 'true') {
