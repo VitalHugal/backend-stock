@@ -95,6 +95,59 @@ class ProductAlertController extends CrudController
 
             if ($user->level == 'admin' || $user->level == 'manager') {
 
+                //     $productAllAdmin = ProductEquipament::with(['category' => function ($query) {
+                //         $query->whereNull('deleted_at');
+                //     }])
+                //         ->whereHas('category', function ($query) {
+                //             $query->whereNull('deleted_at');
+                //         })
+                //         ->where('is_group', 0)
+                //         ->orderBy('fk_category_id', 'asc')
+                //         ->get();
+
+                //     $filteredCollectionAdmin = $productAllAdmin->getCollection()->transform(function ($product) {
+                //         $productEquipamentId = $product->id;
+
+                //         // Calcula as quantidades totais
+                //         $quantityTotalInputs = Inputs::where('fk_product_equipament_id', $productEquipamentId)->sum('quantity');
+                //         $quantityTotalExits = Exits::where('fk_product_equipament_id', $productEquipamentId)->sum('quantity');
+                //         $quantityReserveNotFinished = Reservation::where('fk_product_equipament_id', $productEquipamentId)
+                //             ->where('reservation_finished', false)
+                //             ->whereNull('date_finished')
+                //             ->whereNull('fk_user_id_finished')
+                //             ->sum('quantity');
+
+                //         $quantityTotalProduct = $quantityTotalInputs - ($quantityTotalExits + $quantityReserveNotFinished);
+
+                //         if ($quantityTotalProduct <= $product->quantity_min) {
+                //             return [
+                //                 'id' => $product->id,
+                //                 'name' => $product->name,
+                //                 'quantity_stock' => $quantityTotalProduct,
+                //                 'quantity_min' => $product->quantity_min,
+                //                 'name-category' => $product->category->name,
+                //                 'created_at' => $this->product_alert->getFormattedDate($product, 'created_at'),
+                //                 'updated_at' => $this->product_alert->getFormattedDate($product, 'updated_at'),
+                //             ];
+                //         }
+                //         return null;
+                //     })->filter()->values();
+
+                //     // Recria a paginação
+                //     $paginatedAdmin = new LengthAwarePaginator(
+                //         $filteredCollectionAdmin, // Coleção filtrada
+                //         $productAllAdmin->total(), // Total de itens antes do filtro (para manter a paginação correta)
+                //         $productAllAdmin->perPage(), // Itens por página
+                //         $productAllAdmin->currentPage(), // Página atual
+                //         ['path' => request()->url(), 'query' => request()->query()] // Mantém a URL e query string
+                //     );
+
+                //     return response()->json([
+                //         'success' => true,
+                //         'message' => 'Produto(s)/Equipamento(s) em alerta recuperado com sucesso.',
+                //         'data' => $paginatedAdmin,
+                //     ]);
+
                 $productAllAdmin = ProductEquipament::with(['category' => function ($query) {
                     $query->whereNull('deleted_at');
                 }])
@@ -103,9 +156,10 @@ class ProductAlertController extends CrudController
                     })
                     ->where('is_group', 0)
                     ->orderBy('fk_category_id', 'asc')
-                    ->paginate(10);
+                    ->get(); // Use get() em vez de paginate()
 
-                $filteredCollectionAdmin = $productAllAdmin->getCollection()->transform(function ($product) {
+                // Filtrar a coleção com base nos cálculos necessários
+                $filteredCollectionAdmin = $productAllAdmin->map(function ($product) {
                     $productEquipamentId = $product->id;
 
                     // Calcula as quantidades totais
@@ -125,23 +179,26 @@ class ProductAlertController extends CrudController
                             'name' => $product->name,
                             'quantity_stock' => $quantityTotalProduct,
                             'quantity_min' => $product->quantity_min,
-                            'name-category' => $product->category->name,
+                            'name-category' => $product->category->name ?? 'Sem Categoria',
                             'created_at' => $this->product_alert->getFormattedDate($product, 'created_at'),
                             'updated_at' => $this->product_alert->getFormattedDate($product, 'updated_at'),
                         ];
                     }
                     return null;
-                })->filter()->values();
+                })->filter()->values(); // Remove os valores nulos
 
-                // Recria a paginação
+                // Recria a paginação com base na coleção filtrada
+                $page = request()->get('page', 1); // Página atual
+                $perPage = 10; // Itens por página
                 $paginatedAdmin = new LengthAwarePaginator(
-                    $filteredCollectionAdmin, // Coleção filtrada
-                    $productAllAdmin->total(), // Total de itens antes do filtro (para manter a paginação correta)
-                    $productAllAdmin->perPage(), // Itens por página
-                    $productAllAdmin->currentPage(), // Página atual
+                    $filteredCollectionAdmin->forPage($page, $perPage), // Itens da página atual
+                    $filteredCollectionAdmin->count(), // Total de itens após filtro
+                    $perPage, // Itens por página
+                    $page, // Página atual
                     ['path' => request()->url(), 'query' => request()->query()] // Mantém a URL e query string
                 );
 
+                // Retorna a resposta com a coleção paginada
                 return response()->json([
                     'success' => true,
                     'message' => 'Produto(s)/Equipamento(s) em alerta recuperado com sucesso.',
