@@ -466,7 +466,7 @@ class ExitsController extends CrudController
                     ]);
                 }
 
-                if ($data['status'] == 'Finalizado' || $data['status'] == 'Vencido') {
+                if ($data['status'] == 'Finalizado') {
                     return response()->json([
                         'success' => false,
                         'message' => 'Não é possivel realizar saída, entrada finalizada ou vencida.',

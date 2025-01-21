@@ -1025,8 +1025,8 @@ class ProductEquipamentController extends CrudController
                         DB::table('product_groups')->insert($dataToInsert);
                     }
 
-                    $updateProductEquipaments->fill($validatedData);
-                    $updateProductEquipaments->save();
+                    // $updateProductEquipaments->fill($validatedData);
+                    // $updateProductEquipaments->save();
                 }
             } else {
                 $validatedData = $request->validate(
@@ -1034,9 +1034,9 @@ class ProductEquipamentController extends CrudController
                     $this->productEquipaments->feedbackProductEquipaments(),
                 );
 
-                $updateProductEquipaments->fill($validatedData);
-                $updateProductEquipaments->save();
             }
+            $updateProductEquipaments->fill($validatedData);
+            $updateProductEquipaments->save();
 
             $changes = $updateProductEquipaments->getChanges();
             $logDescription = '';
