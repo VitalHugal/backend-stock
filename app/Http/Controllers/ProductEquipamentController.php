@@ -13,6 +13,7 @@ use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
+use Symfony\Component\Console\Input\Input;
 
 class ProductEquipamentController extends CrudController
 {
@@ -45,20 +46,37 @@ class ProductEquipamentController extends CrudController
 
             if ($user->level == 'user') {
 
-                if ($request->has('name') && $request->input('name') != '' && $request->has('active') && $request->input('active') == 'true') {
+                if ($request->has('name') && $request->input('name') != '' && $request->has('active') && $request->input('active') != '') {
 
-                    $productEquipamentUserSearch = ProductEquipament::with(['category' => function ($query) {
-                        $query->whereNull('deleted_at');
-                    }])
-                        ->whereHas('category', function ($query) {
+                    if ($request->input('active') == 'true') {
+                        $productEquipamentUserSearch = ProductEquipament::with(['category' => function ($query) {
                             $query->whereNull('deleted_at');
-                        })
+                        }])
+                            ->whereHas('category', function ($query) {
+                                $query->whereNull('deleted_at');
+                            })
 
-                        ->whereIn('fk_category_id', $categoryUser)
-                        ->where('name', 'like', '%' . $request->input('name') . '%')
-                        ->orderBy('fk_category_id', 'asc')
-                        ->paginate(10)
-                        ->appends(['name' => $request->input('name'), 'active' => $request->input('active')]);
+                            ->whereIn('fk_category_id', $categoryUser)
+                            ->where('name', 'like', '%' . $request->input('name') . '%')
+                            ->orderBy('fk_category_id', 'asc')
+                            ->paginate(10)
+                            ->appends(['name' => $request->input('name'), 'active' => $request->input('active')]);
+                    }
+
+                    if ($request->input('active') == 'false') {
+                        $productEquipamentUserSearch = ProductEquipament::onlyTrashed(['category' => function ($query) {
+                            $query->whereNull('deleted_at');
+                        }])
+                            ->whereHas('category', function ($query) {
+                                $query->whereNull('deleted_at');
+                            })
+
+                            ->whereIn('fk_category_id', $categoryUser)
+                            ->where('name', 'like', '%' . $request->input('name') . '%')
+                            ->orderBy('fk_category_id', 'asc')
+                            ->paginate(10)
+                            ->appends(['name' => $request->input('name'), 'active' => $request->input('active')]);
+                    }
 
                     if ($productEquipamentUserSearch->isEmpty()) {
                         return response()->json([
@@ -438,40 +456,98 @@ class ProductEquipamentController extends CrudController
                 ]);
             }
 
-            // filtro para buscar todos os produtos ativos
-            if ($request->has('active') && $request->input('active') == 'true') {
-                $productAllAdmin = ProductEquipament::with(['category' => function ($query) {
-                    $query->whereNull('deleted_at');
-                }])
-                    ->whereHas('category', function ($query) {
+            //filtro com nome
+            if ($request->has('name') && $request->input('name') != '' && $request->has('active') &&  $request->input('active') != '') {
+
+                if ($request->input('active') == 'true') {
+
+                    $productAllAdminSearch = ProductEquipament::with(['category' => function ($query) {
                         $query->whereNull('deleted_at');
-                    })
-                    ->orderBy('fk_category_id', 'asc')
-                    ->paginate(10)
-                    ->appends(['active' => $request->input('active')]);
+                    }])
+                        ->whereHas('category', function ($query) {
+                            $query->whereNull('deleted_at');
+                        })
+
+                        // ->whereIn('fk_category_id', $categoryUser)
+                        ->where('name', 'like', '%' . $request->input('name') . '%')
+                        ->orderBy('fk_category_id', 'asc')
+                        ->paginate(10)
+                        ->appends(['name' => $request->input('name'), 'active' => $request->input('active')]);
+                }
+
+                if ($request->input('active') == 'false') {
+                    $productAllAdminSearch = ProductEquipament::onlyTrashed(['category' => function ($query) {
+                        $query->whereNull('deleted_at');
+                    }])
+                        ->whereHas('category', function ($query) {
+                            $query->whereNull('deleted_at');
+                        })
+
+                        // ->whereIn('fk_category_id', $categoryUser)
+                        ->where('name', 'like', '%' . $request->input('name') . '%')
+                        ->orderBy('fk_category_id', 'asc')
+                        ->paginate(10)
+                        ->appends(['name' => $request->input('name'), 'active' => $request->input('active')]);
+                }
+
+                if ($productAllAdminSearch->isEmpty()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Nenhum produto encontrado com o nome informado.',
+                    ]);
+                }
+
+                $productAllAdminSearch->getCollection()->transform(function ($product) {
+
+                    $quantityTotalInputs = Inputs::where('fk_product_equipament_id', $product->id)->sum('quantity');
+                    $quantityTotalExits = Exits::where('fk_product_equipament_id', $product->id)->sum('quantity');
+
+                    $quantityReserveNotFinished = Reservation::where('fk_product_equipament_id', $product->id)
+                        ->where('reservation_finished', false)
+                        ->whereNull('date_finished')
+                        ->whereNull('fk_user_id_finished')
+                        ->sum('quantity');
+
+                    $quantityTotalProduct = $quantityTotalInputs - ($quantityTotalExits + $quantityReserveNotFinished);
+
+                    $componentsGroup = $product->is_group == 1
+                        ? DB::table('product_groups')
+                        ->where('group_product_id', $product->id)
+                        ->join('products_equipaments', 'product_groups.component_product_id', '=', 'products_equipaments.id')
+                        ->select('products_equipaments.id', 'products_equipaments.name')
+                        ->get()
+                        : [];
+
+                    return [
+                        'id' => $product->id,
+                        'name-category' => $product->category && $product->category->trashed()
+                            ? $product->category->name . ' (Deletado)'
+                            : $product->category->name ?? null,
+                        'name' => $product && $product->trashed()
+                            ? $product->name . ' (Deletado)'
+                            : $product->name ?? null,
+                        'quantity_stock' => $quantityTotalProduct,
+                        'quantity_min' => $product->quantity_min,
+                        'is_group' => $product->is_group,
+                        'components_group' => $componentsGroup,
+                        'expiration_date' => $product->expiration_date,
+                        'observation' => $product->observation,
+                        'fk_category_id' => $product->fk_category_id,
+                        'created_at' => $this->productEquipaments->getFormattedDate($product, 'created_at'),
+                        'updated_at' => $this->productEquipaments->getFormattedDate($product, 'updated_at'),
+                        'deleted_at' => $product && $product->trashed()
+                            ? $this->productEquipaments->getFormattedDate($product, 'deleted_at')
+                            : $product->deleted_at ?? null,
+                    ];
+                });
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Produto(s)/Equipamento(s) pesquisado recuperados com sucesso.',
+                    'data' => $productAllAdminSearch,
+                ]);
             }
 
-            //filtro para buscar todos os produtos deletados
-            elseif ($request->has('active') && $request->input('active') == 'false') {
-                $productAllAdmin = ProductEquipament::with(['category' => function ($query) {
-                    $query->withTrashed();
-                }])
-                    ->withTrashed()
-                    ->whereNotNull('deleted_at')
-                    ->orderBy('fk_category_id', 'asc')
-                    ->paginate(10)
-                    ->appends(['active' => request()->input('active')]);
-            }
-
-            // filtro para buscar todos os produtos incluindo deltados
-            else {
-                $productAllAdmin = ProductEquipament::with(['category' => function ($query) {
-                    $query->withTrashed();
-                }])
-                    ->withTrashed()
-                    ->orderBy('fk_category_id', 'asc')
-                    ->paginate(10);
-            }
 
             // filto para buscar todos os produtos ativos e que estão em alerta no estoque
             if ($request->has('active') && $request->input('active') == 'true' && $request->has('products_alert') && $request->input('products_alert') == 'true') {
@@ -549,77 +625,39 @@ class ProductEquipamentController extends CrudController
                 ]);
             }
 
-            if ($request->has('name') && $request->input('name') != '' && $request->has('active') &&  $request->input('active') == 'true') {
-
-                $productAllAdminSearch = ProductEquipament::with(['category' => function ($query) {
+            // filtro para buscar todos os produtos ativos
+            if ($request->has('active') && $request->input('active') == 'true') {
+                $productAllAdmin = ProductEquipament::with(['category' => function ($query) {
                     $query->whereNull('deleted_at');
                 }])
                     ->whereHas('category', function ($query) {
                         $query->whereNull('deleted_at');
                     })
-
-                    ->where('name', 'like', '%' . $request->input('name') . '%')
-                    // ->orderBy('name', 'asc')
                     ->orderBy('fk_category_id', 'asc')
                     ->paginate(10)
-                    ->appends(['name' => $request->input('name'), 'active' => $request->input('active')]);
+                    ->appends(['active' => $request->input('active')]);
+            }
 
-                if ($productAllAdminSearch->isEmpty()) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'Nenhum produto encontrado com o nome informado.',
-                    ]);
-                }
+            //filtro para buscar todos os produtos deletados
+            elseif ($request->has('active') && $request->input('active') == 'false') {
+                $productAllAdmin = ProductEquipament::with(['category' => function ($query) {
+                    $query->withTrashed();
+                }])
+                    ->withTrashed()
+                    ->whereNotNull('deleted_at')
+                    ->orderBy('fk_category_id', 'asc')
+                    ->paginate(10)
+                    ->appends(['active' => request()->input('active')]);
+            }
 
-                $productAllAdminSearch->getCollection()->transform(function ($product) {
-
-                    $quantityTotalInputs = Inputs::where('fk_product_equipament_id', $product->id)->sum('quantity');
-                    $quantityTotalExits = Exits::where('fk_product_equipament_id', $product->id)->sum('quantity');
-
-                    $quantityReserveNotFinished = Reservation::where('fk_product_equipament_id', $product->id)
-                        ->where('reservation_finished', false)
-                        ->whereNull('date_finished')
-                        ->whereNull('fk_user_id_finished')
-                        ->sum('quantity');
-
-                    $quantityTotalProduct = $quantityTotalInputs - ($quantityTotalExits + $quantityReserveNotFinished);
-
-                    $componentsGroup = $product->is_group == 1
-                        ? DB::table('product_groups')
-                        ->where('group_product_id', $product->id)
-                        ->join('products_equipaments', 'product_groups.component_product_id', '=', 'products_equipaments.id')
-                        ->select('products_equipaments.id', 'products_equipaments.name')
-                        ->get()
-                        : [];
-
-                    return [
-                        'id' => $product->id,
-                        'name-category' => $product->category && $product->category->trashed()
-                            ? $product->category->name . ' (Deletado)'
-                            : $product->category->name ?? null,
-                        'name' => $product && $product->trashed()
-                            ? $product->name . ' (Deletado)'
-                            : $product->name ?? null,
-                        'quantity_stock' => $quantityTotalProduct,
-                        'quantity_min' => $product->quantity_min,
-                        'is_group' => $product->is_group,
-                        'components_group' => $componentsGroup,
-                        'expiration_date' => $product->expiration_date,
-                        'observation' => $product->observation,
-                        'fk_category_id' => $product->fk_category_id,
-                        'created_at' => $this->productEquipaments->getFormattedDate($product, 'created_at'),
-                        'updated_at' => $this->productEquipaments->getFormattedDate($product, 'updated_at'),
-                        'deleted_at' => $product && $product->trashed()
-                            ? $this->productEquipaments->getFormattedDate($product, 'deleted_at')
-                            : $product->deleted_at ?? null,
-                    ];
-                });
-
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Produto(s)/Equipamento(s) pesquisado recuperados com sucesso.',
-                    'data' => $productAllAdminSearch,
-                ]);
+            // filtro para buscar todos os produtos incluindo deltados
+            else {
+                $productAllAdmin = ProductEquipament::with(['category' => function ($query) {
+                    $query->withTrashed();
+                }])
+                    ->withTrashed()
+                    ->orderBy('fk_category_id', 'asc')
+                    ->paginate(10);
             }
 
             $productAllAdmin->getCollection()->transform(function ($product) {
@@ -1033,9 +1071,8 @@ class ProductEquipamentController extends CrudController
                     $this->productEquipaments->rulesProductEquipaments(),
                     $this->productEquipaments->feedbackProductEquipaments(),
                 );
-
             }
-            
+
             $updateProductEquipaments->fill($validatedData);
             $updateProductEquipaments->save();
 
