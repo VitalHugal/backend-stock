@@ -459,6 +459,8 @@ class ExitsController extends CrudController
 
                 $data = $inputIdOrderExpirationDateFirst->original['data'];
 
+                dd($data);
+
                 // if ($data['fk_storage_locations_id'] == null) {
                 //     return response()->json([
                 //         'success' => false,
