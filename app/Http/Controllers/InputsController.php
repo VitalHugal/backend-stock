@@ -120,7 +120,7 @@ class InputsController extends CrudController
                             : null  ?? null,
                         'alert' => $input->alert ?? null,
                         'storage_locations_id' => $input->storage_location?->trashed()
-                            ? $input->storage_location->id . ' (Deletado)'
+                            ? $input->storage_location->id
                             : $input->storage_location->id ?? null,
                         'storage_locations_name' => $input->storage_location?->trashed()
                             ? $input->storage_location->name . ' (Deletado)'
@@ -222,7 +222,7 @@ class InputsController extends CrudController
                         : null,
                     'alert' => $input->alert ?? null,
                     'storage_locations_id' => $input->storage_location?->trashed()
-                        ? $input->storage_location?->id . ' (Deletado)'
+                        ? $input->storage_location?->id
                         : $input->storage_location?->id ?? null,
                     'storage_locations_name' => $input->storage_location?->trashed()
                         ? $input->storage_location?->name . ' (Deletado)'
@@ -349,7 +349,7 @@ class InputsController extends CrudController
                                 : null,
                             'alert' => $input->alert,
                             'storage_locations_id' => $input->storage_location?->trashed()
-                                ? $input->storage_location->id . ' (Deletado)'
+                                ? $input->storage_location->id
                                 : $input->storage_location->id ?? null,
                             'storage_locations_name' => $input->storage_location?->trashed()
                                 ? $input->storage_location->name . ' (Deletado)'
@@ -437,7 +437,7 @@ class InputsController extends CrudController
                             : null,
                         'alert' => $input->alert,
                         'storage_locations_id' => $input->storage_location?->trashed()
-                            ? $input->storage_location->id . ' (Deletado)'
+                            ? $input->storage_location->id
                             : $input->storage_location->id ?? null,
                         'storage_locations_name' => $input->storage_location?->trashed()
                             ? $input->storage_location->name . ' (Deletado)'
