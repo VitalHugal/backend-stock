@@ -1035,6 +1035,7 @@ class ProductEquipamentController extends CrudController
                 );
 
             }
+            
             $updateProductEquipaments->fill($validatedData);
             $updateProductEquipaments->save();
 
