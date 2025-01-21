@@ -46,7 +46,7 @@ class ProductEquipamentController extends CrudController
 
             if ($user->level == 'user') {
 
-                if ($request->has('name') && $request->input('name') != '' && $request->has('active') && $request->input('active') != '') {
+                if ($request->has('name') && $request->input('name') != '' && $request->has('active') && $request->input('active') != '' && $request->has('is_group') && $request->input('is_group') == '1' || $request->input('is_group' == '0')) {
 
                     if ($request->input('active') == 'true') {
                         $productEquipamentUserSearch = ProductEquipament::with(['category' => function ($query) {
@@ -57,6 +57,9 @@ class ProductEquipamentController extends CrudController
                             })
 
                             ->whereIn('fk_category_id', $categoryUser)
+                            ->when($request->has('is_group') && in_array($request->input('is_group'), ['0', '1']), function ($query) use ($request) {
+                                $query->where('is_group', $request->input('is_group'));
+                            })
                             ->where('name', 'like', '%' . $request->input('name') . '%')
                             ->orderBy('fk_category_id', 'asc')
                             ->paginate(10)
@@ -457,7 +460,7 @@ class ProductEquipamentController extends CrudController
             }
 
             //filtro com nome
-            if ($request->has('name') && $request->input('name') != '' && $request->has('active') &&  $request->input('active') != '') {
+            if ($request->has('name') && $request->input('name') != '' && $request->has('active') &&  $request->input('active') != '' && $request->has('is_group') && $request->input('is_group') == '1' || $request->input('is_group') == '0') {
 
                 if ($request->input('active') == 'true') {
 
@@ -469,6 +472,9 @@ class ProductEquipamentController extends CrudController
                         })
 
                         // ->whereIn('fk_category_id', $categoryUser)
+                        ->when($request->has('is_group') && in_array($request->input('is_group'), ['0', '1']), function ($query) use ($request) {
+                            $query->where('is_group', $request->input('is_group'));
+                        })
                         ->where('name', 'like', '%' . $request->input('name') . '%')
                         ->orderBy('fk_category_id', 'asc')
                         ->paginate(10)
