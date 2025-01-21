@@ -387,7 +387,7 @@ class ExitsController extends CrudController
                 ]);
             }
 
-            $productEquipamentUser = ProductEquipament::where('id', $request->fk_product_equipament_id)->first();
+            $productEquipamentUser = ProductEquipament::where('id', $request->fk_product_equipament_id)->where('is_group', 0)->first();
 
             (int)$productQuantityMin = $productEquipamentUser->quantity_min;
 
