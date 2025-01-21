@@ -45,7 +45,7 @@ class ProductEquipamentController extends CrudController
 
             if ($user->level == 'user') {
 
-                if ($request->has('name') && $request->input('name') != '' && $request->has('active') && $request->input('active') == 'true') {
+                if ($request->has('name') && $request->input('name') != '' && $request->has('active') && $request->input('active') == 'true' || $request->has('active') && $request->input('active') == 'false') {
 
                     $productEquipamentUserSearch = ProductEquipament::with(['category' => function ($query) {
                         $query->whereNull('deleted_at');

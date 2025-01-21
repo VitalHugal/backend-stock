@@ -774,9 +774,21 @@ class ExitsController extends CrudController
                 ]);
             }
 
+            $quantityReturnDB = $deleteExits->quantity;
+            
+            if ($deleteExits->fk_inputs_id) {
+                $fk_inputs_id_returned_quantity = $deleteExits->fk_inputs_id;
+            }
+            
+            dd($deleteExits);
+            
             $deleteExits->delete();
 
             if ($deleteExits) {
+
+                if ($fk_inputs_id_returned_quantity) {
+                    DB::table('inputs')->where('id', $fk_inputs_id_returned_quantity)->update(['']);
+                }
 
                 SystemLog::create([
                     'fk_user_id' => $idUser,
