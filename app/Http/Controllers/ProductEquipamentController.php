@@ -981,30 +981,64 @@ class ProductEquipamentController extends CrudController
 
             $originalData = $updateProductEquipaments->getOriginal();
 
-            // if ($updateProductEquipaments->is_group == '1') {
-            //     $validatedData = $request->validate(
-            //         $this->productEquipaments->rulesProductEquipamentsIsGrup(),
-            //         $this->productEquipaments->feedbackProductEquipamentsIsGrup(),
-            //     );
-            // } else {
-            //     $validatedData = $request->validate(
-            //         $this->productEquipaments->rulesProductEquipaments(),
-            //         $this->productEquipaments->feedbackProductEquipaments(),
-            //     );
-            // }
+            if ($updateProductEquipaments->is_group == '1') {
 
-            $currentProducts = DB::table('product_groups')->where('group_product_id', $id)->get('component_product_id');
+                $validatedData = $request->validate(
+                    $this->productEquipaments->rulesProductEquipamentsIsGrup(),
+                    $this->productEquipaments->feedbackProductEquipamentsIsGrup(),
+                );
 
-            $newProductIds = $request->input('list_products', []);
+                $currentProducts = DB::table('product_groups')
+                    ->where('group_product_id', $id)
+                    ->pluck('component_product_id')
+                    ->toArray();
 
-            // Atualize a lista (mesclando a lista existente com os novos IDs)
-            $updatedProducts = array_unique(array_merge($currentProducts, $newProductIds));
+                $newProductIds = $request->input('list_products', []);
 
-            $updateProductEquipaments->list_products = $updatedProducts;
-            $updateProductEquipaments->save();
+                if ($currentProducts !== $newProductIds) {
 
-            // Verificando as mudanças e criando a string de log
-            $changes = $updateProductEquipaments->getChanges(); // Retorna apenas os campos que foram alterados
+                    // Identifica produtos para remover
+                    $productsToRemove = array_diff($currentProducts, $newProductIds);
+
+                    // Identifica produtos para adicionar
+                    $productsToAdd = array_diff($newProductIds, $currentProducts);
+
+                    // Remove produtos que não estão mais no novo array
+                    if (!empty($productsToRemove)) {
+                        DB::table('product_groups')
+                            ->where('group_product_id', $id)
+                            ->whereIn('component_product_id', $productsToRemove)
+                            ->delete();
+                    }
+
+                    // Adiciona novos produtos
+                    if (!empty($productsToAdd)) {
+                        $dataToInsert = [];
+                        foreach ($productsToAdd as $productId) {
+                            $dataToInsert[] = [
+                                'group_product_id' => $id,
+                                'component_product_id' => $productId,
+                                'created_at' => now(),
+                                'updated_at' => now(),
+                            ];
+                        }
+                        DB::table('product_groups')->insert($dataToInsert);
+                    }
+
+                    $updateProductEquipaments->fill($validatedData);
+                    $updateProductEquipaments->save();
+                }
+            } else {
+                $validatedData = $request->validate(
+                    $this->productEquipaments->rulesProductEquipaments(),
+                    $this->productEquipaments->feedbackProductEquipaments(),
+                );
+
+                $updateProductEquipaments->fill($validatedData);
+                $updateProductEquipaments->save();
+            }
+
+            $changes = $updateProductEquipaments->getChanges();
             $logDescription = '';
 
             foreach ($changes as $key => $newValue) {
