@@ -131,13 +131,12 @@ class ProductAlertController extends CrudController
                         ];
                     }
                     return null;
-                })
-                 ->filter()->values();
+                })->filter()->values();
 
                 // Recria a paginação
                 $paginatedAdmin = new LengthAwarePaginator(
                     $filteredCollectionAdmin, // Coleção filtrada
-                    $filteredCollectionAdmin->total(), // Total de itens antes do filtro (para manter a paginação correta)
+                    $productAllAdmin->total(), // Total de itens antes do filtro (para manter a paginação correta)
                     $productAllAdmin->perPage(), // Itens por página
                     $productAllAdmin->currentPage(), // Página atual
                     ['path' => request()->url(), 'query' => request()->query()] // Mantém a URL e query string
