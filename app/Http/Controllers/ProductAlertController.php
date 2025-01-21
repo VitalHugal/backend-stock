@@ -132,12 +132,12 @@ class ProductAlertController extends CrudController
                     }
                     return null;
                 })
-                ->filter()->values();
+                 ->filter()->values();
 
                 // Recria a paginação
                 $paginatedAdmin = new LengthAwarePaginator(
                     $filteredCollectionAdmin, // Coleção filtrada
-                    count($filteredCollectionAdmin), // Total de itens antes do filtro (para manter a paginação correta)
+                    $productAllAdmin->total(), // Total de itens antes do filtro (para manter a paginação correta)
                     $productAllAdmin->perPage(), // Itens por página
                     $productAllAdmin->currentPage(), // Página atual
                     ['path' => request()->url(), 'query' => request()->query()] // Mantém a URL e query string
@@ -146,7 +146,7 @@ class ProductAlertController extends CrudController
                 return response()->json([
                     'success' => true,
                     'message' => 'Produto(s)/Equipamento(s) em alerta recuperado com sucesso.',
-                    'data' => $productAllAdmin,
+                    'data' => $paginatedAdmin,
                 ]);
             }
         } catch (QueryException $qe) {
