@@ -96,7 +96,7 @@ class InputService
                             ->withTrashed();
                     })
                         ->where('fk_product_equipament_id', $id)
-                        ->where('status', '!=', 'Vencido')
+                        // ->where('status', '!=', 'Vencido')
                         ->where('status', '!=', 'Finalizado')
                         ->select('*', DB::raw('DATEDIFF(expiration_date, NOW()) AS days_remaining')) // Calcule os dias restantes
                         ->orderBy('days_remaining', 'asc') // Ordene pelos dias restantes em ordem crescente
@@ -242,7 +242,7 @@ class InputService
                 },
             ])
                 ->where('fk_product_equipament_id', $id)
-                ->where('status', '!=', 'Vencido')
+                // ->where('status', '!=', 'Vencido')
                 ->where('status', '!=', 'Finalizado')
                 ->select('*', DB::raw('DATEDIFF(expiration_date, NOW()) AS days_remaining')) // Calcule os dias restantes
                 ->orderBy('days_remaining', 'asc') // Ordene pelos dias restantes em ordem crescente
