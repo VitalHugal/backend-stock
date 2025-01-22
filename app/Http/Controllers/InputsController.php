@@ -76,10 +76,13 @@ class InputsController extends CrudController
                             $query->whereIn('fk_category_id', $categoryUser)
                                 ->withTrashed();
                         })
-                        ->where('fk_product_equipament_id', $request->input('product'))
+                        ->where('fk_product_equipament_id', $request->input('product_id'))
+                        ->when($request->has('input_id') && ($request->input('input_id') != ''), function ($query) use ($request) {
+                            $query->where('id', $request->input('input_id'));
+                        })
                         ->orderBy('created_at', 'desc')
                         ->paginate(10)
-                        ->appends(['product' => $request->input('product')]);
+                        ->appends(['product_id' => $request->input('product_id')]);
                 }
 
                 $inputs->getCollection()->transform(function ($input) {
@@ -201,6 +204,9 @@ class InputsController extends CrudController
                     },
                 ])
                     ->where('fk_product_equipament_id', $request->input('product_id'))
+                    ->when($request->has('input_id') && ($request->input('input_id') != ''), function ($query) use ($request) {
+                        $query->where('id', $request->input('input_id'));
+                    })
                     ->orderBy('created_at', 'desc')
                     ->paginate(10)
                     ->appends(['product_id' => $request->input('product_id')]);
