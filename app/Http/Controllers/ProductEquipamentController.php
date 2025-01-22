@@ -46,7 +46,7 @@ class ProductEquipamentController extends CrudController
 
             if ($user->level == 'user') {
 
-                if ($request->has('name') && $request->input('name') != '' && $request->has('active') && $request->input('active') != '' && $request->has('is_group') && $request->input('is_group') == '1' || $request->input('is_group' == '0')) {
+                if ($request->has('name') && $request->input('name') != '' && $request->has('active') && $request->input('active') != '') {
 
                     if ($request->input('active') == 'true') {
                         $productEquipamentUserSearch = ProductEquipament::with(['category' => function ($query) {
@@ -462,7 +462,7 @@ class ProductEquipamentController extends CrudController
             }
 
             //filtro com nome
-            if ($request->has('name') && $request->input('name') != '' && $request->has('active') &&  $request->input('active') != '' && $request->has('is_group') && $request->input('is_group') == '1' || $request->input('is_group') == '0') {
+            if ($request->has('name') && $request->input('name') != '' && $request->has('active') &&  $request->input('active') != '' ) {
 
                 if ($request->input('active') == 'true') {
 
