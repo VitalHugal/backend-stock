@@ -520,7 +520,7 @@ class ExitsController extends CrudController
             }
 
             if ($exits) {
-
+                
                 SystemLog::create([
                     'fk_user_id' => $idUser,
                     'action' => 'Adicionou',

@@ -63,6 +63,25 @@ class InputsController extends CrudController
                     ->orderBy('created_at', 'desc')
                     ->paginate(10);
 
+                if ($request->has('product') && $request->input('product') != '') {
+
+                    $inputs = Inputs::with(['productEquipament.category' => function ($query) {
+                        $query->withTrashed();
+                    }, 'user' => function ($query) {
+                        $query->withTrashed();
+                    }, 'storage_location' => function ($query) {
+                        $query->withTrashed();
+                    }])
+                        ->whereHas('productEquipament', function ($query) use ($categoryUser) {
+                            $query->whereIn('fk_category_id', $categoryUser)
+                                ->withTrashed();
+                        })
+                        ->where('fk_product_equipament_id', $request->input('product'))
+                        ->orderBy('created_at', 'desc')
+                        ->paginate(10)
+                        ->appends(['product' => $request->input('product')]);
+                }
+
                 $inputs->getCollection()->transform(function ($input) {
 
                     if ($input->expiration_date && $input->alert) {
@@ -164,6 +183,28 @@ class InputsController extends CrudController
             ])
                 ->orderBy('created_at', 'desc')
                 ->paginate(10);
+
+            if ($request->has('product') && $request->input('product') != '') {
+
+                $inputsAdmin = Inputs::with([
+                    'productEquipament' => function ($query) {
+                        $query->withTrashed();
+                    },
+                    'productEquipament.category' => function ($query) {
+                        $query->withTrashed();
+                    },
+                    'user' => function ($query) {
+                        $query->withTrashed();
+                    },
+                    'storage_location' => function ($query) {
+                        $query->withTrashed();
+                    },
+                ])
+                    ->where('fk_product_equipament_id', $request->input('product'))
+                    ->orderBy('created_at', 'desc')
+                    ->paginate(10)
+                    ->appends(['product' => $request->input('product')]);
+            }
 
             $inputsAdmin->getCollection()->transform(function ($input) {
 
