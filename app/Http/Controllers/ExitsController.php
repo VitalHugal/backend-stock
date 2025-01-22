@@ -408,11 +408,6 @@ class ExitsController extends CrudController
                 }
             }
 
-            $validateData = $request->validate(
-                $this->exits->rulesExits(),
-                $this->exits->feedbackExits()
-            );
-
             $quantityTotalInputs = Inputs::where('fk_product_equipament_id', $request->fk_product_equipament_id)->sum('quantity');
             $quantityTotalExits = Exits::where('fk_product_equipament_id', $request->fk_product_equipament_id)->sum('quantity');
             $quantityReserveNotFinished = Reservation::where('fk_product_equipament_id', $request->fk_product_equipament_id)
@@ -444,7 +439,12 @@ class ExitsController extends CrudController
                 ]);
             }
 
-            if ($productEquipamentUser->expiration_date == 1 && $request->discarded == 0) {
+            if ($productEquipamentUser->expiration_date == '1' && $request->discarded == '0') {
+
+                $validateData = $request->validate(
+                    $this->exits->rulesExits(),
+                    $this->exits->feedbackExits()
+                );
 
                 $fk_product_equipament_id = $request->fk_product_equipament_id;
                 $inputIdOrderExpirationDateFirst = $this->input_service->getInputsWithOrderByExpirationDate($request, $fk_product_equipament_id);
@@ -475,14 +475,14 @@ class ExitsController extends CrudController
                 if ($request->quantity > $data['quantity_active']) {
                     return response()->json([
                         'success' => false,
-                        'message' => 'Limite-se a quantidade disponível nessa entrada.' . $data['quantity_active'],
+                        'message' => 'Limite-se a quantidade disponível nessa entrada.',
                     ]);
                 }
 
                 $input = Inputs::where('id', $request->fk_inputs_id)->first();
 
                 if ($validateData) {
-                    $exits = Exits::create([
+                    $exitsExpirationOneDiscardedZero = Exits::create([
                         'fk_product_equipament_id' => $request->fk_product_equipament_id,
                         'fk_user_id' => $idUser,
                         'reason_project' => $request->reason_project,
@@ -497,58 +497,60 @@ class ExitsController extends CrudController
                     $input->save();
                 }
 
-                if ($input->quantity_active == 0 && $exits['discarded'] == 0) {
+                if ($input->quantity_active == 0 && $exitsExpirationOneDiscardedZero['discarded'] == 0) {
                     $status = 'Finalizado';
                     $input->status = $status;
                     $input->save();
                 }
+                DB::commit();
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Saída criada com sucesso.',
+                    'data' => $exitsExpirationOneDiscardedZero
+                ]);
             }
 
-            if ($productEquipamentUser->expiration_date == 1 || $productEquipamentUser->expiration_date == 0 && $request->discarded == 1) {
+            if (($productEquipamentUser->expiration_date == '1' && $request->discarded == '1') ||
+                ($productEquipamentUser->expiration_date == '0' && $request->discarded == '1')
+            ) {
 
-                $validateData = $request->validate(
+                $validateDatatwo = $request->validate(
                     $this->exits->rulesExitsDiscarded(),
                     $this->exits->feedbackExitsDiscarded()
                 );
 
-                if ($productEquipamentUser->expiration_date == 1) {
-
+                if ($productEquipamentUser->expiration_date == '1') {
                     $allInputs = Inputs::where('fk_product_equipament_id', $productEquipamentUser->id)
                         ->whereNull('deleted_at')
                         ->pluck('id')
                         ->toArray();
 
-                    if (!$allInputs) {
+                    if (empty($allInputs)) {
                         return response()->json([
                             'success' => false,
-                            'message' => 'Não é possivel relizar descarte desse produto ele não esta vinculado a nenhuma entrada.'
+                            'message' => 'Não é possível realizar descarte desse produto, ele não está vinculado a nenhuma entrada.'
                         ]);
                     }
 
-                    $exists = in_array($request->fk_inputs_id, $allInputs);
-
-                    if (!$exists) {
+                    if (!in_array($request->fk_inputs_id, $allInputs)) {
                         return response()->json([
                             'success' => false,
                             'message' => 'Entrada informada não pertence a esse produto.'
                         ]);
                     }
 
-                    $inputCorrect = Inputs::where('id', $request->fk_inputs_id)->get();
+                    $inputCorrect = Inputs::find($request->fk_inputs_id);
 
-                    if ($inputCorrect) {
-                        $quantytiActiveInputCorrect = $inputCorrect->quantity_active;
-
-                        if ($request->quantity_active > $quantytiActiveInputCorrect) {
-                            return response()->json([
-                                'success' => false,
-                                'message' => 'Limite-se a quantidade disponível nessa entrada. ' . $quantytiActiveInputCorrect . ' unidade(s).'
-                            ]);
-                        }
+                    if ($inputCorrect && $request->quantity > $inputCorrect->quantity_active) {
+                        return response()->json([
+                            'success' => false,
+                            'message' => 'Limite-se à quantidade disponível nessa entrada. ' . $inputCorrect->quantity_active . ' unidade(s).'
+                        ]);
                     }
 
-                    if ($validateData) {
-                        $exits = Exits::create([
+                    if ($validateDatatwo) {
+                        $exitsDiscardedOne = Exits::create([
                             'fk_product_equipament_id' => $request->fk_product_equipament_id,
                             'fk_user_id' => $idUser,
                             'reason_project' => 'Descarte',
@@ -561,16 +563,22 @@ class ExitsController extends CrudController
 
                         $inputCorrect->quantity_active -= $request->quantity;
                         $inputCorrect->save();
-                    }
 
-                    if ($inputCorrect->quantity_active == 0 && $exits['discarded'] == 1) {
-                        $status = 'Finalizado';
-                        $inputCorrect->status = $status;
-                        $inputCorrect->save();
+                        if ($inputCorrect->quantity_active == 0 && $exitsDiscardedOne['discarded'] == 1) {
+                            $inputCorrect->status = 'Finalizado';
+                            $inputCorrect->save();
+                        }
+
+                        DB::commit();
+                        
+                        return response()->json([
+                            'success' => true,
+                            'message' => 'Saída criada com sucesso.',
+                            'data' => $exitsDiscardedOne
+                        ]);
                     }
                 } else {
-
-                    if ($validateData) {
+                    if ($validateDatatwo) {
                         $exits = Exits::create([
                             'fk_product_equipament_id' => $request->fk_product_equipament_id,
                             'fk_user_id' => $idUser,
@@ -581,9 +589,21 @@ class ExitsController extends CrudController
                             'fk_inputs_id' => null,
                             'discarded' => $request->discarded,
                         ]);
+                        DB::commit();
+
+                        return response()->json([
+                            'success' => true,
+                            'message' => 'Saída criada com sucesso.',
+                            'data' => $exits
+                        ]);
                     }
                 }
             }
+
+            $validateData = $request->validate(
+                $this->exits->rulesExits(),
+                $this->exits->feedbackExits()
+            );
 
             $input = Inputs::where('id', $request->fk_inputs_id)->first();
 
