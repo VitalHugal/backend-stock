@@ -462,7 +462,7 @@ class ProductEquipamentController extends CrudController
             }
 
             //filtro com nome
-            if ($request->has('name') && $request->input('name') != '' && $request->has('active') &&  $request->input('active') != '' ) {
+            if ($request->has('name') && $request->input('name') != '' && $request->has('active') &&  $request->input('active') != '') {
 
                 if ($request->input('active') == 'true') {
 

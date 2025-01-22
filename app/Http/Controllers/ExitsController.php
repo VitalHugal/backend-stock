@@ -379,13 +379,13 @@ class ExitsController extends CrudController
                 ->where('fk_user_id', $idUser)
                 ->pluck('fk_category_id')
                 ->toArray();
-                
-                if ($user->level !== 'admin' && $user->level !== 'manager' && $categoryUser == null) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'Você não tem permissão de acesso para seguir adiante.',
-                    ]);
-                }
+
+            if ($user->level !== 'admin' && $user->level !== 'manager' && $categoryUser == null) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Você não tem permissão de acesso para seguir adiante.',
+                ]);
+            }
 
             $productEquipamentUser = ProductEquipament::where('id', $request->fk_product_equipament_id)->where('is_group', 0)->first();
 
@@ -395,7 +395,7 @@ class ExitsController extends CrudController
                     'message' => 'Nenhum produto encontrado.',
                 ]);
             }
-            
+
             (int)$productQuantityMin = $productEquipamentUser->quantity_min;
 
             if ($user->level == 'user') {
@@ -475,7 +475,7 @@ class ExitsController extends CrudController
                 if ($request->quantity > $data['quantity_active']) {
                     return response()->json([
                         'success' => false,
-                        'message' => 'Limite-se a quantidade disponível nessa entrada.'. $data['quantity_active'],
+                        'message' => 'Limite-se a quantidade disponível nessa entrada.' . $data['quantity_active'],
                     ]);
                 }
 
@@ -504,6 +504,87 @@ class ExitsController extends CrudController
                 }
             }
 
+            if ($productEquipamentUser->expiration_date == 1 || $productEquipamentUser->expiration_date == 0 && $request->discarded == 1) {
+
+                $validateData = $request->validate(
+                    $this->exits->rulesExitsDiscarded(),
+                    $this->exits->feedbackExitsDiscarded()
+                );
+
+                if ($productEquipamentUser->expiration_date == 1) {
+
+                    $allInputs = Inputs::where('fk_product_equipament_id', $productEquipamentUser->id)
+                        ->whereNull('deleted_at')
+                        ->pluck('id')
+                        ->toArray();
+
+                    if (!$allInputs) {
+                        return response()->json([
+                            'success' => false,
+                            'message' => 'Não é possivel relizar descarte desse produto ele não esta vinculado a nenhuma entrada.'
+                        ]);
+                    }
+
+                    $exists = in_array($request->fk_inputs_id, $allInputs);
+
+                    if (!$exists) {
+                        return response()->json([
+                            'success' => false,
+                            'message' => 'Entrada informada não pertence a esse produto.'
+                        ]);
+                    }
+
+                    $inputCorrect = Inputs::where('id', $request->fk_inputs_id)->get();
+
+                    if ($inputCorrect) {
+                        $quantytiActiveInputCorrect = $inputCorrect->quantity_active;
+
+                        if ($request->quantity_active > $quantytiActiveInputCorrect) {
+                            return response()->json([
+                                'success' => false,
+                                'message' => 'Limite-se a quantidade disponível nessa entrada. ' . $quantytiActiveInputCorrect . ' unidade(s).'
+                            ]);
+                        }
+                    }
+
+                    if ($validateData) {
+                        $exits = Exits::create([
+                            'fk_product_equipament_id' => $request->fk_product_equipament_id,
+                            'fk_user_id' => $idUser,
+                            'reason_project' => 'Descarte',
+                            'observation' => $request->observation,
+                            'quantity' => $request->quantity,
+                            'delivery_to' => 'Descarte',
+                            'fk_inputs_id' => $request->fk_inputs_id,
+                            'discarded' => $request->discarded,
+                        ]);
+
+                        $inputCorrect->quantity_active -= $request->quantity;
+                        $inputCorrect->save();
+                    }
+
+                    if ($inputCorrect->quantity_active == 0 && $exits['discarded'] == 1) {
+                        $status = 'Finalizado';
+                        $inputCorrect->status = $status;
+                        $inputCorrect->save();
+                    }
+                } else {
+
+                    if ($validateData) {
+                        $exits = Exits::create([
+                            'fk_product_equipament_id' => $request->fk_product_equipament_id,
+                            'fk_user_id' => $idUser,
+                            'reason_project' => 'Descarte',
+                            'observation' => $request->observation,
+                            'quantity' => $request->quantity,
+                            'delivery_to' => 'Descarte',
+                            'fk_inputs_id' => null,
+                            'discarded' => $request->discarded,
+                        ]);
+                    }
+                }
+            }
+
             $input = Inputs::where('id', $request->fk_inputs_id)->first();
 
             if ($validateData) {
@@ -520,7 +601,7 @@ class ExitsController extends CrudController
             }
 
             if ($exits) {
-                
+
                 SystemLog::create([
                     'fk_user_id' => $idUser,
                     'action' => 'Adicionou',
