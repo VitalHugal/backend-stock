@@ -60,7 +60,9 @@ class ProductEquipamentController extends CrudController
                             ->when($request->has('is_group') && in_array($request->input('is_group'), ['0', '1']), function ($query) use ($request) {
                                 $query->where('is_group', $request->input('is_group'));
                             })
-                            ->where('name', 'like', '%' . $request->input('name') . '%')
+                            ->when($request->has('name') && ($request->input('name') != ''), function ($query) use ($request) {
+                                $query->where('name', 'like', '%' . $request->input('name') . '%');
+                            })
                             ->orderBy('fk_category_id', 'asc')
                             ->paginate(10)
                             ->appends(['name' => $request->input('name'), 'active' => $request->input('active')]);
@@ -475,7 +477,9 @@ class ProductEquipamentController extends CrudController
                         ->when($request->has('is_group') && in_array($request->input('is_group'), ['0', '1']), function ($query) use ($request) {
                             $query->where('is_group', $request->input('is_group'));
                         })
-                        ->where('name', 'like', '%' . $request->input('name') . '%')
+                        ->when($request->has('name') && ($request->input('name') != ''), function ($query) use ($request) {
+                            $query->where('name', 'like', '%' . $request->input('name') . '%');
+                        })
                         ->orderBy('fk_category_id', 'asc')
                         ->paginate(10)
                         ->appends(['name' => $request->input('name'), 'active' => $request->input('active')]);
