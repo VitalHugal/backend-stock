@@ -593,7 +593,12 @@ class InputsController extends CrudController
 
             // dd('realizar validação do updateInput que não pode ser um valor maior que a quantidade que já saiu.');
 
-            dd($sum);
+            if ($request->quantity < $sum) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Não é possível alterar entrada para esse valor.',
+                ]);
+            }
 
             if ($request->quantity != $updateInput->quantity) {
                 $updateInput->quantity_active = $request->quantity;
@@ -628,7 +633,6 @@ class InputsController extends CrudController
             DB::commit();
 
             if ($updateInput) {
-                Log::info("User nº:{$idUser} updated entry nº:{$id} on {$date}");
 
                 return response()->json([
                     'success' => true,
