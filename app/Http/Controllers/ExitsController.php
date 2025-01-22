@@ -389,6 +389,13 @@ class ExitsController extends CrudController
 
             $productEquipamentUser = ProductEquipament::where('id', $request->fk_product_equipament_id)->where('is_group', 0)->first();
 
+            if ($productEquipamentUser == null) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Nenhum produto encontrado.',
+                ]);
+            }
+            
             (int)$productQuantityMin = $productEquipamentUser->quantity_min;
 
             if ($user->level == 'user') {
@@ -399,13 +406,6 @@ class ExitsController extends CrudController
                         'message' => 'Você não pode realizar saída(s) de produto(s) que não pertence ao seu nivel de acesso.'
                     ]);
                 }
-            }
-
-            if ($productEquipamentUser == null) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Nenhum produto/equipamento encontrado.',
-                ]);
             }
 
             $validateData = $request->validate(
