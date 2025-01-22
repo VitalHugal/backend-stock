@@ -184,7 +184,7 @@ class InputsController extends CrudController
                 ->orderBy('created_at', 'desc')
                 ->paginate(10);
 
-            if ($request->has('product') && $request->input('product') != '') {
+            if ($request->has('product_id') && $request->input('product_id') != '') {
 
                 $inputsAdmin = Inputs::with([
                     'productEquipament' => function ($query) {
@@ -200,10 +200,10 @@ class InputsController extends CrudController
                         $query->withTrashed();
                     },
                 ])
-                    ->where('fk_product_equipament_id', $request->input('product'))
+                    ->where('fk_product_equipament_id', $request->input('product_id'))
                     ->orderBy('created_at', 'desc')
                     ->paginate(10)
-                    ->appends(['product' => $request->input('product')]);
+                    ->appends(['product_id' => $request->input('product_id')]);
             }
 
             $inputsAdmin->getCollection()->transform(function ($input) {
