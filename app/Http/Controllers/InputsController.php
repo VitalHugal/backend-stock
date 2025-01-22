@@ -560,8 +560,6 @@ class InputsController extends CrudController
 
             $updateInput = $this->input->find($id);
 
-            dd($updateInput);
-
             if (!$updateInput) {
                 return response()->json([
                     'success' => false,
