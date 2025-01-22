@@ -498,7 +498,9 @@ class ReservationController extends CrudController
                     ]);
                 }
 
-                // (int)$productQuantityMin = $productEquipamentUser->quantity_min;
+                if ($productEquipamentUser->expiration_date ==) {
+                    # code...
+                }
 
                 $quantityTotalInputs = Inputs::where('fk_product_equipament_id', $request->fk_product_equipament_id)->sum('quantity');
                 $quantityTotalExits = Exits::where('fk_product_equipament_id', $request->fk_product_equipament_id)->sum('quantity');
@@ -513,7 +515,7 @@ class ReservationController extends CrudController
                 if ($quantityTotalProduct <= 0) {
                     return response()->json([
                         'success' => false,
-                        'message' => 'Produto indisponível.',
+                        'message' => 'Produto esgotado.',
                     ]);
                 }
 

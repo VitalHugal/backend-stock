@@ -440,6 +440,48 @@ class ExitsController extends CrudController
                 ]);
             }
 
+
+            if ($productEquipamentUser->expiration_date == '0' && $request->discarded == '0') {
+
+                $validateData = $request->validate(
+                    $this->exits->rulesExitsExpirationDateZeroDiscardedZero(),
+                    $this->exits->feedbackExitsExpirationDateZeroDiscardedZero()
+                );
+
+                if ($validateData) {
+                    $exits = Exits::create([
+                        'fk_product_equipament_id' => $request->fk_product_equipament_id,
+                        'fk_user_id' => $idUser,
+                        'reason_project' => $request->reason_project,
+                        'observation' => $request->observation,
+                        'quantity' => $request->quantity,
+                        'delivery_to' => $request->delivery_to,
+                        'fk_inputs_id' => null,
+                        'discarded' => $request->discarded,
+                    ]);
+
+                    if ($exits) {
+                        SystemLog::create([
+                            'fk_user_id' => $idUser,
+                            'action' => 'Adicionou',
+                            'table_name' => 'exits',
+                            'record_id' => $exits->id,
+                            'description' => 'Adicionou uma saída.',
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ]);
+                    }
+
+                    DB::commit();
+
+                    return response()->json([
+                        'success' => true,
+                        'message' => 'Saída criada com sucesso.',
+                        'data' => $exits
+                    ]);
+                }
+            }
+
             if ($productEquipamentUser->expiration_date == '1' && $request->discarded == '0') {
 
                 $validateData = $request->validate(
@@ -450,12 +492,13 @@ class ExitsController extends CrudController
                 $fk_product_equipament_id = $request->fk_product_equipament_id;
                 $inputIdOrderExpirationDateFirst = $this->input_service->getInputsWithOrderByExpirationDate($request, $fk_product_equipament_id);
 
-                if (!$request->fk_inputs_id == $inputIdOrderExpirationDateFirst || $request->fk_inputs_id == null) {
+                if ($request->fk_inputs_id != $inputIdOrderExpirationDateFirst->original['data']['id'] || $request->fk_inputs_id == null) {
                     return response()->json([
                         'success' => false,
                         'message' => 'A entrada relacionada não corresponde à definida pela plataforma. Por favor, verifique.'
                     ]);
                 }
+
 
                 $data = $inputIdOrderExpirationDateFirst->original['data'];
 
@@ -517,8 +560,8 @@ class ExitsController extends CrudController
             ) {
 
                 $validateDatatwo = $request->validate(
-                    $this->exits->rulesExitsDiscarded(),
-                    $this->exits->feedbackExitsDiscarded()
+                    $this->exits->rulesExitsDiscardedExpirationOne(),
+                    $this->exits->feedbackExitsDiscardedOne()
                 );
 
                 if ($productEquipamentUser->expiration_date == '1') {
@@ -578,69 +621,55 @@ class ExitsController extends CrudController
                             'data' => $exitsDiscardedOne
                         ]);
                     }
-                } else {
-                    if ($validateDatatwo) {
-                        $exits = Exits::create([
-                            'fk_product_equipament_id' => $request->fk_product_equipament_id,
-                            'fk_user_id' => $idUser,
-                            'reason_project' => 'Descarte',
-                            'observation' => $request->observation,
-                            'quantity' => $request->quantity,
-                            'delivery_to' => 'Descarte',
-                            'fk_inputs_id' => null,
-                            'discarded' => $request->discarded,
-                        ]);
-                        DB::commit();
+                }
 
-                        return response()->json([
-                            'success' => true,
-                            'message' => 'Saída criada com sucesso.',
-                            'data' => $exits
-                        ]);
-                    }
+                if ($productEquipamentUser->expiration_date == '0') {
+                    # code...
                 }
             }
 
-            $validateData = $request->validate(
-                $this->exits->rulesExits(),
-                $this->exits->feedbackExits()
-            );
+            // $validateDataThree = $request->validate(
+            //     $this->exits->rulesExits(),
+            //     $this->exits->feedbackExits()
+            // );
 
-            $input = Inputs::where('id', $request->fk_inputs_id)->first();
+            // $input = Inputs::where('id', $request->fk_inputs_id)->first();
 
-            if ($validateData) {
-                $exits = Exits::create([
-                    'fk_product_equipament_id' => $request->fk_product_equipament_id,
-                    'fk_user_id' => $idUser,
-                    'reason_project' => $request->reason_project,
-                    'observation' => $request->observation,
-                    'quantity' => $request->quantity,
-                    'delivery_to' => $request->delivery_to,
-                    'fk_inputs_id' => null,
-                    'discarded' => $request->discarded,
-                ]);
-            }
+            // if (($request->discarded == "0" && $productEquipamentUser->expiration_date == '0')) {
+            //     if ($validateDataThree) {
+            //         $exits = Exits::create([
+            //             'fk_product_equipament_id' => $request->fk_product_equipament_id,
+            //             'fk_user_id' => $idUser,
+            //             'reason_project' => $request->reason_project,
+            //             'observation' => $request->observation,
+            //             'quantity' => $request->quantity,
+            //             'delivery_to' => $request->delivery_to,
+            //             'fk_inputs_id' => null,
+            //             'discarded' => $request->discarded,
+            //         ]);
+            //     }
+            // }
 
-            if ($exits) {
+            // if ($exits) {
 
-                SystemLog::create([
-                    'fk_user_id' => $idUser,
-                    'action' => 'Adicionou',
-                    'table_name' => 'exits',
-                    'record_id' => $exits->id,
-                    'description' => 'Adicionou uma saída.',
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]);
+            // SystemLog::create([
+            //     'fk_user_id' => $idUser,
+            //     'action' => 'Adicionou',
+            //     'table_name' => 'exits',
+            //     'record_id' => $exits->id,
+            //     'description' => 'Adicionou uma saída.',
+            //     'created_at' => now(),
+            //     'updated_at' => now(),
+            // ]);
 
-                DB::commit();
+            //     DB::commit();
 
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Saída concluída com sucesso',
-                    'data' => $exits,
-                ]);
-            }
+            //     return response()->json([
+            //         'success' => true,
+            //         'message' => 'Saída concluída com sucesso',
+            //         'data' => $exits,
+            //     ]);
+            // }
         } catch (QueryException $qe) {
             DB::rollBack();
             return response()->json([
