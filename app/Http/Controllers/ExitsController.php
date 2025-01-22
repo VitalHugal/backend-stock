@@ -379,13 +379,13 @@ class ExitsController extends CrudController
                 ->where('fk_user_id', $idUser)
                 ->pluck('fk_category_id')
                 ->toArray();
-
-            if ($user->level !== 'admin' && $user->level !== 'manager' && $categoryUser == null) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Você não tem permissão de acesso para seguir adiante.',
-                ]);
-            }
+                
+                if ($user->level !== 'admin' && $user->level !== 'manager' && $categoryUser == null) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Você não tem permissão de acesso para seguir adiante.',
+                    ]);
+                }
 
             $productEquipamentUser = ProductEquipament::where('id', $request->fk_product_equipament_id)->where('is_group', 0)->first();
 
@@ -413,7 +413,6 @@ class ExitsController extends CrudController
                 $this->exits->feedbackExits()
             );
 
-
             $quantityTotalInputs = Inputs::where('fk_product_equipament_id', $request->fk_product_equipament_id)->sum('quantity');
             $quantityTotalExits = Exits::where('fk_product_equipament_id', $request->fk_product_equipament_id)->sum('quantity');
             $quantityReserveNotFinished = Reservation::where('fk_product_equipament_id', $request->fk_product_equipament_id)
@@ -427,7 +426,7 @@ class ExitsController extends CrudController
             if ($quantityTotalProduct <= 0) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Produto indisponível.',
+                    'message' => 'Produto esgotado.',
                 ]);
             }
 
@@ -445,7 +444,7 @@ class ExitsController extends CrudController
                 ]);
             }
 
-            if ($productEquipamentUser->expiration_date == 1 && $productEquipamentUser->discarded == 0) {
+            if ($productEquipamentUser->expiration_date == 1 && $request->discarded == 0) {
 
                 $fk_product_equipament_id = $request->fk_product_equipament_id;
                 $inputIdOrderExpirationDateFirst = $this->input_service->getInputsWithOrderByExpirationDate($request, $fk_product_equipament_id);
@@ -476,7 +475,7 @@ class ExitsController extends CrudController
                 if ($request->quantity > $data['quantity_active']) {
                     return response()->json([
                         'success' => false,
-                        'message' => 'Limite-se a quantidade disponível nessa entrada.',
+                        'message' => 'Limite-se a quantidade disponível nessa entrada.'. $data['quantity_active'],
                     ]);
                 }
 
