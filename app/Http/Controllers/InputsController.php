@@ -560,6 +560,8 @@ class InputsController extends CrudController
 
             $updateInput = $this->input->find($id);
 
+            dd($updateInput);
+
             if (!$updateInput) {
                 return response()->json([
                     'success' => false,
@@ -591,7 +593,9 @@ class InputsController extends CrudController
 
             $sum = Exits::where('fk_inputs_id', $id)->where('fk_product_equipament_id', $updateInput->fk_product_equipament_id)->sum('quantity');
 
-            dd('realizar validação do updateInput que não pode ser um valor maior que a quantidade que já saiu.');
+            // dd('realizar validação do updateInput que não pode ser um valor maior que a quantidade que já saiu.');
+
+            dd($sum);
 
             if ($request->quantity != $updateInput->quantity) {
                 $updateInput->quantity_active = $request->quantity;
