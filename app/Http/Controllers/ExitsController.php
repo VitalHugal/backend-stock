@@ -9,6 +9,7 @@ use App\Models\Reservation;
 use App\Models\SystemLog;
 use App\Services\InputService;
 use Exception;
+use Illuminate\Contracts\Support\ValidatedData;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -570,7 +571,7 @@ class ExitsController extends CrudController
                         }
 
                         DB::commit();
-                        
+
                         return response()->json([
                             'success' => true,
                             'message' => 'Saída criada com sucesso.',
@@ -720,10 +721,20 @@ class ExitsController extends CrudController
 
             $quantityTotalProduct = ($quantityTotalInputs) - ($quantityTotalExits + $quantityReserveNotFinished);
 
-            $validateData = $request->validate(
-                $this->exits->rulesExits(),
-                $this->exits->feedbackExits()
-            );
+            if (($product->expiration_date == '1' && $request->discarded == '1') ||
+                ($product->expiration_date == '0' && $request->discarded == '1')
+            ) {
+                $validateData = $request->validate(
+                    $this->exits->rulesExitsDiscarded(),
+                    $this->exits->feedbackExitsDiscarded()
+                );
+            } else {
+                $validateData = $request->validate(
+                    $this->exits->rulesExits(),
+                    $this->exits->feedbackExits()
+                );
+            }
+
 
             if ($fk_inputs_id != $request->fk_inputs_id) {
                 return response()->json([
@@ -746,7 +757,7 @@ class ExitsController extends CrudController
             if ($quantityTotalProduct <= 0 && $quantityNew > $quantityOld) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Produto indisponível.',
+                    'message' => 'Produto esgotado.',
                 ]);
             }
 

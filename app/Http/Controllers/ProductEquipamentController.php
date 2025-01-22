@@ -46,7 +46,7 @@ class ProductEquipamentController extends CrudController
 
             if ($user->level == 'user') {
 
-                if ($request->has('name') && $request->input('name') != '' && $request->has('active') && $request->input('active') != '') {
+                if ($request->has('active') && $request->input('active') != '') {
 
                     if ($request->input('active') == 'true') {
                         $productEquipamentUserSearch = ProductEquipament::with(['category' => function ($query) {
@@ -77,7 +77,12 @@ class ProductEquipamentController extends CrudController
                             })
 
                             ->whereIn('fk_category_id', $categoryUser)
-                            ->where('name', 'like', '%' . $request->input('name') . '%')
+                            ->when($request->has('is_group') && in_array($request->input('is_group'), ['0', '1']), function ($query) use ($request) {
+                                $query->where('is_group', $request->input('is_group'));
+                            })
+                            ->when($request->has('name') && ($request->input('name') != ''), function ($query) use ($request) {
+                                $query->where('name', 'like', '%' . $request->input('name') . '%');
+                            })
                             ->orderBy('fk_category_id', 'asc')
                             ->paginate(10)
                             ->appends(['name' => $request->input('name'), 'active' => $request->input('active')]);
@@ -462,7 +467,7 @@ class ProductEquipamentController extends CrudController
             }
 
             //filtro com nome
-            if ($request->has('name') && $request->input('name') != '' && $request->has('active') &&  $request->input('active') != '') {
+            if ($request->has('active') &&  $request->input('active') != '') {
 
                 if ($request->input('active') == 'true') {
 
@@ -493,8 +498,12 @@ class ProductEquipamentController extends CrudController
                             $query->whereNull('deleted_at');
                         })
 
-                        // ->whereIn('fk_category_id', $categoryUser)
-                        ->where('name', 'like', '%' . $request->input('name') . '%')
+                        ->when($request->has('is_group') && in_array($request->input('is_group'), ['0', '1']), function ($query) use ($request) {
+                            $query->where('is_group', $request->input('is_group'));
+                        })
+                        ->when($request->has('name') && ($request->input('name') != ''), function ($query) use ($request) {
+                            $query->where('name', 'like', '%' . $request->input('name') . '%');
+                        })
                         ->orderBy('fk_category_id', 'asc')
                         ->paginate(10)
                         ->appends(['name' => $request->input('name'), 'active' => $request->input('active')]);
