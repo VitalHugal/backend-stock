@@ -676,55 +676,7 @@ class ExitsController extends CrudController
                         ]);
                     }
                 }
-                // }
-
-                // if ($productEquipament->expiration_date == '0') {
-                //     # code...
-                // }
             }
-
-            // $validateDataThree = $request->validate(
-            //     $this->exits->rulesExits(),
-            //     $this->exits->feedbackExits()
-            // );
-
-            // $input = Inputs::where('id', $request->fk_inputs_id)->first();
-
-            // if (($request->discarded == "0" && $productEquipament->expiration_date == '0')) {
-            //     if ($validateDataThree) {
-            //         $exits = Exits::create([
-            //             'fk_product_equipament_id' => $request->fk_product_equipament_id,
-            //             'fk_user_id' => $idUser,
-            //             'reason_project' => $request->reason_project,
-            //             'observation' => $request->observation,
-            //             'quantity' => $request->quantity,
-            //             'delivery_to' => $request->delivery_to,
-            //             'fk_inputs_id' => null,
-            //             'discarded' => $request->discarded,
-            //         ]);
-            //     }
-            // }
-
-            // if ($exits) {
-
-            // SystemLog::create([
-            //     'fk_user_id' => $idUser,
-            //     'action' => 'Adicionou',
-            //     'table_name' => 'exits',
-            //     'record_id' => $exits->id,
-            //     'description' => 'Adicionou uma saída.',
-            //     'created_at' => now(),
-            //     'updated_at' => now(),
-            // ]);
-
-            //     DB::commit();
-
-            //     return response()->json([
-            //         'success' => true,
-            //         'message' => 'Saída concluída com sucesso',
-            //         'data' => $exits,
-            //     ]);
-            // }
         } catch (QueryException $qe) {
             DB::rollBack();
             return response()->json([
