@@ -176,4 +176,8 @@ class Exits extends Model
     {
         return $this->belongsTo(User::class, 'fk_user_id');
     }
+    public function input()
+    {
+        return $this->belongsTo(Inputs::class, 'fk_inputs_id');
+    }
 }

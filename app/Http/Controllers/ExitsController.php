@@ -120,6 +120,9 @@ class ExitsController extends CrudController
                 'user' => function ($query) {
                     $query->withTrashed();
                 },
+                'input' => function ($query) {
+                    $query->withTrashed();
+                },
             ])
                 ->orderBy('created_at', 'desc')
                 ->paginate(10);
@@ -136,6 +139,14 @@ class ExitsController extends CrudController
                     'name_user_exits' => $exit->user->trashed()
                         ? $exit->user->name . ' (Deletado)'
                         : $exit->user->name ?? null,
+
+                    'fk_input_id' => $exit->input->trashed()
+                        ? $exit->input->id
+                        : $exit->input->id ?? null,
+
+                    'input_deleted' => $exit->input->trashed()
+                        ? ('Deletado')
+                        : null,
 
                     'reason_project' => $exit->reason_project ?? null,
                     'observation' => $exit->observation ?? null,
@@ -161,6 +172,9 @@ class ExitsController extends CrudController
 
                     'created_at' => $this->exits->getFormattedDate($exit, 'created_at') ?? null,
                     'updated_at' => $this->exits->getFormattedDate($exit, 'updated_at') ?? null,
+                    'deleted_at' => $exit && $exit->trashed()
+                        ? $this->exits->getFormattedDate($exit, 'deleted_at')
+                        : $exit->deleted_at ?? null,
                 ];
             });
 
