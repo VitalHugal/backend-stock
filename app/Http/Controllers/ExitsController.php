@@ -477,7 +477,7 @@ class ExitsController extends CrudController
                             'updated_at' => now(),
                         ]);
                         DB::commit();
-    
+
                         return response()->json([
                             'success' => true,
                             'message' => 'Saída criada com sucesso.',
@@ -823,14 +823,14 @@ class ExitsController extends CrudController
                 }
             }
 
-            if ($quantityTotalProduct <= 0 && $quantityNew > $quantityOld) {
+            if ($quantityTotalProduct <= 0 || $$input->quantity_active <= 0) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Produto esgotado.',
                 ]);
             }
 
-            if ($request->quantity == 0 || $request->quantity == '0') {
+            if ($request->quantity == '0') {
                 return response()->json([
                     'success' => false,
                     'message' => 'Quantidade minima: 1.',
@@ -901,19 +901,18 @@ class ExitsController extends CrudController
                 $logDescription = 'Nenhum.';
             }
 
-            SystemLog::create([
-                'fk_user_id' => $idUser,
-                'action' => 'Atualizou',
-                'table_name' => 'exits',
-                'record_id' => $id,
-                'description' => 'Atualizou uma saída. Dados alterados: ' . $logDescription,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
-
-            DB::commit();
-
             if ($updateExits) {
+                SystemLog::create([
+                    'fk_user_id' => $idUser,
+                    'action' => 'Atualizou',
+                    'table_name' => 'exits',
+                    'record_id' => $id,
+                    'description' => 'Atualizou uma saída. Dados alterados: ' . $logDescription,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+
+                DB::commit();
                 return response()->json([
                     'success' => true,
                     'message' => 'Saída atualizada com sucesso',
@@ -960,6 +959,8 @@ class ExitsController extends CrudController
                 ]);
             }
 
+            dd($deleteExits);
+            
             $quantityReturnDB = $deleteExits->quantity;
 
             if ($deleteExits->fk_inputs_id) {
