@@ -104,6 +104,9 @@ class ExitsController extends CrudController
 
                         'created_at' => $this->exits->getFormattedDate($exit, 'created_at') ?? null,
                         'updated_at' => $this->exits->getFormattedDate($exit, 'updated_at') ?? null,
+                        'deleted_at' => $exit && $exit->trashed()
+                            ? $this->exits->getFormattedDate($exit, 'deleted_at')
+                            : $exit->deleted_at ?? null,
                     ];
                 });
 
