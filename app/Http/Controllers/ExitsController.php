@@ -77,7 +77,7 @@ class ExitsController extends CrudController
                             : $exit->user->name ?? null,
 
                         'fk_input_id' => $exit->fk_inputs_id ?? null,
-                        'input_deleted' => $exit->input->trashed()
+                        'input_deleted' => $exit->input?->trashed()
                             ? '(Deletado)' : null,
 
                         'reason_project' => $exit->reason_project ?? null,
