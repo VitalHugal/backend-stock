@@ -54,6 +54,8 @@ class ExitsController extends CrudController
                         $query->withTrashed();
                     }, 'user' => function ($query) {
                         $query->withTrashed();
+                    }, 'input' => function ($query) {
+                        $query->withTrashed();
                     }])
                     ->whereHas('productEquipament', function ($query) use ($categoryUser) {
                         $query->whereIn('fk_category_id', $categoryUser)
@@ -73,6 +75,10 @@ class ExitsController extends CrudController
                         'name_user_exits' => $exit->user->trashed()
                             ? $exit->user->name . ' (Deletado)'
                             : $exit->user->name ?? null,
+
+                        'fk_input_id' => $exit->fk_inputs_id ?? null,
+                        'input_deleted' => $exit->input->trashed()
+                            ? '(Deletado)' : null,
 
                         'reason_project' => $exit->reason_project ?? null,
                         'observation' => $exit->observation ?? null,
@@ -120,9 +126,9 @@ class ExitsController extends CrudController
                 'user' => function ($query) {
                     $query->withTrashed();
                 },
-                // 'input' => function ($query) {
-                //     $query->withTrashed();
-                // },
+                'input' => function ($query) {
+                    $query->withTrashed();
+                },
             ])
                 ->orderBy('created_at', 'desc')
                 ->paginate(10);
@@ -140,11 +146,9 @@ class ExitsController extends CrudController
                         ? $exit->user->name . ' (Deletado)'
                         : $exit->user->name ?? null,
 
-                //     'fk_input_id' => $exit->input->trashed()
-                //         ? $exit->input->id
-                //         : $exit->input->id ?? null,
-
-                //    'input_deleted' => $exit->input->trashed() ? 'Deletado' : null,
+                    'fk_input_id' => $exit->fk_inputs_id ?? null,
+                    'input_deleted' => $exit->input->trashed()
+                        ? '(Deletado)' : null,
 
                     'reason_project' => $exit->reason_project ?? null,
                     'observation' => $exit->observation ?? null,
