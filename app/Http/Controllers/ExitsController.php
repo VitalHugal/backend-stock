@@ -959,13 +959,21 @@ class ExitsController extends CrudController
                 ]);
             }
 
-            dd($deleteExits);
-            
+            $product = ProductEquipament::withTrashed('id', $deleteExits->fk_product_equipament_id)->first();
+
+            if (!$product) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Nenhum produto vinculado a essa saída.'
+                ]);
+            }
+
             $quantityReturnDB = $deleteExits->quantity;
 
-            if ($deleteExits->fk_inputs_id) {
+            if ($deleteExits->fk_inputs_id != null) {
                 $fk_inputs_id_returned_quantity = $deleteExits->fk_inputs_id;
             }
+            
             $deleteExits->delete();
 
             if ($deleteExits) {
