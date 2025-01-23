@@ -28,14 +28,6 @@ class ExitsController extends CrudController
         $this->input_service = $inputService;
     }
 
-    // public function __construct(Exits $exits, Inputs $inputs)
-    // {
-    //     parent::__construct($exits, $inputs);
-
-    //     $this->exits = $exits;
-    //     $this->inputs = $inputs;
-    // }
-
     public function getAllExits(Request $request)
     {
         try {
@@ -969,34 +961,33 @@ class ExitsController extends CrudController
             }
 
             $quantityReturnDB = $deleteExits->quantity;
-            
+
             $deleteExits->delete();
 
             if ($deleteExits) {
 
-                    $result = Inputs::where('id', $deleteExits->fk_inputs_id)->first();
+                $result = Inputs::where('id', $deleteExits->fk_inputs_id)->first();
 
-                    if ($result) {
-                        $result->quantity_active = $result->quantity_active + $quantityReturnDB;
-                        $result->save();
-                    }
+                if ($result) {
+                    $result->quantity_active = $result->quantity_active + $quantityReturnDB;
+                    $result->save();
                 }
-
-                SystemLog::create([
-                    'fk_user_id' => $idUser,
-                    'action' => 'Excluiu',
-                    'table_name' => 'exits',
-                    'record_id' => $id,
-                    'description' => 'Excluiu uma saída.',
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]);
-
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Saída removida com sucesso.',
-                ]);
             }
+
+            SystemLog::create([
+                'fk_user_id' => $idUser,
+                'action' => 'Excluiu',
+                'table_name' => 'exits',
+                'record_id' => $id,
+                'description' => 'Excluiu uma saída.',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Saída removida com sucesso.',
+            ]);
         } catch (QueryException $qe) {
             return response()->json([
                 'success' => false,
