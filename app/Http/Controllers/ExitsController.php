@@ -453,7 +453,7 @@ class ExitsController extends CrudController
                         'message' => 'Quantidade solicitada indisponível no estoque. Temos apenas ' . $quantityTotalProduct . ' unidade(s).',
                     ]);
                 }
-
+dd('aqui');
                 if ($validateData) {
                     $exits = Exits::create([
                         'fk_product_equipament_id' => $request->fk_product_equipament_id,
