@@ -769,7 +769,7 @@ class ExitsController extends CrudController
                 ]);
             }
 
-            $productQuantityMin = $product->quantity_min;
+            // $productQuantityMin = $product->quantity_min;
 
             $quantityTotalInputs = Inputs::where('fk_product_equipament_id', $fk_product)->sum('quantity');
             $quantityTotalExits = Exits::where('fk_product_equipament_id', $fk_product)->sum('quantity');
@@ -784,17 +784,22 @@ class ExitsController extends CrudController
             if (($product->expiration_date == '1' && $request->discarded == '1') ||
                 ($product->expiration_date == '0' && $request->discarded == '1')
             ) {
+
                 $validateData = $request->validate(
-                    $this->exits->rulesExitsDiscarded(),
-                    $this->exits->feedbackExitsDiscarded()
+                    $this->exits->rulesExitsDiscardedExpirationOne(),
+                    $this->exits->feedbackExitsDiscardedOne()
                 );
-            } else {
+            } elseif ($product->expiration_date == '1' && $request->discarded == '0') {
                 $validateData = $request->validate(
                     $this->exits->rulesExits(),
                     $this->exits->feedbackExits()
                 );
+            } else {
+                $validateData = $request->validate(
+                    $this->exits->rulesExitsExpirationDateZeroDiscardedZero(),
+                    $this->exits->feedbackExitsExpirationDateZeroDiscardedZero()
+                );
             }
-
 
             if ($fk_inputs_id != $request->fk_inputs_id) {
                 return response()->json([
@@ -806,10 +811,15 @@ class ExitsController extends CrudController
             if ($quantityNew > $quantityOld) {
                 $result = ($quantityNew - $quantityOld);
 
-                if ($result > $input->quantity_active) {
+                if ($result > $input->quantity_active && $product->expiration_date == '1') {
                     return response()->json([
                         'success' => false,
-                        'message' => 'Quantidade disponível nesse relacionamento: ' . $input->quantity_active . ' unidade(s).',
+                        'message' => 'Limite-se à quantidade disponível nessa entrada. ' . $input->quantity_active . ' unidade(s).',
+                    ]);
+                } else {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Limite-se à quantidade disponível nessa entrada. ' . $quantityTotalProduct . ' unidade(s).'
                     ]);
                 }
             }
@@ -846,11 +856,16 @@ class ExitsController extends CrudController
                 //     ]);
                 // }
 
-                if ($input->quantity_active < $removeDB) {
+                if ($input->quantity_active < $removeDB && $product->expiration_date == '1') {
                     return response()->json([
                         'success' => false,
                         // 'message' => 'Quantidade insuficiente em estoque. Temos apenas ' . $quantityTotalProduct . ' unidades disponíveis.',
-                        'message' => 'Limite-se a quantidade disponível nessa entrada.',
+                        'message' => 'Limite-se à quantidade disponível nessa entrada. ' . $input->quantity_active . ' unidade(s).',
+                    ]);
+                }else {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Limite-se à quantidade disponível nessa entrada. ' . $quantityTotalProduct . ' unidade(s).'
                     ]);
                 }
 
