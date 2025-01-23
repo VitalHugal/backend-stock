@@ -453,7 +453,7 @@ class ExitsController extends CrudController
                         'message' => 'Quantidade solicitada indisponível no estoque. Temos apenas ' . $quantityTotalProduct . ' unidade(s).',
                     ]);
                 }
-dd('aqui');
+                // dd('aqui');
                 if ($validateData) {
                     $exits = Exits::create([
                         'fk_product_equipament_id' => $request->fk_product_equipament_id,
@@ -476,15 +476,15 @@ dd('aqui');
                             'created_at' => now(),
                             'updated_at' => now(),
                         ]);
+
+                        DB::commit();
+
+                        return response()->json([
+                            'success' => true,
+                            'message' => 'Saída criada com sucesso.',
+                            'data' => $exits
+                        ]);
                     }
-
-                    DB::commit();
-
-                    return response()->json([
-                        'success' => true,
-                        'message' => 'Saída criada com sucesso.',
-                        'data' => $exits
-                    ]);
                 }
             }
 
@@ -555,14 +555,15 @@ dd('aqui');
                         $input->status = $status;
                         $input->save();
                     }
-                }
-                DB::commit();
 
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Saída criada com sucesso.',
-                    'data' => $exitsExpirationOneDiscardedZero
-                ]);
+                    DB::commit();
+
+                    return response()->json([
+                        'success' => true,
+                        'message' => 'Saída criada com sucesso.',
+                        'data' => $exitsExpirationOneDiscardedZero
+                    ]);
+                }
             }
 
             if (($productEquipament->expiration_date == '1' && $request->discarded == '1') ||
@@ -641,15 +642,15 @@ dd('aqui');
                             $inputCorrect->status = 'Finalizado';
                             $inputCorrect->save();
                         }
+
+                        DB::commit();
+
+                        return response()->json([
+                            'success' => true,
+                            'message' => 'Saída criada com sucesso.',
+                            'data' => $exitsDiscardedOne
+                        ]);
                     }
-
-                    DB::commit();
-
-                    return response()->json([
-                        'success' => true,
-                        'message' => 'Saída criada com sucesso.',
-                        'data' => $exitsDiscardedOne
-                    ]);
                 }
                 // }
 
