@@ -144,9 +144,7 @@ class ExitsController extends CrudController
                         ? $exit->input->id
                         : $exit->input->id ?? null,
 
-                    'input_deleted' => $exit->input->trashed()
-                        ? ('Deletado')
-                        : null,
+                   'input_deleted' => $exit->input->trashed() ? 'Deletado' : null,
 
                     'reason_project' => $exit->reason_project ?? null,
                     'observation' => $exit->observation ?? null,
