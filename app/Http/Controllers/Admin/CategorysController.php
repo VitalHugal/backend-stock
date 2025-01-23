@@ -251,7 +251,7 @@ class CategorysController extends CrudController
                 ]);
             }
 
-            $category = $this->category->find($id);
+            $category = Category::where('id', $id)->first();
 
             if (!$category) {
                 return response()->json([

@@ -245,6 +245,9 @@ class ExitsController extends CrudController
                         'user' => function ($query) {
                             $query->withTrashed();
                         },
+                        'input' => function ($query) {
+                            $query->withTrashed();
+                        }
                     ])
                     ->where('id', $id)
                     ->whereHas('productEquipament', function ($query) use ($categoryUser) {
@@ -269,6 +272,10 @@ class ExitsController extends CrudController
                     'name_user_exits' => $exit->user->trashed()
                         ? $exit->user->name . ' (Deletado)'
                         : $exit->user->name ?? null,
+
+                    'fk_input_id' => $exit->fk_inputs_id ?? null,
+                    'input_deleted' => $exit->input?->trashed()
+                        ? '(Deletado)' : null,
 
                     'reason_project' => $exit->reason_project ?? null,
                     'observation' => $exit->observation ?? null,
@@ -312,6 +319,9 @@ class ExitsController extends CrudController
                     'user' => function ($query) {
                         $query->withTrashed();
                     },
+                    'input' => function ($query) {
+                        $query->withTrashed();
+                    }
                 ])
                 ->where('id', $id)
                 ->whereHas('productEquipament', function ($query) use ($categoryUser) {
@@ -335,6 +345,10 @@ class ExitsController extends CrudController
                 'name_user_exits' => $exit->user->trashed()
                     ? $exit->user->name . ' (Deletado)'
                     : $exit->user->name ?? null,
+
+                'fk_input_id' => $exit->fk_inputs_id ?? null,
+                'input_deleted' => $exit->input?->trashed()
+                    ? '(Deletado)' : null,
 
                 'reason_project' => $exit->reason_project ?? null,
                 'observation' => $exit->observation ?? null,
@@ -761,7 +775,7 @@ class ExitsController extends CrudController
             $quantityNew = $request->quantity;
             $fk_inputs_id = $updateExits->fk_inputs_id;
 
-            $input = Inputs::where('id', $fk_inputs_id)->first();
+            $input = Inputs::withTrashed('id', $fk_inputs_id)->first();
 
             if (!$input) {
                 return response()->json([
@@ -770,7 +784,7 @@ class ExitsController extends CrudController
                 ]);
             }
 
-            $product = ProductEquipament::find($fk_product);
+            $product = ProductEquipament::where('id', $fk_product)->first();
 
             if (!$product) {
                 return response()->json([
@@ -815,6 +829,20 @@ class ExitsController extends CrudController
                 return response()->json([
                     'success' => false,
                     'message' => 'Não é permitido alterar o id da entrada.',
+                ]);
+            }
+
+            if ($fk_product != $request->fk_product_equipament_id) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Não é permitido alterar o produto.',
+                ]);
+            }
+
+            if ($updateExits->discarded != $request->discarded) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Não é permitido alterar o tipo de saída.',
                 ]);
             }
 
@@ -945,7 +973,6 @@ class ExitsController extends CrudController
         }
     }
 
-
     public function delete(Request $request, $id)
     {
         try {
@@ -991,22 +1018,22 @@ class ExitsController extends CrudController
                     $result->quantity_active = $result->quantity_active + $quantityReturnDB;
                     $result->save();
                 }
+
+                SystemLog::create([
+                    'fk_user_id' => $idUser,
+                    'action' => 'Excluiu',
+                    'table_name' => 'exits',
+                    'record_id' => $id,
+                    'description' => 'Excluiu uma saída.',
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Saída removida com sucesso.',
+                ]);
             }
-
-            SystemLog::create([
-                'fk_user_id' => $idUser,
-                'action' => 'Excluiu',
-                'table_name' => 'exits',
-                'record_id' => $id,
-                'description' => 'Excluiu uma saída.',
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Saída removida com sucesso.',
-            ]);
         } catch (QueryException $qe) {
             return response()->json([
                 'success' => false,

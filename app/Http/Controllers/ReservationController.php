@@ -820,6 +820,7 @@ class ReservationController extends CrudController
             ]);
         }
     }
+    
     public function delayedReservations(Request $request)
     {
         try {

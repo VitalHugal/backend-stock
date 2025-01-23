@@ -272,7 +272,7 @@ class StorageLocationController extends CrudController
                 ]);
             }
 
-            $updateStorageLocation = $this->storage_location->find($id);
+            $updateStorageLocation = StorageLocation::where('id', $id)->first();
 
             if (!$updateStorageLocation) {
                 return response()->json([
