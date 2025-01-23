@@ -74,6 +74,7 @@ class Exits extends Model
 
             // 'discarded.required' => 'O campo "descarte" é obrigátorio.',
             'discarded.boolean' => 'Válido apenas 0 ou 1 nesse campo.',
+            'discarded.required' => 'Campo descarte é obrigatório.',
         ];
     }
 
@@ -117,6 +118,7 @@ class Exits extends Model
 
             // 'discarded.required' => 'O campo "descarte" é obrigátorio.',
             'discarded.boolean' => 'Válido apenas 0 ou 1 nesse campo.',
+            'discarded.required' => 'Campo descarte é obrigatório.',
         ];
     }
     public function rulesExitsExpirationDateZeroDiscardedZero()
@@ -159,6 +161,7 @@ class Exits extends Model
 
             // 'discarded.required' => 'O campo "descarte" é obrigátorio.',
             'discarded.boolean' => 'Válido apenas 0 ou 1 nesse campo.',
+            'discarded.required' => 'Campo descarte é obrigatório.',
         ];
     }
 

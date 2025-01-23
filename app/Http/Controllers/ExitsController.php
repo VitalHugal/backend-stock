@@ -825,12 +825,17 @@ class ExitsController extends CrudController
                 );
             }
 
-            if ($fk_inputs_id != $request->fk_inputs_id) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Não é permitido alterar o id da entrada.',
-                ]);
+            // dd($updateExits->fk_inputs_id);
+
+            if ($updateExits->fk_inputs_id != null) {
+                if ($request->fk_inputs_id != $updateExits->fk_inputs_id) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Não é permitido alterar o id da entrada.',
+                    ]);
+                }
             }
+            // dd('aqui');
 
             if ($fk_product != $request->fk_product_equipament_id) {
                 return response()->json([
@@ -846,34 +851,32 @@ class ExitsController extends CrudController
                 ]);
             }
 
-            if ($quantityNew > $quantityOld) {
-                $result = ($quantityNew - $quantityOld);
-
-                if ($result > $input->quantity_active && $product->expiration_date == '1') {
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'Limite-se à quantidade disponível nessa entrada. ' . $input->quantity_active . ' unidade(s).',
-                    ]);
-                } else {
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'Limite-se à quantidade disponível nessa entrada. ' . $quantityTotalProduct . ' unidade(s).'
-                    ]);
-                }
-            }
-
-            if ($quantityTotalProduct <= 0 || $$input->quantity_active <= 0) {
+            if ($quantityTotalProduct <= 0 && $product->expiration_date == '0') {
                 return response()->json([
                     'success' => false,
                     'message' => 'Produto esgotado.',
                 ]);
-            }
-
-            if ($request->quantity == '0') {
+            } elseif ($input->quantity_active <= 0 && $product->expiration_date == '1') {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Quantidade minima: 1.',
+                    'message' => 'Entrada referente a esse produto esta esgotada.',
                 ]);
+            }
+
+            if ($quantityNew > $quantityOld) {
+                $result = ($quantityNew - $quantityOld);
+
+                if ($quantityTotalProduct < $result && $product->expiration_date == '0') {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Quantidade insuficiente em estoque. Temos apenas ' . $quantityTotalProduct . ' unidades disponíveis.',
+                    ]);
+                } elseif ($input->quantity_active < $result && $product->expiration_date == '1') {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Quantidade insuficiente em estoque. Temos apenas ' . $input->quantity_active . ' unidades disponíveis.',
+                    ]);
+                }
             }
 
             if ((int)$quantityOld > (int)$quantityNew) {
@@ -887,27 +890,18 @@ class ExitsController extends CrudController
             } elseif ((int)$quantityNew > (int)$quantityOld) {
                 $removeDB = $quantityNew - $quantityOld;
 
-                // if ($quantityTotalProduct < $removeDB) {
-                //     return response()->json([
-                //         'success' => false,
-                //         'message' => 'Quantidade insuficiente em estoque. Temos apenas ' . $quantityTotalProduct . ' unidades disponíveis.',
-                //     ]);
-                // }
 
-                if ($input->quantity_active < $removeDB && $product->expiration_date == '1') {
+                if ($quantityTotalProduct < $removeDB && $product->expiration_date == '0') {
                     return response()->json([
                         'success' => false,
-                        // 'message' => 'Quantidade insuficiente em estoque. Temos apenas ' . $quantityTotalProduct . ' unidades disponíveis.',
-                        'message' => 'Limite-se à quantidade disponível nessa entrada. ' . $input->quantity_active . ' unidade(s).',
+                        'message' => 'Quantidade insuficiente em estoque. Temos apenas ' . $quantityTotalProduct . ' unidades disponíveis.',
                     ]);
-                } else {
+                } elseif ($input->quantity_active < $removeDB && $product->expiration_date == '1') {
                     return response()->json([
                         'success' => false,
-                        'message' => 'Limite-se à quantidade disponível nessa entrada. ' . $quantityTotalProduct . ' unidade(s).'
+                        'message' => 'Quantidade insuficiente em estoque. Temos apenas ' . $input->quantity_active . ' unidades disponíveis.',
                     ]);
                 }
-
-                // dd('aqui');
 
                 $updateExits->update(['quantity' => $updateExits->quantity - $removeDB]);
                 $input->update(['quantity_active' => $input->quantity_active - $removeDB]);
