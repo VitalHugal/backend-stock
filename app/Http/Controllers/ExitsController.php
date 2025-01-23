@@ -476,9 +476,8 @@ class ExitsController extends CrudController
                             'created_at' => now(),
                             'updated_at' => now(),
                         ]);
-
                         DB::commit();
-
+    
                         return response()->json([
                             'success' => true,
                             'message' => 'Saída criada com sucesso.',
@@ -862,7 +861,7 @@ class ExitsController extends CrudController
                         // 'message' => 'Quantidade insuficiente em estoque. Temos apenas ' . $quantityTotalProduct . ' unidades disponíveis.',
                         'message' => 'Limite-se à quantidade disponível nessa entrada. ' . $input->quantity_active . ' unidade(s).',
                     ]);
-                }else {
+                } else {
                     return response()->json([
                         'success' => false,
                         'message' => 'Limite-se à quantidade disponível nessa entrada. ' . $quantityTotalProduct . ' unidade(s).'
@@ -879,6 +878,7 @@ class ExitsController extends CrudController
                     $input->status = $status;
                     $input->save();
                 }
+
                 if ($input->quantity_active > 0) {
                     $this->input_service->updateStatusInput($input);
                 }
