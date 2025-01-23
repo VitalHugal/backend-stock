@@ -498,9 +498,10 @@ class ReservationController extends CrudController
                     ]);
                 }
 
-                if ($productEquipamentUser->expiration_date ==) {
-                    # code...
-                }
+                dd('arrumar aqui');
+                // if ($productEquipamentUser->expiration_date ==) {
+                //     # code...
+                // }
 
                 $quantityTotalInputs = Inputs::where('fk_product_equipament_id', $request->fk_product_equipament_id)->sum('quantity');
                 $quantityTotalExits = Exits::where('fk_product_equipament_id', $request->fk_product_equipament_id)->sum('quantity');
@@ -526,7 +527,7 @@ class ReservationController extends CrudController
                     ]);
                 }
 
-                if ($request->quantity == '0' || $request->quantity == 0) {
+                if ($request->quantity == '0' || $request->quantity < 0) {
                     return response()->json([
                         'success' => false,
                         'message' => 'Quantidade minima: 1.',

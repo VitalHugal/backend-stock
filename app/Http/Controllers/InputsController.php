@@ -549,6 +549,13 @@ class InputsController extends CrudController
                 );
             }
 
+            if ($request->quantity == '0' || $request->quantity < 0) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Quantidade mínima: 1',
+                ]);
+            }
+
             if ($validatedData) {
                 $input = $this->input->create([
                     'fk_product_equipament_id' => $request->fk_product_equipament_id,
