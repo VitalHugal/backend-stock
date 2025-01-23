@@ -761,7 +761,7 @@ class ReservationController extends CrudController
                     }
 
                     $updateReservation->update(['quantity' => $updateReservation->quantity - $removeDB]);
-                    Log::info("User nº:{$idUserRequest} updates quantity from product in reserve nº:{$id}. Returned {$removeDB} unit for bank of data.");
+                    // Log::info("User nº:{$idUserRequest} updates quantity from product in reserve nº:{$id}. Returned {$removeDB} unit for bank of data.");
                 }
 
                 $updateReservation->fill($validateData);

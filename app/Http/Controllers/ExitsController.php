@@ -803,6 +803,8 @@ class ExitsController extends CrudController
                 ]);
             }
 
+            dd($input->quantity_active);
+
             if ($quantityTotalProduct <= 0 && $product->expiration_date == '0') {
                 return response()->json([
                     'success' => false,
