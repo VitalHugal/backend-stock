@@ -969,21 +969,15 @@ class ExitsController extends CrudController
             }
 
             $quantityReturnDB = $deleteExits->quantity;
-
-            if ($deleteExits->fk_inputs_id != null) {
-                $fk_inputs_id_returned_quantity = $deleteExits->fk_inputs_id;
-            }
             
             $deleteExits->delete();
 
             if ($deleteExits) {
 
-                if ($fk_inputs_id_returned_quantity) {
-                    $result = Inputs::where('id', $fk_inputs_id_returned_quantity)->first();
+                    $result = Inputs::where('id', $deleteExits->fk_inputs_id)->first();
 
                     if ($result) {
-                        $quantity_active = $result->quantity_active;
-                        $result->quantity_active = $quantity_active + $quantityReturnDB;
+                        $result->quantity_active = $result->quantity_active + $quantityReturnDB;
                         $result->save();
                     }
                 }
