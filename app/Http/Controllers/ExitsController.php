@@ -738,7 +738,7 @@ class ExitsController extends CrudController
             $fk_inputs_id = $updateExits->fk_inputs_id;
             
             // dd(!$fk_inputs_id != null);
-            if (!$fk_inputs_id != null) {
+            if (!$fk_inputs_id == null) {
 
                 $input = Inputs::where('id', $fk_inputs_id)->first();
 
