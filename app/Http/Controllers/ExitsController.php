@@ -458,7 +458,7 @@ class ExitsController extends CrudController
                 ]);
             }
 
-            if ($request->quantity == '0' || $request->quantity < 0) {
+            if ($request->quantity <= '0') {
                 return response()->json([
                     'success' => false,
                     'message' => 'Quantidade minima: 1.',
@@ -548,7 +548,6 @@ class ExitsController extends CrudController
 
                 $input = Inputs::where('id', $request->fk_inputs_id)->first();
 
-
                 if ($validateData) {
                     $exitsExpirationOneDiscardedZero = Exits::create([
                         'fk_product_equipament_id' => $request->fk_product_equipament_id,
@@ -568,6 +567,7 @@ class ExitsController extends CrudController
                         $input->save();
                     }
                 }
+
                 if ($exitsExpirationOneDiscardedZero) {
                     SystemLog::create([
                         'fk_user_id' => $idUser,
@@ -736,7 +736,9 @@ class ExitsController extends CrudController
             $quantityNew = $request->quantity;
             $fk_inputs_id = $updateExits->fk_inputs_id;
 
-            $input = Inputs::withTrashed('id', $fk_inputs_id)->first();
+            $input = Inputs::where('id', $fk_inputs_id)->first();
+
+            // dd($input);
 
             if (!$input) {
                 return response()->json([
@@ -825,8 +827,6 @@ class ExitsController extends CrudController
             } elseif ((int)$quantityNew > (int)$quantityOld) {
                 $removeDB = $quantityNew - $quantityOld;
 
-                // dd($input->quantity_active);
-                
                 if ($quantityTotalProduct < $removeDB && $product->expiration_date == '0') {
                     return response()->json([
                         'success' => false,
