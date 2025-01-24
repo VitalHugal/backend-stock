@@ -595,9 +595,7 @@ class ExitsController extends CrudController
                 }
             }
 
-            if (($productEquipament->expiration_date == '1' && $request->discarded == '1') ||
-                ($productEquipament->expiration_date == '0' && $request->discarded == '1')
-            ) {
+            if ($productEquipament->expiration_date == '1' || $productEquipament->expiration_date == '0' && $request->discarded == '1') {
 
                 $validateDatatwo = $request->validate(
                     $this->exits->rulesExitsDiscardedExpirationOne(),
@@ -651,8 +649,6 @@ class ExitsController extends CrudController
                         'fk_inputs_id' => $request->fk_inputs_id,
                         'discarded' => $request->discarded,
                     ]);
-
-                    dd($exitsDiscardedOne);
 
                     if ($productEquipament->expiration_date == '1' && $exitsDiscardedOne) {
 
