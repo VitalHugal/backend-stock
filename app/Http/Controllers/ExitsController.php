@@ -736,15 +736,16 @@ class ExitsController extends CrudController
             $quantityNew = $request->quantity;
             $fk_inputs_id = $updateExits->fk_inputs_id;
 
-            $input = Inputs::withTrashed('id', $fk_inputs_id)->get();
-
-            dd($input);
-
-            if (!$input) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Nenhuma entrada encontrado.',
-                ]);
+            if ($fk_product != null) {
+                
+                $input = Inputs::where('id', $fk_inputs_id)->first();
+    
+                if (!$input) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Nenhuma entrada encontrado.',
+                    ]);
+                }
             }
 
             $product = ProductEquipament::where('id', $fk_product)->first();
