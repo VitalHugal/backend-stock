@@ -548,8 +548,8 @@ class ExitsController extends CrudController
 
                 $input = Inputs::where('id', $request->fk_inputs_id)->first();
 
-                dd($input->quantity_active -= $request->quantity);
-                
+                // dd($input->quantity_active -= $request->quantity);
+
                 if ($validateData) {
                     $exitsExpirationOneDiscardedZero = Exits::create([
                         'fk_product_equipament_id' => $request->fk_product_equipament_id,
@@ -562,8 +562,10 @@ class ExitsController extends CrudController
                         'discarded' => $request->discarded,
                     ]);
 
-                    $input->quantity_active -= $request->quantity;
-                    $input->save();
+                    if ($input) {
+                        $input->quantity -= $request->quantity;
+                        $input->save();
+                    }
                 }
                 if ($exitsExpirationOneDiscardedZero) {
                     SystemLog::create([
