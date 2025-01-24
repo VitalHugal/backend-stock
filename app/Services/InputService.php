@@ -75,6 +75,10 @@ class InputService
                                 $status = 'Em alerta';
                             }
 
+                            if ($input->quantity_active == '0') {
+                                $status = 'Finalizado';
+                            }
+
                             $input->status = $status;
                             $input->save();
                         }
@@ -98,7 +102,8 @@ class InputService
                         ->where('fk_product_equipament_id', $id)
                         // ->where('status', '!=', 'Vencido')
                         ->where('status', '!=', 'Finalizado')
-                        ->where('quantity_active', '==', '0')
+                        ->where('quantity_active', '>', '0')
+                        ->whereNotNull('quantity_active')
                         ->select('*', DB::raw('DATEDIFF(expiration_date, NOW()) AS days_remaining')) // Calcule os dias restantes
                         ->orderBy('days_remaining', 'asc') // Ordene pelos dias restantes em ordem crescente
                         ->get()
