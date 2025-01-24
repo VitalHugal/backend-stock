@@ -736,7 +736,7 @@ class ExitsController extends CrudController
             $quantityNew = $request->quantity;
             $fk_inputs_id = $updateExits->fk_inputs_id;
 
-            $input = Inputs::where('id', $fk_inputs_id)->first();
+            $input = Inputs::where('id', $fk_inputs_id)->get();
 
             dd($input);
 
