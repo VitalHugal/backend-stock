@@ -574,7 +574,7 @@ class ExitsController extends CrudController
                         // $input->save();
                     }
                 }
-                dd($input->quantity_active === 0 && $exitsExpirationOneDiscardedZero);
+                // dd($input->quantity_active === 0 && $exitsExpirationOneDiscardedZero);
 
                 if ($exitsExpirationOneDiscardedZero) {
                     SystemLog::create([
