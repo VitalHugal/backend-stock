@@ -836,16 +836,18 @@ class ExitsController extends CrudController
                     $this->input_service->updateStatusInput($input);
                 }
             } elseif ((int)$quantityNew > (int)$quantityOld) {
+            
                 $removeDB = $quantityNew - $quantityOld;
+                
                 if ($quantityTotalProduct < $removeDB && $product->expiration_date == '0') {
                     return response()->json([
                         'success' => false,
                         'message' => 'Quantidade insuficiente em estoque. Temos apenas ' . $quantityTotalProduct . ' unidades disponíveis.',
                     ]);
                 }
-                
-                dd();
-                
+
+                $updateExits->update(['quantity' => $updateExits->quantity += $removeDB]);
+
                 if ($input->quantity_active < $removeDB && $product->expiration_date == '1') {
                     return response()->json([
                         'success' => false,
@@ -853,22 +855,22 @@ class ExitsController extends CrudController
                     ]);
                 }
 
-                $updateExits->update(['quantity' => $updateExits->quantity += $removeDB]);
-
                 if ($product->expiration_date == '1') {
                     $input->update(['quantity_active' => $input->quantity_active -= $removeDB]);
                 }
-
-                if ($product->expiration_date == '1' && $input->quantity_active == 0) {
-                    $status = 'Finalizado';
-                    $input->status = $status;
-                    $input->save();
-                }
-
-                if ($product->expiration_date == '1' && $input->quantity_active > 0) {
-                    $this->input_service->updateStatusInput($input);
-                }
             }
+
+
+            if ($product->expiration_date == '1' && $input->quantity_active == 0) {
+                $status = 'Finalizado';
+                $input->status = $status;
+                $input->save();
+            }
+
+            if ($product->expiration_date == '1' && $input->quantity_active > 0) {
+                $this->input_service->updateStatusInput($input);
+            }
+
 
             $updateExits->fill($validateData);
             $updateExits->save();
