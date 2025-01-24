@@ -171,6 +171,13 @@ class InputsController extends CrudController
                     ];
                 });
 
+                if ($inputs->isEmpty()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Nenhum resultado encontrado.',
+                    ]);
+                }
+
                 return response()->json([
                     'success' => true,
                     'message' => 'Entradas recuperadas com sucesso.',
@@ -310,7 +317,7 @@ class InputsController extends CrudController
 
             if ($inputsAdmin->isEmpty()) {
                 return response()->json([
-                    'success' => true,
+                    'success' => false,
                     'message' => 'Nenhum resultado encontrado.',
                 ]);
             }
