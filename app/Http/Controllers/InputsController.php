@@ -88,7 +88,7 @@ class InputsController extends CrudController
                         })
                         ->orderBy('created_at', 'desc')
                         ->paginate(10)
-                        ->appends($request->only(['product_id', 'input_id']));
+                        ->appends($request->only(['product_id', 'input_id', 'zero']));
                 }
 
                 $inputs->getCollection()->transform(function ($input) {
@@ -225,7 +225,7 @@ class InputsController extends CrudController
                     })
                     ->orderBy('created_at', 'desc')
                     ->paginate(10)
-                    ->appends($request->only(['product_id', 'input_id']));
+                    ->appends($request->only(['product_id', 'input_id', 'zero']));
             }
 
             $inputsAdmin->getCollection()->transform(function ($input) {
@@ -307,6 +307,13 @@ class InputsController extends CrudController
                         : $input->deleted_at ?? null,
                 ];
             });
+
+            if ($inputsAdmin->isEmpty()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Nenhum resultado encontrado.',
+                ]);
+            }
 
             return response()->json([
                 'success' => true,

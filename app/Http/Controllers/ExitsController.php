@@ -570,7 +570,7 @@ class ExitsController extends CrudController
                     }
                     
                     if ($input->quantity_active == '0' && $exitsExpirationOneDiscardedZero && $productEquipament->expiration_date == '1') {
-                        DB::table('inputs')->where('id', $request->fk_inputs_id)->update(['status' => 'Finalizado']);
+                        $input->status = 'Finalizado';
                         $input->save();
                     }
                 }
@@ -670,7 +670,7 @@ class ExitsController extends CrudController
                             $inputCorrect->save();
                         }
 
-                        if ($inputCorrect->quantity_active == 0 && $exitsDiscardedOne['discarded'] == 1) {
+                        if ($inputCorrect->quantity_active == 0 && $exitsDiscardedOne && $productEquipament->expiration_date == '1') {
                             $inputCorrect->status = 'Finalizado';
                             $inputCorrect->save();
                         }
