@@ -683,6 +683,24 @@ class ExitsController extends CrudController
                             'message' => 'Saída criada com sucesso.',
                             'data' => $exitsDiscardedOne
                         ]);
+                    } elseif ($productEquipament->expiration_date == '0' && $exitsDiscardedOne) {
+                        SystemLog::create([
+                            'fk_user_id' => $idUser,
+                            'action' => 'Adicionou',
+                            'table_name' => 'exits',
+                            'record_id' => $exitsDiscardedOne->id,
+                            'description' => 'Adicionou uma saída.',
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ]);
+
+                        DB::commit();
+
+                        return response()->json([
+                            'success' => true,
+                            'message' => 'Saída criada com sucesso.',
+                            'data' => $exitsDiscardedOne
+                        ]);
                     }
                 }
             }
@@ -719,24 +737,24 @@ class ExitsController extends CrudController
                     'message' => 'Você não tem permissão de acesso para seguir adiante.',
                 ]);
             }
-            
-            
+
+
             $updateExits = $this->exits->find($id);
-            
+
             if (!$updateExits) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Nenhuma saída encontrada.',
                 ]);
             }
-            
+
             $originalData = $updateExits->getOriginal();
-            
+
             $fk_product = $updateExits->fk_product_equipament_id;
             $quantityOld = $updateExits->quantity;
             $quantityNew = $request->quantity;
             $fk_inputs_id = $updateExits->fk_inputs_id;
-            
+
             if (!$fk_inputs_id == null) {
 
                 $input = Inputs::where('id', $fk_inputs_id)->first();
