@@ -786,8 +786,6 @@ class ExitsController extends CrudController
                 );
             }
 
-            // dd($updateExits->fk_inputs_id);
-
             if ($updateExits->fk_inputs_id != null) {
                 if ($request->fk_inputs_id != $updateExits->fk_inputs_id) {
                     return response()->json([
@@ -796,7 +794,6 @@ class ExitsController extends CrudController
                     ]);
                 }
             }
-            // dd('aqui');
 
             if ($fk_product != $request->fk_product_equipament_id) {
                 return response()->json([
@@ -812,40 +809,15 @@ class ExitsController extends CrudController
                 ]);
             }
 
-            // dd($input->quantity_active);
-
-            // if ($quantityTotalProduct <= 0 && $product->expiration_date == '0') {
-            //     return response()->json([
-            //         'success' => false,
-            //         'message' => 'Produto esgotado.',
-            //     ]);
-            // } elseif ($input->quantity_active <= 0 && $product->expiration_date == '1') {
-            //     return response()->json([
-            //         'success' => false,
-            //         'message' => 'Entrada referente a esse produto esta esgotada.',
-            //     ]);
-            // }
-
-            if ($quantityNew > $quantityOld) {
-                $result = ($quantityNew - $quantityOld);
-
-                if ($quantityTotalProduct < $result && $product->expiration_date == '0') {
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'Quantidade insuficiente em estoque. Temos apenas ' . $quantityTotalProduct . ' unidades disponíveis.',
-                    ]);
-                } elseif ($input->quantity_active < $result && $product->expiration_date == '1') {
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'Quantidade insuficiente em estoque. Temos apenas ' . $input->quantity_active . ' unidades disponíveis.',
-                    ]);
-                }
-            }
-
             if ((int)$quantityOld > (int)$quantityNew) {
-                $returnDB = $quantityOld - $quantityNew;
-                $updateExits->update(['quantity' => $updateExits->quantity + $returnDB]);
-                $input->update(['quantity_active' => $input->quantity_active + $returnDB]);
+                $returnDB = (int)$quantityOld - (int)$quantityNew;
+
+                $updateExits->update(['quantity' => $updateExits->quantity -= $returnDB]);
+
+                if ($product->expiration_date == '1') {
+
+                    $input->update(['quantity_active' => $input->quantity_active += $returnDB]);
+                }
 
                 if ($input->quantity_active > 0) {
                     $this->input_service->updateStatusInput($input);
@@ -853,7 +825,8 @@ class ExitsController extends CrudController
             } elseif ((int)$quantityNew > (int)$quantityOld) {
                 $removeDB = $quantityNew - $quantityOld;
 
-
+                // dd($input->quantity_active);
+                
                 if ($quantityTotalProduct < $removeDB && $product->expiration_date == '0') {
                     return response()->json([
                         'success' => false,
@@ -866,8 +839,11 @@ class ExitsController extends CrudController
                     ]);
                 }
 
-                $updateExits->update(['quantity' => $updateExits->quantity - $removeDB]);
-                $input->update(['quantity_active' => $input->quantity_active - $removeDB]);
+                $updateExits->update(['quantity' => $updateExits->quantity += $removeDB]);
+
+                if ($product->expiration_date == '1') {
+                    $input->update(['quantity_active' => $input->quantity_active -= $removeDB]);
+                }
 
                 if ($input->quantity_active == 0) {
                     $status = 'Finalizado';
