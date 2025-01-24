@@ -149,58 +149,58 @@ class ProductEquipamentController extends CrudController
                 }
 
                 // if ($request->has('expiration_date') && $request->input('expiration_date') == '1' || $request->input('expiration_date') == '0' || $request->input('expiration_date') == '' && $request->has('category') && $request->input('category') != '' && $request->has('active') && $request->input('active') == 'true') {
-                if (
-                    $request->has('expiration_date') &&
-                    in_array($request->input('expiration_date'), ['0', '1', ''], true) &&
-                    $request->has('category') &&
-                    !empty($request->input('category')) &&
-                    $request->has('active') &&
-                    $request->input('active') === 'true'
-                ) {
+                // if (
+                //     $request->has('expiration_date') &&
+                //     in_array($request->input('expiration_date'), ['0', '1', ''], true) &&
+                //     $request->has('category') &&
+                //     !empty($request->input('category')) &&
+                //     $request->has('active') &&
+                //     $request->input('active') === 'true'
+                // ) {
 
                     $productEquipamentUserSearch = ProductEquipament::with(['category' => function ($query) {
                         $query->whereNull('deleted_at');
                     }])
-                        // ->whereHas('category', function ($query) {
-                        //     $query->whereNull('deleted_at');
-                        // })
-                        // ->whereIn('fk_category_id', $categoryUser)
-                        // ->when($request->has('category'), function ($query) use ($request) {
-                        //     $query->where('fk_category_id', $request->input('category'));
-                        // })
-                        // ->when($request->has('expiration_date') && in_array($request->input('expiration_date'), ['0', '1']), function ($query) use ($request) {
-                        //     $query->where('expiration_date', $request->input('expiration_date'));
-                        // })
-                        // ->where('is_group', 0)
-                        // ->orderBy('fk_category_id', 'asc')
-                        // ->paginate(10)
-                        // ->appends($request->only(['category', 'active', 'expiration_date']));
-
                         ->whereHas('category', function ($query) {
                             $query->whereNull('deleted_at');
                         })
                         ->whereIn('fk_category_id', $categoryUser)
-                        ->when(
-                            $request->has('category') && !empty($request->input('category')),
-                            function ($query) use ($request) {
-                                $query->where('fk_category_id', $request->input('category'));
-                            }
-                        )
-                        ->when(
-                            $request->has('expiration_date') && in_array($request->input('expiration_date'), ['0', '1'], true),
-                            function ($query) use ($request) {
-                                $query->where('expiration_date', $request->input('expiration_date'));
-                            }
-                        )
-                        ->when(
-                            $request->has('active') && $request->input('active') === 'true',
-                            function ($query) {
-                                $query->where('is_group', 0);
-                            }
-                        )
+                        ->when($request->has('category'), function ($query) use ($request) {
+                            $query->where('fk_category_id', $request->input('category'));
+                        })
+                        ->when($request->has('expiration_date') && in_array($request->input('expiration_date'), ['0', '1']), function ($query) use ($request) {
+                            $query->where('expiration_date', $request->input('expiration_date'));
+                        })
+                        ->where('is_group', 0)
                         ->orderBy('fk_category_id', 'asc')
                         ->paginate(10)
                         ->appends($request->only(['category', 'active', 'expiration_date']));
+
+                        // ->whereHas('category', function ($query) {
+                        //     $query->whereNull('deleted_at');
+                        // })
+                        // ->whereIn('fk_category_id', $categoryUser)
+                        // ->when(
+                        //     $request->has('category') && !empty($request->input('category')),
+                        //     function ($query) use ($request) {
+                        //         $query->where('fk_category_id', $request->input('category'));
+                        //     }
+                        // )
+                        // ->when(
+                        //     $request->has('expiration_date') && in_array($request->input('expiration_date'), ['0', '1'], true),
+                        //     function ($query) use ($request) {
+                        //         $query->where('expiration_date', $request->input('expiration_date'));
+                        //     }
+                        // )
+                        // ->when(
+                        //     $request->has('active') && $request->input('active') === 'true',
+                        //     function ($query) {
+                        //         $query->where('is_group', 0);
+                        //     }
+                        // )
+                        // ->orderBy('fk_category_id', 'asc')
+                        // ->paginate(10)
+                        // ->appends($request->only(['category', 'active', 'expiration_date']));
 
 
                     if ($productEquipamentUserSearch->isEmpty()) {
