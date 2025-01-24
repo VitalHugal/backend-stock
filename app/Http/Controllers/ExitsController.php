@@ -788,6 +788,13 @@ class ExitsController extends CrudController
                 );
             }
 
+            if ($quantityTotalProduct <= 0) {
+                return response()->json([
+                   'success' => false,
+                   'message' => 'Produto esgotado.' 
+                ]);
+            }
+
             if ($updateExits->fk_inputs_id != null) {
                 if ($request->fk_inputs_id != $updateExits->fk_inputs_id) {
                     return response()->json([
