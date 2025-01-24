@@ -849,8 +849,8 @@ class ExitsController extends CrudController
                     ]);
                 }
                 
-                $updateExits->update(['quantity' => $updateExits->quantity += $removeDB]);
                 dd();
+                $updateExits->update(['quantity' => $updateExits->quantity += $removeDB]);
 
                 if ($product->expiration_date == '1') {
                     $input->update(['quantity_active' => $input->quantity_active -= $removeDB]);
