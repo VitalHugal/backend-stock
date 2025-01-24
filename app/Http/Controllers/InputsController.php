@@ -105,6 +105,10 @@ class InputsController extends CrudController
                             $status = 'Em alerta';
                         }
 
+                        if ($input->quantity_active == '0') {
+                            $status = 'Finalizado';
+                        }
+                        
                         $input->status = $status;
                         $input->save();
                     }
