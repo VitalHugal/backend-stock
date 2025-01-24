@@ -80,6 +80,12 @@ class InputsController extends CrudController
                         ->when($request->has('input_id') && ($request->input('input_id') != ''), function ($query) use ($request) {
                             $query->where('id', $request->input('input_id'));
                         })
+                        ->when($request->has('zero') && ($request->input('zero') == 'true'), function ($query) use ($request) {
+                            $query->where('quantity_active', 0);
+                        })
+                        ->when($request->has('zero') && ($request->input('zero') == 'false'), function ($query) use ($request) {
+                            $query->where('quantity_active', '>', '0');
+                        })
                         ->orderBy('created_at', 'desc')
                         ->paginate(10)
                         ->appends($request->only(['product_id', 'input_id']));
@@ -108,7 +114,7 @@ class InputsController extends CrudController
                         if ($input->quantity_active == '0') {
                             $status = 'Finalizado';
                         }
-                        
+
                         $input->status = $status;
                         $input->save();
                     }
@@ -211,6 +217,12 @@ class InputsController extends CrudController
                     ->when($request->has('input_id') && ($request->input('input_id') != ''), function ($query) use ($request) {
                         $query->where('id', $request->input('input_id'));
                     })
+                    ->when($request->has('zero') && ($request->input('zero') == 'true'), function ($query) use ($request) {
+                        $query->where('quantity_active', 0);
+                    })
+                    ->when($request->has('zero') && ($request->input('zero') == 'false'), function ($query) use ($request) {
+                        $query->where('quantity_active', '>', '0');
+                    })
                     ->orderBy('created_at', 'desc')
                     ->paginate(10)
                     ->appends($request->only(['product_id', 'input_id']));
@@ -235,7 +247,7 @@ class InputsController extends CrudController
                     } else {
                         $status = 'Em alerta';
                     }
-                    
+
                     if ($input->quantity_active == '0') {
                         $status = 'Finalizado';
                     }
