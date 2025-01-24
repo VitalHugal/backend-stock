@@ -562,7 +562,7 @@ class ExitsController extends CrudController
                     ]);
 
                     $input = $input->refresh();
-                    
+
                     if ($input->quantity_active >= $request->quantity) {
                         $input->quantity_active -= $request->quantity;
                         $input->save();
@@ -664,8 +664,12 @@ class ExitsController extends CrudController
                             'updated_at' => now(),
                         ]);
 
-                        $inputCorrect->quantity_active -= $request->quantity;
-                        $inputCorrect->save();
+                        $inputCorrect = $inputCorrect->refresh();
+
+                        if ($inputCorrect->quantity_active >= $request->quantity) {
+                            $inputCorrect->quantity_active -= $request->quantity;
+                            $inputCorrect->save();
+                        }
 
                         if ($inputCorrect->quantity_active == 0 && $exitsDiscardedOne['discarded'] == 1) {
                             $inputCorrect->status = 'Finalizado';
