@@ -591,7 +591,7 @@ class ExitsController extends CrudController
 
                     return response()->json([
                         'success' => true,
-                        'message' => 'Saída criada com sucesso.',
+                        'message' => 'Saída criada com sucesso 1.',
                         'data' => $exitsExpirationOneDiscardedZero
                     ]);
                 }
