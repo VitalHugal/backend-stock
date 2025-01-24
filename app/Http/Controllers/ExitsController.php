@@ -570,7 +570,7 @@ class ExitsController extends CrudController
                     }
                     $input = $input->refresh();
                     if ($input->quantity_active === 0 && $exitsExpirationOneDiscardedZero) {
-                        $input->update(['status' => 'Finalizado']);
+                        DB::table('inputs')->where('id', $request->fk_inputs_id)->update(['status' => 'Finalizado']);
                         // $input->save();
                     }
                 }
