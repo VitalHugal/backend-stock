@@ -568,8 +568,9 @@ class ExitsController extends CrudController
                         $input->quantity_active -= $request->quantity;
                         $input->save();
                     }
-
-                    if ($input->quantity_active === 0 && $request->discarded === 0) {
+                    $input = $input->refresh();
+                    
+                    if ($input->quantity_active === 0 && $exitsExpirationOneDiscardedZero) {
                         $input->status = 'Finalizado';
                         $input->save();
                     }
