@@ -856,13 +856,13 @@ class ExitsController extends CrudController
                     $input->update(['quantity_active' => $input->quantity_active -= $removeDB]);
                 }
 
-                if ($input->quantity_active == 0) {
+                if ($product->expiration_date == '1' && $input->quantity_active == 0) {
                     $status = 'Finalizado';
                     $input->status = $status;
                     $input->save();
                 }
 
-                if ($input->quantity_active > 0) {
+                if ($product->expiration_date == '1' && $input->quantity_active > 0) {
                     $this->input_service->updateStatusInput($input);
                 }
             }
