@@ -737,9 +737,9 @@ class ExitsController extends CrudController
             $fk_inputs_id = $updateExits->fk_inputs_id;
 
             if (!$fk_product != null) {
-                
+
                 $input = Inputs::where('id', $fk_inputs_id)->first();
-    
+
                 if (!$input) {
                     return response()->json([
                         'success' => false,
@@ -832,7 +832,7 @@ class ExitsController extends CrudController
                     $input->update(['quantity_active' => $input->quantity_active += $returnDB]);
                 }
 
-                if ($input->quantity_active > 0) {
+                if ($product->expiration_date == '1' && $input->quantity_active > 0) {
                     $this->input_service->updateStatusInput($input);
                 }
             } elseif ((int)$quantityNew > (int)$quantityOld) {
@@ -869,7 +869,6 @@ class ExitsController extends CrudController
 
             $updateExits->fill($validateData);
             $updateExits->save();
-
 
             // Verificando as mudanças e criando a string de log
             $changes = $updateExits->getChanges(); // Retorna apenas os campos que foram alterados
