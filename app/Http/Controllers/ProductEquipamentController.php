@@ -143,7 +143,7 @@ class ProductEquipamentController extends CrudController
 
                     return response()->json([
                         'success' => true,
-                        'message' => 'Produto(s)/Equipamento(s) pesquisado recuperados com sucesso.',
+                        'message' => 'Produto(s)/Equipamento(s) pesquisado recuperados com sucesso aqui.',
                         'data' => $productEquipamentUserSearch,
                     ]);
                 }
