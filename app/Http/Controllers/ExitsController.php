@@ -567,16 +567,13 @@ class ExitsController extends CrudController
                     if ($input->quantity_active >= $request->quantity) {
                         $input->quantity_active -= $request->quantity;
                         $input->save();
-
-                        if ($input->quantity_active === 0 && $exitsExpirationOneDiscardedZero) {
-                            DB::table('inputs')->where('id', $request->fk_inputs_id)->update(['status' => 'Finalizado']);
-                        }
                     }
-                    // if ($input->quantity_active === 0 && $exitsExpirationOneDiscardedZero) {
-                    //     // $input->save();
-                    // }
+                    
+                    if ($input->quantity_active === 0 && $exitsExpirationOneDiscardedZero && $product->expiration_date == '1') {
+                        DB::table('inputs')->where('id', $request->fk_inputs_id)->update(['status' => 'Finalizado']);
+                        $input->save();
+                    }
                 }
-                // dd($input->quantity_active === 0 && $exitsExpirationOneDiscardedZero);
 
                 if ($exitsExpirationOneDiscardedZero) {
                     SystemLog::create([
