@@ -738,12 +738,10 @@ class ExitsController extends CrudController
 
             $input = Inputs::where('id', $fk_inputs_id)->first();
 
-            // dd($input);
-
             if (!$input) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Nenhum entrada encontrado.',
+                    'message' => 'Nenhuma entrada encontrado.',
                 ]);
             }
 
@@ -771,17 +769,20 @@ class ExitsController extends CrudController
             if (($product->expiration_date == '1' && $request->discarded == '1') ||
                 ($product->expiration_date == '0' && $request->discarded == '1')
             ) {
-
+                dd('1');
                 $validateData = $request->validate(
                     $this->exits->rulesExitsDiscardedExpirationOne(),
                     $this->exits->feedbackExitsDiscardedOne()
                 );
             } elseif ($product->expiration_date == '1' && $request->discarded == '0') {
+
+                dd('1');
                 $validateData = $request->validate(
                     $this->exits->rulesExits(),
                     $this->exits->feedbackExits()
                 );
             } else {
+                dd('3');
                 $validateData = $request->validate(
                     $this->exits->rulesExitsExpirationDateZeroDiscardedZero(),
                     $this->exits->feedbackExitsExpirationDateZeroDiscardedZero()
@@ -790,8 +791,8 @@ class ExitsController extends CrudController
 
             if ($quantityTotalProduct <= 0) {
                 return response()->json([
-                   'success' => false,
-                   'message' => 'Produto esgotado.' 
+                    'success' => false,
+                    'message' => 'Produto esgotado.'
                 ]);
             }
 
