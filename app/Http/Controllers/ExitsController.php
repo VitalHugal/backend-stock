@@ -740,6 +740,8 @@ class ExitsController extends CrudController
 
                 $input = Inputs::where('id', $fk_inputs_id)->first();
 
+                dd($input);
+
                 if (!$input) {
                     return response()->json([
                         'success' => false,
