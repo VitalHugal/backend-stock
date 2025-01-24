@@ -155,17 +155,17 @@ class ProductEquipamentController extends CrudController
                         ->whereHas('category', function ($query) {
                             $query->whereNull('deleted_at');
                         })
-                        ->whereIn('fk_category_id', $categoryUser)
                         ->when($request->has('category'), function ($query) use ($request) {
                             $query->where('fk_category_id', $request->input('category'));
                         })
                         ->when($request->has('expiration_date') && in_array($request->input('expiration_date'), ['0', '1']), function ($query) use ($request) {
                             $query->where('expiration_date', $request->input('expiration_date'));
                         })
+                        ->whereIn('fk_category_id', $categoryUser)
                         ->where('is_group', 0)
                         ->orderBy('fk_category_id', 'asc')
                         ->paginate(10)
-                        ->appends($request->only(['category', 'expiration_date', 'active']));
+                        ->appends($request->only(['category', 'active', 'expiration_date']));
 
 
                     if ($productEquipamentUserSearch->isEmpty()) {
