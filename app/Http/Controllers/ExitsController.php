@@ -569,7 +569,7 @@ class ExitsController extends CrudController
                         $input->save();
                     }
                     
-                    if ($input->quantity_active === 0 && $exitsExpirationOneDiscardedZero && $product->expiration_date == '1') {
+                    if ($input->quantity_active === 0 && $exitsExpirationOneDiscardedZero && $productEquipament->expiration_date == '1') {
                         DB::table('inputs')->where('id', $request->fk_inputs_id)->update(['status' => 'Finalizado']);
                         $input->save();
                     }
