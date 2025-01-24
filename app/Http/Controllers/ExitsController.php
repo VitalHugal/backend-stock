@@ -839,19 +839,19 @@ class ExitsController extends CrudController
 
                 $removeDB = $quantityNew - $quantityOld;
 
-                if ($quantityTotalProduct < $removeDB && $product->expiration_date == '0') {
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'Quantidade insuficiente em estoque. Temos apenas ' . $quantityTotalProduct . ' unidades disponíveis.',
-                    ]);
+                if ($product->expiration_date == '0') {
+                    if ($quantityTotalProduct < $removeDB) {
+                        return response()->json([
+                            'success' => false,
+                            'message' => 'Quantidade insuficiente em estoque. Temos apenas ' . $quantityTotalProduct . ' unidades disponíveis.',
+                        ]);
+                    }
                 }
 
                 $updateExits->update(['quantity' => $updateExits->quantity += $removeDB]);
 
-                // dd($product->expiration_date == '1');
-                
                 if ($product->expiration_date == '1') {
-                    if ($input->quantity_active < $removeDB ) {
+                    if ($input->quantity_active < $removeDB) {
                         return response()->json([
                             'success' => false,
                             'message' => 'Quantidade insuficiente em estoque. Temos apenas ' . $input->quantity_active . ' unidades disponíveis.',
