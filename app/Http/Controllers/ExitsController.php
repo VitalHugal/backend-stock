@@ -737,7 +737,6 @@ class ExitsController extends CrudController
             $quantityNew = $request->quantity;
             $fk_inputs_id = $updateExits->fk_inputs_id;
             
-            // dd(!$fk_inputs_id != null);
             if (!$fk_inputs_id == null) {
 
                 $input = Inputs::where('id', $fk_inputs_id)->first();
@@ -759,8 +758,6 @@ class ExitsController extends CrudController
                 ]);
             }
 
-            // $productQuantityMin = $product->quantity_min;
-
             $quantityTotalInputs = Inputs::where('fk_product_equipament_id', $fk_product)->sum('quantity');
             $quantityTotalExits = Exits::where('fk_product_equipament_id', $fk_product)->sum('quantity');
             $quantityReserveNotFinished = Reservation::where('fk_product_equipament_id', $fk_product)
@@ -774,20 +771,17 @@ class ExitsController extends CrudController
             if (($product->expiration_date == '1' && $request->discarded == '1') ||
                 ($product->expiration_date == '0' && $request->discarded == '1')
             ) {
-                // dd('1');
                 $validateData = $request->validate(
                     $this->exits->rulesExitsDiscardedExpirationOne(),
                     $this->exits->feedbackExitsDiscardedOne()
                 );
             } elseif ($product->expiration_date == '1' && $request->discarded == '0') {
 
-                // dd('1');
                 $validateData = $request->validate(
                     $this->exits->rulesExits(),
                     $this->exits->feedbackExits()
                 );
             } else {
-                // dd('3');
                 $validateData = $request->validate(
                     $this->exits->rulesExitsExpirationDateZeroDiscardedZero(),
                     $this->exits->feedbackExitsExpirationDateZeroDiscardedZero()
