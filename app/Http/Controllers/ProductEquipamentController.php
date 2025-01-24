@@ -46,117 +46,7 @@ class ProductEquipamentController extends CrudController
 
             if ($user->level == 'user') {
 
-                // if ($request->has('active') && $request->input('active') != '' && $request->has('expiration_date') &&
-                // in_array($request->input('expiration_date'), ['0', '1'], true)) {
-
-                //     if ($request->input('active') == 'true') {
-                //         $productEquipamentUserSearch = ProductEquipament::with(['category' => function ($query) {
-                //             $query->whereNull('deleted_at');
-                //         }])
-                //             ->whereHas('category', function ($query) {
-                //                 $query->whereNull('deleted_at');
-                //             })
-
-                //             ->whereIn('fk_category_id', $categoryUser)
-                //             ->when($request->has('is_group') && in_array($request->input('is_group'), ['0', '1']), function ($query) use ($request) {
-                //                 $query->where('is_group', $request->input('is_group'));
-                //             })
-                //             ->when($request->has('name') && ($request->input('name') != ''), function ($query) use ($request) {
-                //                 $query->where('name', 'like', '%' . $request->input('name') . '%');
-                //             })
-                //             ->orderBy('fk_category_id', 'asc')
-                //             ->paginate(10)
-                //             ->appends(['name' => $request->input('name'), 'active' => $request->input('active')]);
-                //     }
-
-                //     if ($request->input('active') == 'false') {
-                //         $productEquipamentUserSearch = ProductEquipament::onlyTrashed(['category' => function ($query) {
-                //             $query->whereNull('deleted_at');
-                //         }])
-                //             ->whereHas('category', function ($query) {
-                //                 $query->whereNull('deleted_at');
-                //             })
-
-                //             ->whereIn('fk_category_id', $categoryUser)
-                //             ->when($request->has('is_group') && in_array($request->input('is_group'), ['0', '1']), function ($query) use ($request) {
-                //                 $query->where('is_group', $request->input('is_group'));
-                //             })
-                //             ->when($request->has('name') && ($request->input('name') != ''), function ($query) use ($request) {
-                //                 $query->where('name', 'like', '%' . $request->input('name') . '%');
-                //             })
-                //             ->orderBy('fk_category_id', 'asc')
-                //             ->paginate(10)
-                //             ->appends(['name' => $request->input('name'), 'active' => $request->input('active')]);
-                //     }
-
-                //     if ($productEquipamentUserSearch->isEmpty()) {
-                //         return response()->json([
-                //             'success' => false,
-                //             'message' => 'Nenhum produto encontrado com o nome informado.',
-                //         ]);
-                //     }
-
-                //     $productEquipamentUserSearch->getCollection()->transform(function ($product) {
-
-                //         $quantityTotalInputs = Inputs::where('fk_product_equipament_id', $product->id)->sum('quantity');
-                //         $quantityTotalExits = Exits::where('fk_product_equipament_id', $product->id)->sum('quantity');
-
-                //         $quantityReserveNotFinished = Reservation::where('fk_product_equipament_id', $product->id)
-                //             ->where('reservation_finished', false)
-                //             ->whereNull('date_finished')
-                //             ->whereNull('fk_user_id_finished')
-                //             ->sum('quantity');
-
-                //         $quantityTotalProduct = $quantityTotalInputs - ($quantityTotalExits + $quantityReserveNotFinished);
-
-                //         $componentsGroup = $product->is_group == 1
-                //             ? DB::table('product_groups')
-                //             ->where('group_product_id', $product->id)
-                //             ->join('products_equipaments', 'product_groups.component_product_id', '=', 'products_equipaments.id')
-                //             ->select('products_equipaments.id', 'products_equipaments.name')
-                //             ->get()
-                //             : [];
-
-                //         return [
-                //             'id' => $product->id,
-                //             'name-category' => $product->category && $product->category->trashed()
-                //                 ? $product->category->name . ' (Deletado)'
-                //                 : $product->category->name ?? null,
-
-                //             'name' => $product && $product->trashed()
-                //                 ? $product->name . ' (Deletado)'
-                //                 : $product->name ?? null,
-                //             'quantity_stock' => $quantityTotalProduct,
-                //             'expiration_date' => $product->expiration_date,
-                //             'observation' => $product->observation,
-                //             'components_group' => $componentsGroup,
-                //             'quantity_min' => $product->quantity_min,
-                //             'is_group' => $product->is_group,
-                //             'fk_category_id' => $product->fk_category_id,
-                //             'created_at' => $this->productEquipaments->getFormattedDate($product, 'created_at'),
-                //             'updated_at' => $this->productEquipaments->getFormattedDate($product, 'updated_at'),
-                //             'deleted_at' => $product && $product->trashed()
-                //                 ? $this->productEquipaments->getFormattedDate($product, 'deleted_at')
-                //                 : $product->deleted_at ?? null,
-                //         ];
-                //     });
-
-                //     return response()->json([
-                //         'success' => true,
-                //         'message' => 'Produto(s)/Equipamento(s) pesquisado recuperados com sucesso aqui.',
-                //         'data' => $productEquipamentUserSearch,
-                //     ]);
-                // }
-
                 if ($request->has('expiration_date') && $request->input('expiration_date') == '1' || $request->input('expiration_date') == '0' || $request->input('expiration_date') == '' && $request->has('category') && $request->input('category') != '' && $request->has('active') && $request->input('active') == 'true') {
-                // if (
-                //     $request->has('expiration_date') &&
-                //     in_array($request->input('expiration_date'), ['0', '1', ''], true) &&
-                //     $request->has('category') &&
-                //     !empty($request->input('category')) &&
-                //     $request->has('active') &&
-                //     $request->input('active') === 'true'
-                // ) {
 
                     $productEquipamentUserSearch = ProductEquipament::with(['category' => function ($query) {
                         $query->whereNull('deleted_at');
@@ -175,33 +65,6 @@ class ProductEquipamentController extends CrudController
                         ->orderBy('fk_category_id', 'asc')
                         ->paginate(10)
                         ->appends($request->only(['category', 'active', 'expiration_date']));
-
-                        // ->whereHas('category', function ($query) {
-                        //     $query->whereNull('deleted_at');
-                        // })
-                        // ->whereIn('fk_category_id', $categoryUser)
-                        // ->when(
-                        //     $request->has('category') && !empty($request->input('category')),
-                        //     function ($query) use ($request) {
-                        //         $query->where('fk_category_id', $request->input('category'));
-                        //     }
-                        // )
-                        // ->when(
-                        //     $request->has('expiration_date') && in_array($request->input('expiration_date'), ['0', '1'], true),
-                        //     function ($query) use ($request) {
-                        //         $query->where('expiration_date', $request->input('expiration_date'));
-                        //     }
-                        // )
-                        // ->when(
-                        //     $request->has('active') && $request->input('active') === 'true',
-                        //     function ($query) {
-                        //         $query->where('is_group', 0);
-                        //     }
-                        // )
-                        // ->orderBy('fk_category_id', 'asc')
-                        // ->paginate(10)
-                        // ->appends($request->only(['category', 'active', 'expiration_date']));
-
 
                     if ($productEquipamentUserSearch->isEmpty()) {
                         return response()->json([
@@ -261,8 +124,8 @@ class ProductEquipamentController extends CrudController
                         'data' => $productEquipamentUserSearch,
                     ]);
                 }
-                if ($request->has('active') && $request->input('active') != '' && $request->has('expiration_date') &&
-                in_array($request->input('expiration_date'), ['0', '1'], true)) {
+                
+                if ($request->has('active') && $request->input('active') != '') {
 
                     if ($request->input('active') == 'true') {
                         $productEquipamentUserSearch = ProductEquipament::with(['category' => function ($query) {
