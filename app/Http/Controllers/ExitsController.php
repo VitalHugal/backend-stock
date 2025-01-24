@@ -652,6 +652,8 @@ class ExitsController extends CrudController
                         'discarded' => $request->discarded,
                     ]);
 
+                    dd($exitsDiscardedOne);
+
                     if ($productEquipament->expiration_date == '1' && $exitsDiscardedOne) {
 
                         SystemLog::create([
