@@ -46,7 +46,8 @@ class ProductEquipamentController extends CrudController
 
             if ($user->level == 'user') {
 
-                if ($request->has('active') && $request->input('active') != '') {
+                if ($request->has('active') && $request->input('active') != '' && $request->has('expiration_date') &&
+                in_array($request->input('expiration_date'), ['0', '1'], true)) {
 
                     if ($request->input('active') == 'true') {
                         $productEquipamentUserSearch = ProductEquipament::with(['category' => function ($query) {
@@ -142,7 +143,7 @@ class ProductEquipamentController extends CrudController
 
                     return response()->json([
                         'success' => true,
-                        'message' => 'Produto(s)/Equipamento(s) pesquisado recuperados com sucesso aqui.',
+                        'message' => 'Produto(s)/Equipamento(s) pesquisado recuperados com sucesso.',
                         'data' => $productEquipamentUserSearch,
                     ]);
                 }
