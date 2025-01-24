@@ -563,7 +563,7 @@ class ExitsController extends CrudController
                     ]);
 
                     if ($input) {
-                        $input->quantity -= $request->quantity;
+                        $input->quantity_active -= $request->quantity;
                         $input->save();
                     }
                 }
