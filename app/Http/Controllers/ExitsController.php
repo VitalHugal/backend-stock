@@ -513,7 +513,7 @@ class ExitsController extends CrudController
             }
 
             if ($productEquipament->expiration_date == '1' && $request->discarded == '0') {
-                                
+
                 $validateData = $request->validate(
                     $this->exits->rulesExits(),
                     $this->exits->feedbackExits()
@@ -548,7 +548,7 @@ class ExitsController extends CrudController
 
                 $input = Inputs::where('id', $request->fk_inputs_id)->first();
 
-                dd($input->quantity_active - $request->quantity);
+                // dd($input->quantity_active - $request->quantity);
 
                 if ($validateData) {
                     $exitsExpirationOneDiscardedZero = Exits::create([
@@ -568,6 +568,12 @@ class ExitsController extends CrudController
                         $input->quantity_active -= $request->quantity;
                         $input->save();
                     }
+
+                    if ($input->quantity_active == '0' && $request->discarded == '0') {
+                        $status = 'Finalizado';
+                        $input->status = $status;
+                        $input->save();
+                    }
                 }
 
                 if ($exitsExpirationOneDiscardedZero) {
@@ -580,12 +586,6 @@ class ExitsController extends CrudController
                         'created_at' => now(),
                         'updated_at' => now(),
                     ]);
-
-                    if ($input->quantity_active == '0' && $exitsExpirationOneDiscardedZero['discarded'] == 0) {
-                        $status = 'Finalizado';
-                        $input->status = $status;
-                        $input->save();
-                    }
 
                     DB::commit();
 
