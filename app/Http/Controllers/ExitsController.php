@@ -794,7 +794,7 @@ class ExitsController extends CrudController
                 );
             }
 
-            if ($quantityTotalProduct <= 0) {
+            if ($quantityTotalProduct <= 0 && $quantityNew > $quantityOld) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Produto esgotado.'
