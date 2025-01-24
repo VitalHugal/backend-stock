@@ -148,7 +148,7 @@ class ProductEquipamentController extends CrudController
                     ]);
                 }
 
-                // if ($request->has('expiration_date') && $request->input('expiration_date') == '1' || $request->input('expiration_date') == '0' || $request->input('expiration_date') == '' && $request->has('category') && $request->input('category') != '' && $request->has('active') && $request->input('active') == 'true') {
+                if ($request->has('expiration_date') && $request->input('expiration_date') == '1' || $request->input('expiration_date') == '0' || $request->input('expiration_date') == '' && $request->has('category') && $request->input('category') != '' && $request->has('active') && $request->input('active') == 'true') {
                 // if (
                 //     $request->has('expiration_date') &&
                 //     in_array($request->input('expiration_date'), ['0', '1', ''], true) &&
@@ -763,7 +763,6 @@ class ProductEquipamentController extends CrudController
                         : $product->deleted_at ?? null,
                 ];
             });
-
             return response()->json([
                 'success' => true,
                 'message' => 'Produto(s)/Equipamento(s) recuperados com sucesso.',
