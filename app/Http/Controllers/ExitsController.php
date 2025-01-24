@@ -847,7 +847,7 @@ class ExitsController extends CrudController
                 }
 
                 $updateExits->update(['quantity' => $updateExits->quantity += $removeDB]);
-
+dd();
                 if ($input->quantity_active < $removeDB && $product->expiration_date == '1') {
                     return response()->json([
                         'success' => false,
