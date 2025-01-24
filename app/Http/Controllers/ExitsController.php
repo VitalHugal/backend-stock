@@ -548,6 +548,8 @@ class ExitsController extends CrudController
 
                 $input = Inputs::where('id', $request->fk_inputs_id)->first();
 
+                dd($input->quantity_active -= $request->quantity);
+                
                 if ($validateData) {
                     $exitsExpirationOneDiscardedZero = Exits::create([
                         'fk_product_equipament_id' => $request->fk_product_equipament_id,
@@ -803,19 +805,19 @@ class ExitsController extends CrudController
                 ]);
             }
 
-            dd($input->quantity_active);
+            // dd($input->quantity_active);
 
-            if ($quantityTotalProduct <= 0 && $product->expiration_date == '0') {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Produto esgotado.',
-                ]);
-            } elseif ($input->quantity_active <= 0 && $product->expiration_date == '1') {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Entrada referente a esse produto esta esgotada.',
-                ]);
-            }
+            // if ($quantityTotalProduct <= 0 && $product->expiration_date == '0') {
+            //     return response()->json([
+            //         'success' => false,
+            //         'message' => 'Produto esgotado.',
+            //     ]);
+            // } elseif ($input->quantity_active <= 0 && $product->expiration_date == '1') {
+            //     return response()->json([
+            //         'success' => false,
+            //         'message' => 'Entrada referente a esse produto esta esgotada.',
+            //     ]);
+            // }
 
             if ($quantityNew > $quantityOld) {
                 $result = ($quantityNew - $quantityOld);
