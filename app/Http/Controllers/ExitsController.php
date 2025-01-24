@@ -548,7 +548,6 @@ class ExitsController extends CrudController
 
                 $input = Inputs::where('id', $request->fk_inputs_id)->first();
 
-                // dd($input->quantity_active -= $request->quantity);
 
                 if ($validateData) {
                     $exitsExpirationOneDiscardedZero = Exits::create([
@@ -562,7 +561,9 @@ class ExitsController extends CrudController
                         'discarded' => $request->discarded,
                     ]);
 
-                    if ($input) {
+                    $input = $input->refresh();
+                    
+                    if ($input->quantity_active >= $request->quantity) {
                         $input->quantity_active -= $request->quantity;
                         $input->save();
                     }
