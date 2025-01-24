@@ -513,7 +513,7 @@ class ExitsController extends CrudController
             }
 
             if ($productEquipament->expiration_date == '1' && $request->discarded == '0') {
-dd('aqui');
+                                
                 $validateData = $request->validate(
                     $this->exits->rulesExits(),
                     $this->exits->feedbackExits()
@@ -547,6 +547,8 @@ dd('aqui');
                 }
 
                 $input = Inputs::where('id', $request->fk_inputs_id)->first();
+
+                dd($input->quantity_active - $request->quantity);
 
                 if ($validateData) {
                     $exitsExpirationOneDiscardedZero = Exits::create([
