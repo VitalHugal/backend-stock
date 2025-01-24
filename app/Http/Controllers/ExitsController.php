@@ -561,6 +561,20 @@ class ExitsController extends CrudController
                         'fk_inputs_id' => $request->fk_inputs_id,
                         'discarded' => $request->discarded,
                     ]);
+
+                    $input = $input->refresh();
+
+                    if ($input->quantity_active >= $request->quantity) {
+                        $input->quantity_active -= $request->quantity;
+                        $input->save();
+
+                        if ($input->quantity_active === 0 && $exitsExpirationOneDiscardedZero) {
+                            DB::table('inputs')->where('id', $request->fk_inputs_id)->update(['status' => 'Finalizado']);
+                        }
+                    }
+                    // if ($input->quantity_active === 0 && $exitsExpirationOneDiscardedZero) {
+                    //     // $input->save();
+                    // }
                 }
                 // dd($input->quantity_active === 0 && $exitsExpirationOneDiscardedZero);
 
@@ -574,17 +588,6 @@ class ExitsController extends CrudController
                         'created_at' => now(),
                         'updated_at' => now(),
                     ]);
-
-                    $input = $input->refresh();
-
-                    if ($input->quantity_active >= $request->quantity) {
-                        $input->quantity_active -= $request->quantity;
-                        $input->save();
-                    }
-                    if ($input->quantity_active === 0 && $exitsExpirationOneDiscardedZero) {
-                        DB::table('inputs')->where('id', $request->fk_inputs_id)->update(['status' => 'Finalizado']);
-                        // $input->save();
-                    }
 
                     DB::commit();
 
