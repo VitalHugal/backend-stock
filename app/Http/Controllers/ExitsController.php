@@ -719,6 +719,8 @@ class ExitsController extends CrudController
                     'message' => 'Você não tem permissão de acesso para seguir adiante.',
                 ]);
             }
+            
+            dd('$inputaqui');
 
             $updateExits = $this->exits->find($id);
 
@@ -740,7 +742,6 @@ class ExitsController extends CrudController
 
                 $input = Inputs::where('id', $fk_inputs_id)->first();
 
-                dd($input);
 
                 if (!$input) {
                     return response()->json([
