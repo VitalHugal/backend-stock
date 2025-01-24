@@ -772,20 +772,20 @@ class ExitsController extends CrudController
             if (($product->expiration_date == '1' && $request->discarded == '1') ||
                 ($product->expiration_date == '0' && $request->discarded == '1')
             ) {
-                dd('1');
+                // dd('1');
                 $validateData = $request->validate(
                     $this->exits->rulesExitsDiscardedExpirationOne(),
                     $this->exits->feedbackExitsDiscardedOne()
                 );
             } elseif ($product->expiration_date == '1' && $request->discarded == '0') {
 
-                dd('1');
+                // dd('1');
                 $validateData = $request->validate(
                     $this->exits->rulesExits(),
                     $this->exits->feedbackExits()
                 );
             } else {
-                dd('3');
+                // dd('3');
                 $validateData = $request->validate(
                     $this->exits->rulesExitsExpirationDateZeroDiscardedZero(),
                     $this->exits->feedbackExitsExpirationDateZeroDiscardedZero()
