@@ -821,7 +821,7 @@ class ExitsController extends CrudController
                     'message' => 'Não é permitido alterar o tipo de saída.',
                 ]);
             }
-dd();
+
             if ((int)$quantityOld > (int)$quantityNew) {
                 $returnDB = (int)$quantityOld - (int)$quantityNew;
 
@@ -837,7 +837,7 @@ dd();
                 }
             } elseif ((int)$quantityNew > (int)$quantityOld) {
                 $removeDB = $quantityNew - $quantityOld;
-
+                dd();
                 if ($quantityTotalProduct < $removeDB && $product->expiration_date == '0') {
                     return response()->json([
                         'success' => false,
