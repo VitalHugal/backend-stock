@@ -152,10 +152,10 @@ class ProductEquipamentController extends CrudController
                     $productEquipamentUserSearch = ProductEquipament::with(['category' => function ($query) {
                         $query->whereNull('deleted_at');
                     }])
-                        ->whereIn('fk_category_id', $categoryUser)
                         ->whereHas('category', function ($query) {
                             $query->whereNull('deleted_at');
                         })
+                        ->whereIn('fk_category_id', $categoryUser)
                         ->when($request->has('category'), function ($query) use ($request) {
                             $query->where('fk_category_id', $request->input('category'));
                         })
