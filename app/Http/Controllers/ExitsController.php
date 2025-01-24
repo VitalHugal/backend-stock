@@ -720,28 +720,27 @@ class ExitsController extends CrudController
                 ]);
             }
             
-            dd('$inputaqui');
-
+            
             $updateExits = $this->exits->find($id);
-
+            
             if (!$updateExits) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Nenhuma saída encontrada.',
                 ]);
             }
-
+            
             $originalData = $updateExits->getOriginal();
-
+            
             $fk_product = $updateExits->fk_product_equipament_id;
             $quantityOld = $updateExits->quantity;
             $quantityNew = $request->quantity;
             $fk_inputs_id = $updateExits->fk_inputs_id;
-
-            if (!$fk_product != null) {
+            
+            // dd(!$fk_inputs_id != null);
+            if (!$fk_inputs_id != null) {
 
                 $input = Inputs::where('id', $fk_inputs_id)->first();
-
 
                 if (!$input) {
                     return response()->json([
