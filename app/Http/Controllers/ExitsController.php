@@ -836,9 +836,9 @@ class ExitsController extends CrudController
                     $this->input_service->updateStatusInput($input);
                 }
             } elseif ((int)$quantityNew > (int)$quantityOld) {
-            
+
                 $removeDB = $quantityNew - $quantityOld;
-                
+
                 if ($quantityTotalProduct < $removeDB && $product->expiration_date == '0') {
                     return response()->json([
                         'success' => false,
@@ -847,7 +847,9 @@ class ExitsController extends CrudController
                 }
 
                 $updateExits->update(['quantity' => $updateExits->quantity += $removeDB]);
-dd();
+
+                dd($input->quantity_active < $removeDB && $product->expiration_date == '1');
+                
                 if ($input->quantity_active < $removeDB && $product->expiration_date == '1') {
                     return response()->json([
                         'success' => false,
