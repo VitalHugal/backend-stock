@@ -165,7 +165,7 @@ class ProductEquipamentController extends CrudController
                         ->where('is_group', 0)
                         ->orderBy('fk_category_id', 'asc')
                         ->paginate(10)
-                        ->appends(['category' => $request->input('category'), 'active' => $request->input('active')]);
+                        ->appends($request->only(['category', 'expiration_date', 'active']));
 
 
                     if ($productEquipamentUserSearch->isEmpty()) {
