@@ -715,8 +715,10 @@ class InputsController extends CrudController
                 ]);
             }
 
-            if ($request->quantity != $updateInput->quantity) {
+            if ($request->quantity != $updateInput->quantity && $product->expiration_date == '1') {
                 $updateInput->quantity_active = $request->quantity;
+            } elseif ($request->quantity != $updateInput->quantity) {
+                $updateInput->quantity = $request->quantity;
             }
 
             $updateInput->fill($validatedData);
