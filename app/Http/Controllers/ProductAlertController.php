@@ -244,7 +244,7 @@ class ProductAlertController extends CrudController
                     ['path' => request()->url(), 'query' => request()->query()]
                 );
 
-                dd($paginatedAdmin);
+                // dd($paginatedAdmin);
                 
                 return response()->json([
                     'success' => true,
