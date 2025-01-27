@@ -679,7 +679,7 @@ class InputsController extends CrudController
 
             $sum = Exits::where('fk_inputs_id', $id)->where('fk_product_equipament_id', $updateInput->fk_product_equipament_id)->sum('quantity');
 
-            // dd('realizar validação do updateInput que não pode ser um valor maior que a quantidade que já saiu.');
+            dd($sum);
 
             if ($request->quantity < $sum) {
                 return response()->json([
