@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Exits;
 use App\Models\Inputs;
 use App\Models\ProductEquipament;
+use App\Models\Reservation;
 use App\Models\SystemLog;
 use App\Services\InputService;
 use Exception;
@@ -687,20 +688,21 @@ class InputsController extends CrudController
                 );
             }
 
-            // if ($product->expiration_date == 1) {
-                $sumExists = Exits::where('id', $id)->sum('quantity');
-            // }else {
-                
-            // }
+            $totalExits = Exits::where('fk_product_equipament_id', $updateInput->fk_product_equipament_id)->sum('quantity');
+            $totalReservation = Reservation::where('fk_product_equipament_id', $updateInput->fk_product_equipament_id)
+                ->where('reservation_finished', false)
+                ->whereNull('date_finished')
+                ->whereNull('fk_user_id_finished')
+                ->sum('quantity');
 
-            dd($sumExists);
+            $totalExitsWithReservation = $totalExits + $totalReservation;
 
-            // if ($request->quantity < $sum) {
-            //     return response()->json([
-            //         'success' => false,
-            //         'message' => 'Não é possível alterar entrada para esse valor.',
-            //     ]);
-            // }
+            if ($request->quantity < $updateInput->quantity && $totalExitsWithReservation > 1) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Não é possível atualizar essa entrada'
+                ]);
+            }
 
             if ($request->quantity != $updateInput->quantity) {
                 $updateInput->quantity_active = $request->quantity;
