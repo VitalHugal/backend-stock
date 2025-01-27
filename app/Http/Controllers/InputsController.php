@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Exits;
 use App\Models\Inputs;
+use App\Models\ProductEquipament;
 use App\Models\SystemLog;
 use App\Services\InputService;
 use Exception;
@@ -655,6 +656,15 @@ class InputsController extends CrudController
                 ]);
             }
 
+            $product = ProductEquipament::where('id', $updateInput->fk_product_equipament_id)->first();
+
+            if (!$product) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Nenhuma produto encontrado encontrado.',
+                ]);
+            }
+
             $originalData = $updateInput->getOriginal();
 
             if (empty($request->date_of_manufacture) && empty($request->expiration_date)) {
@@ -677,16 +687,20 @@ class InputsController extends CrudController
                 );
             }
 
-            $quantityTotalExits = Exits::where('fk_inputs_id', $id)->sum('quantity');
+            // if ($product->expiration_date == 1) {
+                $sumExists = Exits::where('id', $id)->sum('quantity');
+            // }else {
+                
+            // }
 
-            dd($quantityTotalExits);
+            dd($sumExists);
 
-            if ($request->quantity < $sum) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Não é possível alterar entrada para esse valor.',
-                ]);
-            }
+            // if ($request->quantity < $sum) {
+            //     return response()->json([
+            //         'success' => false,
+            //         'message' => 'Não é possível alterar entrada para esse valor.',
+            //     ]);
+            // }
 
             if ($request->quantity != $updateInput->quantity) {
                 $updateInput->quantity_active = $request->quantity;
