@@ -677,9 +677,9 @@ class InputsController extends CrudController
                 );
             }
 
-            $sum = Exits::where('fk_inputs_id', $id)->sum('quantity');
+            $quantityTotalExits = Exits::where('fk_inputs_id', $id)->sum('quantity');
 
-            dd($sum);
+            dd($quantityTotalExits);
 
             if ($request->quantity < $sum) {
                 return response()->json([
