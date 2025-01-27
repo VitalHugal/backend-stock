@@ -677,7 +677,7 @@ class InputsController extends CrudController
                 );
             }
 
-            $sum = Exits::where('fk_inputs_id', $id)->where('fk_product_equipament_id', $updateInput->fk_product_equipament_id)->sum('quantity');
+            $sum = Exits::where('fk_inputs_id', $id)->sum('quantity');
 
             dd($sum);
 
