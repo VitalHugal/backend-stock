@@ -697,12 +697,21 @@ class InputsController extends CrudController
 
             $totalExitsWithReservation = $totalExits + $totalReservation;
 
-            dd($totalExitsWithReservation);
+            $minAccepted = $updateInput->quantity - $totalExitsWithReservation;
+
+            if ($minAccepted > 0) {
+                # code...
+            } else {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Não é possível atualizar essa entrada'
+                ]);
+            }
 
             if ($request->quantity < $updateInput->quantity && $totalExitsWithReservation > 1) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Não é possível atualizar essa entrada'
+                    'message' => 'Valor mínimo esperado para essa entrada é de ' . $minAccepted . ' .',
                 ]);
             }
 
