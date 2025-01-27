@@ -708,7 +708,7 @@ class InputsController extends CrudController
                     } else {
                         return response()->json([
                             'success' => false,
-                            'message' => 'Erro.',
+                            'message' => 'Quantidade mínima esperada é :' .$min. ' .',
                         ]);
                     }
                 }
