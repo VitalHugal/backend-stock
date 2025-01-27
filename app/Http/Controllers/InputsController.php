@@ -708,7 +708,14 @@ class InputsController extends CrudController
                 ]);
             }
 
-            if ($request->quantity < $updateInput->quantity && $totalExitsWithReservation > 1) {
+            // if ($request->quantity < $updateInput->quantity && $totalExitsWithReservation > 1) {
+            //     return response()->json([
+            //         'success' => false,
+            //         'message' => 'Valor mínimo esperado para essa entrada é de ' . $minAccepted . ' .',
+            //     ]);
+            // }
+
+            if ($request->quantity < $minAccepted) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Valor mínimo esperado para essa entrada é de ' . $minAccepted . ' .',
@@ -716,8 +723,10 @@ class InputsController extends CrudController
             }
 
             if ($request->quantity != $updateInput->quantity && $product->expiration_date == '1') {
+                
                 $updateInput->quantity_active = $request->quantity;
             } elseif ($request->quantity != $updateInput->quantity) {
+                
                 $updateInput->quantity = $request->quantity;
             }
 
