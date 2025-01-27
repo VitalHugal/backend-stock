@@ -237,7 +237,7 @@ class ProductAlertController extends CrudController
                 $page = request()->get('page', 1); // Página atual
                 $perPage = 10; // Itens por página
                 $paginatedAdmin = new LengthAwarePaginator(
-                    $filteredCollectionAdmin->forPage($page, $perPage), // Itens da página atual
+                    $filteredCollectionAdmin->forPage($page, $perPage)->values(), // Itens da página atual
                     $filteredCollectionAdmin->count(), // Total de itens após filtro
                     $perPage, // Itens por página
                     $page, // Página atual
