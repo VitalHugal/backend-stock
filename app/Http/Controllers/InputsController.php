@@ -697,32 +697,18 @@ class InputsController extends CrudController
 
             $totalExitsWithReservation = $totalExits + $totalReservation;
 
-            $minAccepted = $updateInput->quantity - $totalExitsWithReservation;
-
-            if ($request->quantity < $updateInput->quantity) {
-                # code...
-                if ($minAccepted > 0) {
-                    
-                } else {
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'Não é possível atualizar essa entrada'
-                    ]);
-                }
-                
-                if ($request->quantity < $minAccepted) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'Valor mínimo esperado para essa entrada é de ' . $minAccepted . ' .',
-                    ]);
-                }
+            if ($request->quantity > $updateInput->quantity) {
+            
+            }else {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Erro.',
+                ]);
             }
-                
+
             if ($request->quantity != $updateInput->quantity && $product->expiration_date == '1') {
-                
                 $updateInput->quantity_active = $request->quantity;
             } elseif ($request->quantity != $updateInput->quantity) {
-                
                 $updateInput->quantity = $request->quantity;
             }
 
