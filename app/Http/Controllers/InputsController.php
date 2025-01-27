@@ -697,6 +697,8 @@ class InputsController extends CrudController
 
             $totalExitsWithReservation = $totalExits + $totalReservation;
 
+            dd($totalExitsWithReservation);
+
             if ($request->quantity < $updateInput->quantity && $totalExitsWithReservation > 1) {
                 return response()->json([
                     'success' => false,
