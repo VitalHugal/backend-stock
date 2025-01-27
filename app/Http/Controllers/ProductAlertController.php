@@ -241,10 +241,11 @@ class ProductAlertController extends CrudController
                     $filteredCollectionAdmin->count(), // Total de itens após filtro
                     $perPage, // Itens por página
                     $page, // Página atual
-                    ['path' => request()->url(), 'query' => request()->query()] // Mantém a URL e query string
+                    ['path' => request()->url(), 'query' => request()->query()]
                 );
 
-                // Retorna a resposta com a coleção paginada
+                dd($paginatedAdmin);
+                
                 return response()->json([
                     'success' => true,
                     'message' => 'Produto(s)/Equipamento(s) em alerta recuperado com sucesso.',
