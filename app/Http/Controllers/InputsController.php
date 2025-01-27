@@ -697,21 +697,31 @@ class InputsController extends CrudController
 
             $totalExitsWithReservation = $totalExits + $totalReservation;
 
+            // Quantidade mínima esperada após considerar as saídas e reservas
             $min = $updateInput->quantity - $totalExitsWithReservation;
 
+            // Condição 1: Verifica se a quantidade requisitada excede o estoque disponível
             if ($request->quantity > $updateInput->quantity) {
-            } else {
-                if ($totalExitsWithReservation <= $updateInput->quantity) {
-                } else {
-                    if ($request->quantity < $min) {
-                        # code...
-                    } else {
-                        return response()->json([
-                            'success' => false,
-                            'message' => 'Quantidade mínima esperada é :' .$min. ' .',
-                        ]);
-                    }
-                }
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Quantidade requisitada excede o estoque disponível.',
+                ]);
+            }
+
+            // Condição 2: Verifica se o estoque atual suporta as saídas e reservas
+            if ($totalExitsWithReservation > $updateInput->quantity) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'O estoque não é suficiente para cobrir saídas e reservas pendentes.',
+                ]);
+            }
+
+            // Condição 3: Verifica se a quantidade requisitada está abaixo do mínimo permitido
+            if ($request->quantity < $min) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Quantidade mínima esperada é: ' . $min . '.',
+                ]);
             }
 
             if ($request->quantity != $updateInput->quantity && $product->expiration_date == '1') {
