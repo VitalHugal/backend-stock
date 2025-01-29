@@ -697,10 +697,9 @@ class InputsController extends CrudController
 
             $totalExitsWithReservation = $totalExits + $totalReservation;
 
-            // Quantidade mínima necessária para atender às saídas e reservas
             $min = $totalExitsWithReservation;
 
-            // Condição 1: Verifica se a nova entrada é menor que o necessário
+            // verifica se a nova entrada é menor que o necessário
             if ($request->quantity < $min) {
                 return response()->json([
                     'success' => false,

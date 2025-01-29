@@ -86,8 +86,6 @@ class ReservationController extends CrudController
 
                     if ($reservation->return_date < now() && (int)$reservation->reservation_finished === 0) {
                         $status = 'Delayed';
-                        // Reservation::where('id', $reservation->id)->update(['status' => $status]);
-
                         $reservation->status = $status;
                         $reservation->save();
                     }
@@ -181,9 +179,6 @@ class ReservationController extends CrudController
 
                     if ($reservation->return_date < now() && (int)$reservation->reservation_finished === 0) {
                         $status = 'Delayed';
-
-                        // Reservation::where('id', $reservation->id)->update(['status' => $status]);
-
                         $reservation->status = $status;
                         $reservation->save();
                     }
